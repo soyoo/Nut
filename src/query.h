@@ -219,10 +219,11 @@ Q_OUTOFLINE_TEMPLATE QList<F> Query<T>::select(const FieldPhrase<F> f)
     d->sql = d->database->sqlGenertor()->selectCommand(
         SqlGeneratorBase::SignleField, f.data()->text, d->wheres,
         d->orderPhrases, d->tableName, d->joinClassName);
+
     QSqlQuery q = d->database->exec(d->sql);
 
     while (q.next()) {
-        QVariant v = q.value(f.data()->text);
+        QVariant v = q.value(0);
         ret.append(v.value<F>());
     }
 
