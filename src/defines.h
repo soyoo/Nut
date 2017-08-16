@@ -35,9 +35,11 @@
 
 
 #ifdef NUT_NAMESPACE
+//TODO: remove unused macro
 #   define __NUT_NAMESPACE_PERFIX NUT_NAMESPACE::
 #   define NUT_WRAP_NAMESPACE(x) NUT_NAMESPACE::x
 #else
+//TODO: remove unused macro
 #   define __NUT_NAMESPACE_PERFIX
 #   define NUT_WRAP_NAMESPACE(x) x
 #endif
@@ -113,8 +115,8 @@ public:                                                                     \
 #   define FROM(x)          (x->query())
 #   define WHERE(x)         ->setWhere(x)
 #   define JOIN(x)          ->join(#x)
-#   define ORDERBY(x)       ->orderBy(#x, "ASC");
-#   define ORDERBY_DESC(x)  ->orderBy(#x, "DESC");
+#   define ORDERBY(x)       ->orderBy(#x);
+#   define ORDERBY_DESC(x)  ->orderBy(!#x);
 
 #   define SELECT()         ->toList()
 #   define COUNT()          ->count()

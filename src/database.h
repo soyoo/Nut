@@ -86,6 +86,7 @@ public slots:
     void setDriver(QString driver);
 
 private:
+    //TODO: move me to database_p.h
     QSet<TableSetBase *> tableSets;
 };
 
