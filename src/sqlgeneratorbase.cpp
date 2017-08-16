@@ -188,6 +188,8 @@ QString SqlGeneratorBase::insertRecord(Table *t, QString tableName)
               .arg(changedPropertiesText)
               .arg(values.join(", "));
 
+    replaceTableNames(sql);
+
     return sql;
 }
 
@@ -207,15 +209,19 @@ QString SqlGeneratorBase::updateRecord(Table *t, QString tableName)
               .arg(key)
               .arg(t->primaryValue().toString());
 
+    replaceTableNames(sql);
+
     return sql;
 }
 
 QString SqlGeneratorBase::deleteRecord(Table *t, QString tableName)
 {
-    return QString("DELETE FROM %1 WHERE %2='%3'")
+    QString sql = QString("DELETE FROM %1 WHERE %2='%3'")
         .arg(tableName)
         .arg(t->primaryKey())
         .arg(t->primaryValue().toString());
+    replaceTableNames(sql);
+    return sql;
 }
 
 QString SqlGeneratorBase::agregateText(const AgregateType &t,
