@@ -81,7 +81,8 @@ public:
                                   QList<WherePhrase> &wheres,
                                   QList<WherePhrase> &orders,
                                   QString tableName,
-                                  QString joinClassName);
+                                  QString joinClassName,
+                                  int skip = -1, int take = -1);
 
     virtual QString deleteCommand(QList<WherePhrase> &wheres, QString tableName);
 

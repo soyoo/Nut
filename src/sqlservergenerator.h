@@ -30,13 +30,18 @@ class SqlServerGenerator : public SqlGeneratorBase
 {
 public:
     SqlServerGenerator(Database *parent = 0);
-    
+
     QString masterDatabaseName(QString databaseName);
 
     QString fieldType(FieldModel *field);
     QString diff(FieldModel *oldField, FieldModel *newField);
 
     QString escapeValue(const QVariant &v) const;
+
+    QString selectCommand(AgregateType t, QString agregateArg,
+                          QList<WherePhrase> &wheres,
+                          QList<WherePhrase> &orders, QString tableName,
+                          QString joinClassName, int skip, int take);
 };
 
 NUT_END_NAMESPACE

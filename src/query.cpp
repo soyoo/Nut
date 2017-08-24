@@ -23,7 +23,7 @@
 NUT_BEGIN_NAMESPACE
 
 QueryPrivate::QueryPrivate(QueryBase *parent) : q_ptr(parent),
-     joinClassName(QString::null)
+     joinClassName(QString::null), skip(-1), take(-1)
 {
 
 }

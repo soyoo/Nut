@@ -131,10 +131,10 @@ bool DatabasePrivate::updateDatabase()
             qWarning("Error executing sql command, %s",
                      db.lastError().text().toLatin1().data());
     }
+    storeScheemaInDB();
     bool ok = db.commit();
 
     if (db.lastError().type() == QSqlError::NoError) {
-        storeScheemaInDB();
 
         q->databaseUpdated(last.versionMajor(), last.versionMinor(),
                            current.versionMajor(), current.versionMinor());

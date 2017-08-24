@@ -27,14 +27,17 @@
 
 NUT_BEGIN_NAMESPACE
 
-SqlServerGenerator::SqlServerGenerator(Database *parent) : SqlGeneratorBase(parent)
+SqlServerGenerator::SqlServerGenerator(Database *parent)
+    : SqlGeneratorBase(parent)
 {
-
 }
 
 QString SqlServerGenerator::masterDatabaseName(QString databaseName)
 {
-    return databaseName.replace(QRegularExpression("DATABASE\\=(\\w+)", QRegularExpression::CaseInsensitiveOption), "DATABASE=");
+    return databaseName.replace(
+        QRegularExpression("DATABASE\\=(\\w+)",
+                           QRegularExpression::CaseInsensitiveOption),
+        "DATABASE=");
 }
 
 QString SqlServerGenerator::fieldType(FieldModel *field)
@@ -48,7 +51,7 @@ QString SqlServerGenerator::fieldType(FieldModel *field)
     case QVariant::ByteArray:
         dbType = "VARBINARY";
 
-        if(field->length)
+        if (field->length)
             dbType.append(" (" + QString::number(field->length) + ")");
         else
             dbType.append(" (MAX)");
@@ -67,7 +70,7 @@ QString SqlServerGenerator::fieldType(FieldModel *field)
         break;
     case QVariant::Int:
         dbType = "INT";
-        if(field->isAutoIncrement)
+        if (field->isAutoIncrement)
             dbType += " IDENTITY(1,1)";
         break;
 
@@ -77,7 +80,7 @@ QString SqlServerGenerator::fieldType(FieldModel *field)
         break;
 
     case QVariant::String:
-        if(field->length)
+        if (field->length)
             dbType = QString("NVARCHAR(%1)").arg(field->length);
         else
             dbType = "NVARCHAR(MAX)";
@@ -97,14 +100,14 @@ QString SqlServerGenerator::fieldType(FieldModel *field)
 QString SqlServerGenerator::diff(FieldModel *oldField, FieldModel *newField)
 {
     QString sql = "";
-    if(oldField && newField)
-        if(*oldField == *newField)
+    if (oldField && newField)
+        if (*oldField == *newField)
             return QString::null;
 
-    if(!newField){
+    if (!newField) {
         sql = "DROP COLUMN " + oldField->name;
-    }else{
-        if(oldField)
+    } else {
+        if (oldField)
             sql = "MODIFY COLUMN ";
         else
             sql = "ADD ";
@@ -116,16 +119,32 @@ QString SqlServerGenerator::diff(FieldModel *oldField, FieldModel *newField)
 
 QString SqlServerGenerator::escapeValue(const QVariant &v) const
 {
-    if(v.type() == QVariant::String || v.type() == QVariant::Char)
+    if (v.type() == QVariant::String || v.type() == QVariant::Char)
         return "N'" + v.toString() + "'";
     else if (v.type() == QVariant::Point) {
         QPoint pt = v.toPoint();
-        return QString("geography::POINT(%1, %2, 4326)").arg(pt.x()).arg(pt.y());
+        return QString("geography::POINT(%1, %2, 4326)").arg(pt.x()).arg(
+            pt.y());
     } else if (v.type() == QVariant::Point) {
         QPointF pt = v.toPointF();
-        return QString("geography::POINT(%1, %2, 4326)").arg(pt.x()).arg(pt.y());
+        return QString("geography::POINT(%1, %2, 4326)").arg(pt.x()).arg(
+            pt.y());
     }
-        return SqlGeneratorBase::escapeValue(v);
+    return SqlGeneratorBase::escapeValue(v);
+}
+
+QString SqlServerGenerator::selectCommand(
+    SqlGeneratorBase::AgregateType t, QString agregateArg,
+    QList<WherePhrase> &wheres, QList<WherePhrase> &orders, QString tableName,
+    QString joinClassName, int skip, int take)
+{
+    QString command = SqlGeneratorBase::selectCommand(t, agregateArg, wheres, orders, tableName, joinClassName, skip, take);
+
+    if (take != -1 && skip != -1)
+        command.append(QString("OFFSET 10 ROWS FETCH NEXT 10 ROWS ONLY")
+                       .arg(skip)
+                       .arg(take));
+    return command;
 }
 
 NUT_END_NAMESPACE

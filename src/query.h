@@ -61,6 +61,8 @@ public:
     }
 
 //    Query<T> *orderBy(QString fieldName, QString type);
+    Query<T> *skip(int &n);
+    Query<T> *take(int &n);
     Query<T> *orderBy(WherePhrase phrase);
 
     int count();
@@ -81,6 +83,7 @@ public:
 template <typename T>
 inline Query<T> *createQuery(TableSet<T> *tableSet)
 {
+    return tableSet->query();
 }
 
 template <class T>
@@ -120,7 +123,7 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
     //    d->orders, d->tableName, d->joinClassName));
     d->sql = d->database->sqlGenertor()->selectCommand(
         SqlGeneratorBase::SelectAll, "", d->wheres, d->orderPhrases,
-        d->tableName, d->joinClassName);
+        d->tableName, d->joinClassName, d->skip, d->take);
     QSqlQuery q = d->database->exec(d->sql);
 
     //    QString pk = TableModel::findByName(d->tableName)->primaryKey();
@@ -218,7 +221,7 @@ Q_OUTOFLINE_TEMPLATE QList<F> Query<T>::select(const FieldPhrase<F> f)
     QList<F> ret;
     d->sql = d->database->sqlGenertor()->selectCommand(
         SqlGeneratorBase::SignleField, f.data()->text, d->wheres,
-        d->orderPhrases, d->tableName, d->joinClassName);
+        d->orderPhrases, d->tableName, d->joinClassName, d->skip, d->take);
 
     QSqlQuery q = d->database->exec(d->sql);
 
@@ -316,6 +319,22 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::setWhere(WherePhrase where)
 {
     Q_D(Query);
     d->wheres.append(where);
+    return this;
+}
+
+template<class T>
+Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::skip(int &n)
+{
+    Q_D(Query);
+    d->skip = n;
+    return this;
+}
+
+template<class T>
+Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::take(int &n)
+{
+    Q_D(Query);
+    d->take = n;
     return this;
 }
 

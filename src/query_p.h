@@ -49,6 +49,8 @@ public:
     QList<WherePhrase> wheres;
     QList<WherePhrase> orderPhrases;
     QHash<QString, QString> orders;
+    int skip;
+    int take;
 };
 
 NUT_END_NAMESPACE

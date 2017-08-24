@@ -65,8 +65,7 @@ QString SqlGeneratorBase::saveRecord(Table *t, QString tableName)
 
     case Table::NewCreated:
     case Table::FeatchedFromDB:
-        // disable compiler warning
-        return "";
+        Q_UNREACHABLE();
     }
 
     return "";
@@ -308,7 +307,7 @@ QString SqlGeneratorBase::selectCommand(SqlGeneratorBase::AgregateType t,
                                         QList<WherePhrase> &wheres,
                                         QList<WherePhrase> &orders,
                                         QString tableName,
-                                        QString joinClassName)
+                                        QString joinClassName, int skip, int take)
 {
     QString select = agregateText(t, agregateArg);
     QString where = createWhere(wheres);
