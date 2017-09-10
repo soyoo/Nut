@@ -35,7 +35,7 @@ TableSetBase::TableSetBase(Table *parent) : QObject(parent), _database(0), _tabl
     parent->add(this);
 }
 
-int TableSetBase::save(Database *db)
+int TableSetBase::save(Database *db, bool cleanUp)
 {
     int rowsAffected = 0;
     foreach (Table *t, _tablesList) {
@@ -46,8 +46,14 @@ int TableSetBase::save(Database *db)
                 || t->status() == Table::Modified
                 || t->status() == Table::Deleted){
             rowsAffected += t->save(db);
+
+            if(cleanUp)
+                t->deleteLater();
         }
     }
+
+    if (cleanUp)
+        _tablesList.clear();
 
     return rowsAffected;
 }
@@ -55,7 +61,8 @@ int TableSetBase::save(Database *db)
 void TableSetBase::clearChilds()
 {
     foreach (Table *t, _tablesList)
-        delete t;
+        t->deleteLater();
+    _tablesList.clear();
 }
 
 void TableSetBase::add(Table *t)

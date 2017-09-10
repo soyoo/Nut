@@ -305,16 +305,12 @@ void DatabasePrivate::createChangeLogs()
 Database::Database(QObject *parent)
     : QObject(parent), d_ptr(new DatabasePrivate(this))
 {
-    Q_D(Database);
-    // d->changeLogs->sett
     DatabasePrivate::lastId++;
 }
 
 Database::Database(const Database &other, QObject *parent)
     : QObject(parent), d_ptr(new DatabasePrivate(this))
 {
-    Q_D(Database);
-
     DatabasePrivate::lastId++;
 
     setDriver(other.driver());
@@ -392,7 +388,6 @@ DatabaseModel Database::model() const
 
 QString Database::tableName(QString className)
 {
-    Q_D(Database);
     TableModel *m = model().tableByClassName(className);
     if (m)
         return m->name();
@@ -514,20 +509,23 @@ QSqlQuery Database::exec(QString sql)
 
 void Database::add(TableSetBase *t)
 {
-    tableSets.insert(t);
+    Q_D(Database);
+    d->tableSets.insert(t);
 }
 
-int Database::saveChanges()
+int Database::saveChanges(bool cleanUp)
 {
+    Q_D(Database);
     int rowsAffected = 0;
-    foreach (TableSetBase *ts, tableSets)
-        rowsAffected += ts->save(this);
+    foreach (TableSetBase *ts, d->tableSets)
+        rowsAffected += ts->save(this, cleanUp);
     return rowsAffected;
 }
 
 void Database::cleanUp()
 {
-    foreach (TableSetBase *ts, tableSets)
+    Q_D(Database);
+    foreach (TableSetBase *ts, d->tableSets)
         ts->clearChilds();
 }
 

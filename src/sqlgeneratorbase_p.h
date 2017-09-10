@@ -88,6 +88,8 @@ public:
 
     virtual QString updateCommand(WherePhrase &phrase, QList<WherePhrase> &wheres, QString tableName);
 
+    virtual QString joinTables(QStringList tables);
+
     virtual QString escapeValue(const QVariant &v) const;
     virtual QVariant readValue(const QVariant::Type &type, const QVariant &dbValue);
     virtual QString phrase(const PhraseData *d) const;
@@ -100,6 +102,7 @@ private:
     QString createWhere(QList<WherePhrase> &wheres);
     QString phraseOrder(const PhraseData *d) const;
     void replaceTableNames(QString &command);
+    void removeTableNames(QString &command);
 };
 
 NUT_END_NAMESPACE

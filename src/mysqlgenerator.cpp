@@ -120,6 +120,7 @@ QVariant MySqlGenerator::readValue(const QVariant::Type &type, const QVariant &d
     if (type == QVariant::PointF) {
         qDebug() << "QVariant::PointF" << dbValue;
     }
+    return SqlGeneratorBase::readValue(type, dbValue);
 }
 
 QString MySqlGenerator::phrase(const PhraseData *d) const

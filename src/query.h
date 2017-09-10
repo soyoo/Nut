@@ -64,6 +64,8 @@ public:
     Query<T> *skip(int &n);
     Query<T> *take(int &n);
     Query<T> *orderBy(WherePhrase phrase);
+    Query<T> *include(TableSetBase *t);
+    Query<T> *include(Table *t);
 
     int count();
     QVariant max(FieldPhrase<int> &f);
@@ -352,6 +354,22 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::orderBy(WherePhrase phrase)
 {
     Q_D(Query);
     d->orderPhrases.append(phrase);
+    return this;
+}
+
+template <class T>
+Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::include(TableSetBase *t)
+{
+    Q_D(Query);
+    d->joinClassName = t->childClassName();
+    return this;
+}
+
+template <class T>
+Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::include(Table *t)
+{
+    Q_D(Query);
+    d->joinClassName = t->metaObject()->className();
     return this;
 }
 

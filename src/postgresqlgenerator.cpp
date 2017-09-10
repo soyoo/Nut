@@ -95,7 +95,7 @@ QString PostgreSqlGenerator::fieldType(FieldModel *field)
         dbType = "";
     }
 
-    if(field->type == QMetaType::type("Nut::DbGeography"))
+    if(field->type == (unsigned)QMetaType::type("Nut::DbGeography"))
         dbType = "GEOGRAPHY";
 
     return dbType;

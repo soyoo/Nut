@@ -37,7 +37,6 @@ class DatabasePrivate
 public:
     DatabasePrivate(Database *parent);
 
-
     bool open(bool updateDatabase);
 
     bool updateDatabase();
@@ -56,7 +55,6 @@ public:
     QString connectionName;
     QString driver;
 
-
     SqlGeneratorBase *sqlGenertor;
     DatabaseModel currentModel;
 
@@ -66,6 +64,8 @@ public:
     QHash<QString, QString> tables;
     static QMap<QString, DatabaseModel> allTableMaps;
     static int lastId;
+
+    QSet<TableSetBase *> tableSets;
 };
 
 NUT_END_NAMESPACE

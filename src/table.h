@@ -48,7 +48,6 @@ public:
         Deleted
     };
 
-    void add(TableSetBase *);
     int save(Database *db);
 
     QString primaryKey() const;
@@ -77,9 +76,12 @@ private:
 
     QSet<TableSetBase*> tableSets;
     void clear();
+    void add(TableSetBase *);
 
     template<class T>
     friend class Query;
+
+    friend class TableSetBase;
 };
 
 NUT_END_NAMESPACE

@@ -187,7 +187,7 @@ QString SqlGeneratorBase::insertRecord(Table *t, QString tableName)
               .arg(changedPropertiesText)
               .arg(values.join(", "));
 
-    replaceTableNames(sql);
+    removeTableNames(sql);
 
     return sql;
 }
@@ -208,7 +208,7 @@ QString SqlGeneratorBase::updateRecord(Table *t, QString tableName)
               .arg(key)
               .arg(t->primaryValue().toString());
 
-    replaceTableNames(sql);
+    removeTableNames(sql);
 
     return sql;
 }
@@ -309,6 +309,9 @@ QString SqlGeneratorBase::selectCommand(SqlGeneratorBase::AgregateType t,
                                         QString tableName,
                                         QString joinClassName, int skip, int take)
 {
+    Q_UNUSED(take);
+    Q_UNUSED(skip);
+
     QString select = agregateText(t, agregateArg);
     QString where = createWhere(wheres);
     QString order = "";
@@ -354,7 +357,13 @@ QString SqlGeneratorBase::createWhere(QList<WherePhrase> &wheres)
 void SqlGeneratorBase::replaceTableNames(QString &command)
 {
     foreach (TableModel *m, TableModel::allModels())
-        command = command.replace("[" + m->className() + "].", m->name() + ".");
+        command = command.replace("[" + m->className() + "].", "`" + m->name() + "`.");
+}
+
+void SqlGeneratorBase::removeTableNames(QString &command)
+{
+    foreach (TableModel *m, TableModel::allModels())
+        command = command.replace("[" + m->className() + "].", "");
 }
 
 QString SqlGeneratorBase::deleteCommand(QList<WherePhrase> &wheres,
@@ -391,9 +400,17 @@ QString SqlGeneratorBase::updateCommand(WherePhrase &phrase,
         sql = sql.replace(_database->model().at(i)->className() + ".",
                           _database->model().at(i)->name() + ".");
 
-    replaceTableNames(sql);
+    removeTableNames(sql);
 
     return sql;
+}
+
+QString SqlGeneratorBase::joinTables(QStringList tables)
+{
+    Q_UNUSED(tables);
+    //TODO: implement me
+//    _database->model().relationByClassNames()
+    return "";
 }
 
 QString SqlGeneratorBase::escapeValue(const QVariant &v) const
@@ -441,13 +458,16 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
     case QVariant::Invalid:
         qFatal("Invalud field value");
         return "<FAIL>";
+
+    default:
+        return "";
     }
-    return "";
 }
 
 QVariant SqlGeneratorBase::readValue(const QVariant::Type &type,
                                      const QVariant &dbValue)
 {
+    Q_UNUSED(type);
     return dbValue;
 }
 
@@ -601,9 +621,10 @@ SqlGeneratorBase::operatorString(const PhraseData::Condition &cond) const
 
     case PhraseData::Append:
         return ",";
-    }
 
-    return QString("<FAIL>");
+    default:
+        return QString("<FAIL>");
+    }
 }
 
 NUT_END_NAMESPACE

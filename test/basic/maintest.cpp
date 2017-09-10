@@ -26,11 +26,14 @@ void MainTest::initTestCase()
 
     db.setDriver(DRIVER);
     db.setHostName(HOST);
-    db.setDatabaseName(DATABASE);
+    db.setDatabaseName("nut_tst_basic");
     db.setUserName(USERNAME);
     db.setPassword(PASSWORD);
 
     bool ok = db.open();
+
+    db.comments()->query()->remove();
+    db.posts()->query()->remove();
 
     QTEST_ASSERT(ok);
 }
@@ -116,8 +119,15 @@ void MainTest::selectPostsWithoutTitle()
     auto q = db.posts()->query();
     q->setWhere(Post::titleField().isNull());
     auto count = q->count();
-    qDebug() << "selectPostsWithoutTitle, count=" << count;
+    qDebug() << q->sqlCommand();
     QTEST_ASSERT(count == 0);
+}
+
+void MainTest::selectPostIds()
+{
+    auto ids = db.posts()->query()->select(Post::idField());
+
+    QTEST_ASSERT(ids.count() == 2);
 }
 
 void MainTest::testDate()
@@ -177,18 +187,11 @@ void MainTest::modifyPost()
 
 void MainTest::emptyDatabase()
 {
-    auto count = db.posts()->query()
-            ->setWhere(Post::idField() == postId)
-            ->remove();
+    auto commentsCount = db.comments()->query()->remove();
+    auto postsCount = db.posts()->query()->remove();
 
-    QTEST_ASSERT(count == 1);
-
-    count = db.posts()->query()
-            ->setWhere(Post::idField() == postId)
-            ->count();
-
-    QTEST_ASSERT(count == 0);
+    QTEST_ASSERT(postsCount == 3);
+    QTEST_ASSERT(commentsCount == 6);
 }
-
 
 QTEST_MAIN(MainTest)

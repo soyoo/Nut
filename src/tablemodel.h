@@ -38,6 +38,7 @@ struct FieldModel{
     }
 
     QString name;
+    //TODO: QMetaType::Type??
     QVariant::Type type;
     QString typeName;
     int length;

@@ -38,7 +38,7 @@ public:
     TableSetBase(Database *parent);
     TableSetBase(Table *parent);
 
-    virtual int save(Database *db);
+    virtual int save(Database *db, bool cleanUp = false);
     void clearChilds();
     void add(Table* t);
     QString childClassName() const;

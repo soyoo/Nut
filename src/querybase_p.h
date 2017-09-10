@@ -27,6 +27,7 @@
 
 NUT_BEGIN_NAMESPACE
 
+//TODO: remove this class
 class QueryBase : public QObject
 {
     Q_OBJECT

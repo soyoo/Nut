@@ -53,9 +53,7 @@ public:
 
     QSqlQuery exec(QString sql);
 
-    //TODO: make me private and rename me
-    void add(TableSetBase *);
-    int saveChanges();
+    int saveChanges(bool cleanUp = false);
     void cleanUp();
 
     QString databaseName() const;
@@ -86,8 +84,9 @@ public slots:
     void setDriver(QString driver);
 
 private:
-    //TODO: move me to database_p.h
-    QSet<TableSetBase *> tableSets;
+    void add(TableSetBase *);
+
+    friend class TableSetBase;
 };
 
 NUT_END_NAMESPACE
