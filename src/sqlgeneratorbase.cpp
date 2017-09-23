@@ -73,7 +73,7 @@ QString SqlGeneratorBase::saveRecord(Table *t, QString tableName)
 
 QString SqlGeneratorBase::fieldDeclare(FieldModel *field)
 {
-    return field->name + " " + fieldType(field);
+    return field->name + " " + fieldType(field) + (field->notNull ? " NOT NULL" : "");
 }
 
 QStringList SqlGeneratorBase::diff(DatabaseModel lastModel,

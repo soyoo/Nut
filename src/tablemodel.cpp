@@ -225,7 +225,7 @@ TableModel::TableModel(int typeId, QString tableName)
             if(propName == __nut_LEN)
                 f->length = value.toInt();
             else if(propName == __nut_NOT_NULL)
-                f->notNull = false;
+                f->notNull = true;
             else if(propName == __nut_DEFAULT_VALUE)
                 f->defaultValue = value;
             else if(propName == __nut_PRIMARY_KEY)
