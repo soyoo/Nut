@@ -24,6 +24,7 @@
 #include "defines.h"
 #include <QtCore/QObject>
 #include <QtCore/qglobal.h>
+#include <QVariant>
 
 NUT_BEGIN_NAMESPACE
 
@@ -35,6 +36,7 @@ class NUT_EXPORT DbGeography //: public QObject
 public:
     explicit DbGeography(QObject *parent = 0);
     DbGeography(const DbGeography &other);
+    DbGeography(const QVariant &value);
 
     qreal latitude() const;
     qreal longitude() const;
@@ -42,16 +44,14 @@ public:
     void setLatitude(qreal latitude);
     void setLongitude(qreal longitude);
 
+    //QVariant operator QVariant();
+
     QString toString();
     void fromString(const QString &s);
 };
 
 NUT_END_NAMESPACE
 
-#ifdef NUT_NAMESPACE
-    Q_DECLARE_METATYPE(NUT_NAMESPACE::DbGeography)
-#else
-    Q_DECLARE_METATYPE(DbGeography)
-#endif
+Q_DECLARE_METATYPE(NUT_WRAP_NAMESPACE(DbGeography))
 
 #endif // DBGEOGRAPHY_H

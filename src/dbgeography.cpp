@@ -22,7 +22,7 @@
 
 NUT_BEGIN_NAMESPACE
 
-DbGeography::DbGeography(QObject *parent)
+DbGeography::DbGeography(QObject *parent) : m_longitude(0), m_latitude(0)
 {
 
 }
@@ -31,6 +31,20 @@ DbGeography::DbGeography(const DbGeography &other)
 {
     setLatitude(other.latitude());
     setLongitude(other.longitude());
+}
+
+DbGeography::DbGeography(const QVariant &value)
+{
+    QStringList parts = value.toString().split(',');
+    if (parts.count() == 2) {
+        setLongitude(parts[0].toDouble());
+        setLatitude(parts[1].toDouble());
+    } else {
+        qWarning("Input value for DbGeography is invalid: %s",
+                 qPrintable(value.toString()));
+        setLongitude(0);
+        setLatitude(0);
+    }
 }
 
 qreal DbGeography::latitude() const
@@ -58,6 +72,11 @@ void DbGeography::setLongitude(qreal longitude)
 
     m_longitude = longitude;
 }
+
+/*QVariant Nut::DbGeography::operator QVariant()
+{
+    return QVariant::fromValue(QString("%1,%2").arg(longitude()).arg(latitude()));
+}*/
 
 QString DbGeography::toString()
 {

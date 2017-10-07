@@ -136,17 +136,13 @@ bool DatabasePrivate::updateDatabase()
 
     if (db.lastError().type() == QSqlError::NoError) {
 
-        q->databaseUpdated(last.versionMajor(), last.versionMinor(),
-                           current.versionMajor(), current.versionMinor());
-        QString versionText = QString::number(current.versionMajor()) + "_"
-                              + QString::number(current.versionMinor());
+        q->databaseUpdated(last.version(), current.version());
 
         for (int i = 0; i < q->metaObject()->methodCount(); i++) {
             QMetaMethod m = q->metaObject()->method(i);
-            if (m.name() == "update" + versionText) {
+            if (m.name() == "update" + current.version()) {
                 m.invoke(q, Qt::DirectConnection,
-                         Q_ARG(int, current.versionMajor()),
-                         Q_ARG(int, current.versionMinor()));
+                         Q_ARG(QString, current.version()));
                 break;
             }
         }
@@ -187,11 +183,14 @@ bool DatabasePrivate::getCurrectScheema()
             tables.insert(ciName.split(" ").at(1), ci.value());
 
         if (ciName == __nut_DB_VERSION) {
+            currentModel.setVersion(QString(ci.value()));
+
+            /* TODO: remove
             QStringList version
                 = QString(ci.value()).replace("\"", "").split('.');
             bool ok = false;
             if (version.length() == 1) {
-                currentModel.setVersionMajor(version.at(0).toInt(&ok));
+                currentModel.setVersion(version.at(0).toInt(&ok));
             } else if (version.length() == 2) {
                 currentModel.setVersionMajor(version.at(0).toInt(&ok));
                 currentModel.setVersionMinor(version.at(1).toInt(&ok));
@@ -199,7 +198,7 @@ bool DatabasePrivate::getCurrectScheema()
 
             if (!ok)
                 qFatal("NUT_DB_VERSION macro accept version in format 'x' or "
-                       "'x[.y]' only, and x,y must be integer values\n");
+                       "'x[.y]' only, and x,y must be integer values\n");*/
         }
     }
 
@@ -270,8 +269,7 @@ bool DatabasePrivate::storeScheemaInDB()
 
     ChangeLogTable *changeLog = new ChangeLogTable();
     changeLog->setData(QJsonDocument(current.toJson()).toJson());
-    changeLog->setVersionMajor(current.versionMajor());
-    changeLog->setVersionMinor(current.versionMinor());
+    changeLog->setVersion(current.version());
     changeLogs->append(changeLog);
     q->saveChanges();
     changeLog->deleteLater();
@@ -443,13 +441,10 @@ SqlGeneratorBase *Database::sqlGenertor() const
     return d->sqlGenertor;
 }
 
-void Database::databaseUpdated(int oldMajor, int oldMinor, int newMajor,
-                               int newMinor)
+void Database::databaseUpdated(QString oldVersion, QString newVersion)
 {
-    Q_UNUSED(oldMajor);
-    Q_UNUSED(oldMinor);
-    Q_UNUSED(newMajor);
-    Q_UNUSED(newMinor);
+    Q_UNUSED(oldVersion);
+    Q_UNUSED(newVersion);
 }
 
 

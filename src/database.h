@@ -71,8 +71,7 @@ public:
 
 protected:
     //remove minor version
-    virtual void databaseUpdated(int oldMajor, int oldMinor, int newMajor,
-                                 int newMinor);
+    virtual void databaseUpdated(QString oldVersion, QString newVersion);
 
 public slots:
     void setDatabaseName(QString databaseName);

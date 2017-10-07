@@ -27,12 +27,12 @@ NUT_BEGIN_NAMESPACE
 
 QMap<QString, DatabaseModel*> DatabaseModel::_models;
 
-DatabaseModel::DatabaseModel(const QString &name) : QList<TableModel*>(), _databaseClassName(name), _versionMajor(0), _versionMinor(0)
+DatabaseModel::DatabaseModel(const QString &name) : QList<TableModel*>(), _databaseClassName(name), _version(QString::null)
 {
     _models.insert(name, this);
 }
 
-DatabaseModel::DatabaseModel(const DatabaseModel &other) : QList<TableModel*>(other), _versionMajor(0), _versionMinor(0)
+DatabaseModel::DatabaseModel(const DatabaseModel &other) : QList<TableModel*>(other), _version(QString::null)
 {
 
 }
@@ -145,24 +145,14 @@ DatabaseModel DatabaseModel::fromJson(QJsonObject &json)
     return model;
 }
 
-int DatabaseModel::versionMajor() const
+QString DatabaseModel::version() const
 {
-    return _versionMajor;
+    return _version;
 }
 
-void DatabaseModel::setVersionMajor(int versionMajor)
+void DatabaseModel::setVersion(QString version)
 {
-    _versionMajor = versionMajor;
-}
-
-int DatabaseModel::versionMinor() const
-{
-    return _versionMinor;
-}
-
-void DatabaseModel::setVersionMinor(int versionMinor)
-{
-    _versionMinor = versionMinor;
+    _version = version;
 }
 
 bool DatabaseModel::remove(const QString &tableName)

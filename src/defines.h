@@ -33,17 +33,6 @@
 #   define NUT_EXPORT Q_DECL_EXPORT
 #endif
 
-
-#ifdef NUT_NAMESPACE
-//TODO: remove unused macro
-#   define __NUT_NAMESPACE_PERFIX NUT_NAMESPACE::
-#   define NUT_WRAP_NAMESPACE(x) NUT_NAMESPACE::x
-#else
-//TODO: remove unused macro
-#   define __NUT_NAMESPACE_PERFIX
-#   define NUT_WRAP_NAMESPACE(x) x
-#endif
-
 // Database
 //TODO: remove minor version
 #define NUT_DB_VERSION(major, minor) Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX __nut_DB_VERSION), QT_STRINGIFY(#major "." #minor))
