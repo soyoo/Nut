@@ -34,10 +34,10 @@
 #include "database_p.h"
 #include "defines.h"
 #include "tablemodel.h"
-#include "postgresqlgenerator.h"
-#include "mysqlgenerator.h"
-#include "sqlitegenerator.h"
-#include "sqlservergenerator.h"
+#include "generators/postgresqlgenerator.h"
+#include "generators/mysqlgenerator.h"
+#include "generators/sqlitegenerator.h"
+#include "generators/sqlservergenerator.h"
 #include "query.h"
 
 #include <iostream>

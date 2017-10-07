@@ -19,7 +19,7 @@
 **************************************************************************/
 
 #include "mysqlgenerator.h"
-#include "tablemodel.h"
+#include "../tablemodel.h"
 
 #include <QPoint>
 #include <QPointF>

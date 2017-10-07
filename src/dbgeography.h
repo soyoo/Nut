@@ -28,26 +28,23 @@
 
 NUT_BEGIN_NAMESPACE
 
-class NUT_EXPORT DbGeography //: public QObject
+class NUT_EXPORT DbGeography
 {
-    qreal m_latitude;
     qreal m_longitude;
+    qreal m_latitude;
 
 public:
-    explicit DbGeography(QObject *parent = 0);
+    explicit DbGeography();
     DbGeography(const DbGeography &other);
     DbGeography(const QVariant &value);
 
-    qreal latitude() const;
     qreal longitude() const;
+    qreal latitude() const;
 
-    void setLatitude(qreal latitude);
     void setLongitude(qreal longitude);
+    void setLatitude(qreal latitude);
 
-    //QVariant operator QVariant();
-
-    QString toString();
-    void fromString(const QString &s);
+    operator QVariant();
 };
 
 NUT_END_NAMESPACE

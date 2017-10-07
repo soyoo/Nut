@@ -39,6 +39,7 @@ class DatabaseModel : public QList<TableModel *>
 public:
     DatabaseModel(const QString &name = QString::null);
     DatabaseModel(const DatabaseModel &other);
+    DatabaseModel(const QJsonObject &json);
 
     TableModel *tableByName(QString tableName) const;
     TableModel *tableByClassName(QString className) const;
@@ -50,8 +51,10 @@ public:
 
     bool operator==(const DatabaseModel &other) const;
 
+    Q_DECL_DEPRECATED
     static DatabaseModel fromJson(QJsonObject &json);
     QJsonObject toJson() const;
+    operator QJsonObject();
 
     QString version() const;
     void setVersion(QString version);

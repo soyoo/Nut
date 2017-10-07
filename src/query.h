@@ -31,7 +31,7 @@
 #include "database.h"
 #include "databasemodel.h"
 #include "tablesetbase_p.h"
-#include "sqlgeneratorbase_p.h"
+#include "generators/sqlgeneratorbase_p.h"
 #include "querybase_p.h"
 #include "wherephrase.h"
 #include "tablemodel.h"

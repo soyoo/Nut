@@ -24,7 +24,7 @@
 #include <QtCore/qglobal.h>
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
-#include "wherephrase.h"
+#include "../wherephrase.h"
 
 NUT_BEGIN_NAMESPACE
 
@@ -33,8 +33,6 @@ struct FieldModel;
 class DatabaseModel;
 class TableModel;
 class Database;
-//struct PhraseData;
-//class WherePhrase;
 class SqlGeneratorBase : public QObject
 {
 //    Q_OBJECT

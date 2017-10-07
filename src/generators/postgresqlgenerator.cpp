@@ -19,8 +19,8 @@
 **************************************************************************/
 
 #include "postgresqlgenerator.h"
-#include "table.h"
-#include "tablemodel.h"
+#include "../table.h"
+#include "../tablemodel.h"
 
 NUT_BEGIN_NAMESPACE
 

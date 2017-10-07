@@ -24,12 +24,12 @@
 #include <QTime>
 #include <QVariant>
 
-#include "database.h"
-#include "databasemodel.h"
 #include "sqlgeneratorbase_p.h"
-#include "table.h"
-#include "tablemodel.h"
-#include "wherephrase.h"
+#include "../database.h"
+#include "../table.h"
+#include "../databasemodel.h"
+#include "../tablemodel.h"
+#include "../wherephrase.h"
 
 NUT_BEGIN_NAMESPACE
 

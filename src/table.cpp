@@ -22,7 +22,7 @@
 #include <QVariant>
 #include "table.h"
 #include "database.h"
-#include "sqlgeneratorbase_p.h"
+#include "generators/sqlgeneratorbase_p.h"
 
 NUT_BEGIN_NAMESPACE
 

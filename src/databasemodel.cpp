@@ -37,6 +37,19 @@ DatabaseModel::DatabaseModel(const DatabaseModel &other) : QList<TableModel*>(ot
 
 }
 
+DatabaseModel::DatabaseModel(const QJsonObject &json) : QList<TableModel*>()
+{
+    setVersion(json.value(QT_STRINGIFY(version)).toString());
+
+    foreach (QString key, json.keys()) {
+        if(!json.value(key).isObject())
+            continue;
+
+        TableModel *sch = new TableModel(json.value(key).toObject(), key);
+        append(sch);
+    }
+}
+
 TableModel *DatabaseModel::tableByName(QString tableName) const
 {
     for(int i = 0; i < size(); i++){
@@ -89,8 +102,7 @@ QJsonObject DatabaseModel::toJson() const
 {
     QJsonObject obj;
 
-//    obj.insert(QT_STRINGIFY(versionMajor), QJsonValue(_versionMajor));
-//    obj.insert(QT_STRINGIFY(versionMinor), QJsonValue(_versionMinor));
+    obj.insert(QT_STRINGIFY(version), QJsonValue(_version));
 
     for(int i = 0; i < size(); i++){
         TableModel *s = at(i);
@@ -98,6 +110,11 @@ QJsonObject DatabaseModel::toJson() const
     }
 
     return obj;
+}
+
+DatabaseModel::operator QJsonObject()
+{
+    return toJson();
 }
 
 RelationModel *DatabaseModel::relationByClassNames(const QString &masterClassName, const QString &childClassName)

@@ -19,8 +19,8 @@
 **************************************************************************/
 
 #include "sqlservergenerator.h"
-#include "table.h"
-#include "tablemodel.h"
+#include "../table.h"
+#include "../tablemodel.h"
 
 #include <QPoint>
 #include <QRegularExpression>

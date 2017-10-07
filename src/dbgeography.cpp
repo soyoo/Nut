@@ -22,15 +22,15 @@
 
 NUT_BEGIN_NAMESPACE
 
-DbGeography::DbGeography(QObject *parent) : m_longitude(0), m_latitude(0)
+DbGeography::DbGeography() : m_longitude(0), m_latitude(0)
 {
 
 }
 
 DbGeography::DbGeography(const DbGeography &other)
 {
-    setLatitude(other.latitude());
     setLongitude(other.longitude());
+    setLatitude(other.latitude());
 }
 
 DbGeography::DbGeography(const QVariant &value)
@@ -47,14 +47,23 @@ DbGeography::DbGeography(const QVariant &value)
     }
 }
 
+qreal DbGeography::longitude() const
+{
+    return m_longitude;
+}
+
 qreal DbGeography::latitude() const
 {
     return m_latitude;
 }
 
-qreal DbGeography::longitude() const
+void DbGeography::setLongitude(qreal longitude)
+
 {
-    return m_longitude;
+    if (qFuzzyCompare(m_longitude, longitude))
+        return;
+
+    m_longitude = longitude;
 }
 
 void DbGeography::setLatitude(qreal latitude)
@@ -64,32 +73,9 @@ void DbGeography::setLatitude(qreal latitude)
 
     m_latitude = latitude;
 }
-
-void DbGeography::setLongitude(qreal longitude)
-{
-    if (qFuzzyCompare(m_longitude, longitude))
-        return;
-
-    m_longitude = longitude;
-}
-
-/*QVariant Nut::DbGeography::operator QVariant()
+DbGeography::operator QVariant()
 {
     return QVariant::fromValue(QString("%1,%2").arg(longitude()).arg(latitude()));
-}*/
-
-QString DbGeography::toString()
-{
-    return QString("%1,%2").arg(longitude()).arg(latitude());
-}
-
-void DbGeography::fromString(const QString &s)
-{
-    QStringList parts = s.split(',');
-    if (parts.count() == 2) {
-        setLongitude(parts[0].toDouble());
-        setLatitude(parts[1].toDouble());
-    }
 }
 
 NUT_END_NAMESPACE
