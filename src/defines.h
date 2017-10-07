@@ -35,7 +35,8 @@
 
 // Database
 //TODO: remove minor version
-#define NUT_DB_VERSION(major, minor) Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX __nut_DB_VERSION), QT_STRINGIFY(#major "." #minor))
+#define NUT_DB_VERSION(version)  \
+    Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX __nut_DB_VERSION), #version))
 
 #define NUT_DECLARE_TABLE(type, name)                                       \
     Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX __nut_TABLE " "  #type), #name)                              \

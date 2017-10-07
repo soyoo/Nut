@@ -141,7 +141,7 @@ QString SqlServerGenerator::selectCommand(
     QString command = SqlGeneratorBase::selectCommand(t, agregateArg, wheres, orders, tableName, joinClassName, skip, take);
 
     if (take != -1 && skip != -1)
-        command.append(QString("OFFSET 10 ROWS FETCH NEXT 10 ROWS ONLY")
+        command.append(QString("OFFSET %1 ROWS FETCH NEXT %2 ROWS ONLY")
                        .arg(skip)
                        .arg(take));
     return command;
