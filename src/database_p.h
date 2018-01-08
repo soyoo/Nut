@@ -67,13 +67,7 @@ public:
 
     QSet<TableSetBase *> tableSets;
 
-
-    enum DatabaseStatus{
-        New,
-        Modified,
-        NotChanged
-    };
-    DatabaseStatus _databaseStatus;
+    bool isDatabaseNew;
 };
 
 NUT_END_NAMESPACE

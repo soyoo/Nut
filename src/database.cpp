@@ -50,7 +50,7 @@ NUT_BEGIN_NAMESPACE
 qulonglong DatabasePrivate::lastId = 0;
 QMap<QString, DatabaseModel> DatabasePrivate::allTableMaps;
 
-DatabasePrivate::DatabasePrivate(Database *parent) : q_ptr(parent)
+DatabasePrivate::DatabasePrivate(Database *parent) : q_ptr(parent), isDatabaseNew(false)
 {
 }
 
@@ -63,6 +63,7 @@ bool DatabasePrivate::open(bool update)
 
     db = QSqlDatabase::addDatabase(driver, connectionName);
     db.setHostName(hostName);
+    db.setPort(port);
     db.setDatabaseName(databaseName);
     db.setUserName(userName);
     db.setPassword(password);
@@ -92,7 +93,7 @@ bool DatabasePrivate::open(bool update)
                     return false;
                 }
 
-                _databaseStatus = New;
+                isDatabaseNew = true;
                 return open(update);
             } else {
                 qWarning("Unknown error detecting change logs, %s",
@@ -115,7 +116,7 @@ bool DatabasePrivate::updateDatabase()
     if (!getCurrectScheema())
         return true;
 
-    DatabaseModel last = _databaseStatus == New ? DatabaseModel() : getLastScheema();
+    DatabaseModel last = isDatabaseNew ? DatabaseModel() : getLastScheema();
     DatabaseModel current = currentModel;
 
     if (last == current) {
@@ -166,9 +167,9 @@ bool DatabasePrivate::getCurrectScheema()
 {
     Q_Q(Database);
 
+    //is not first instanicate of this class
     if (allTableMaps.contains(q->metaObject()->className())) {
         currentModel = allTableMaps[q->metaObject()->className()];
-        qDebug() << "******************";
         return false;
     }
 
@@ -316,13 +317,26 @@ Database::Database(QObject *parent)
     DatabasePrivate::lastId++;
 }
 
-Database::Database(const Database &other, QObject *parent)
-    : QObject(parent), d_ptr(new DatabasePrivate(this))
+Database::Database(const Database &other)
+    : QObject(other.parent()), d_ptr(new DatabasePrivate(this))
 {
     DatabasePrivate::lastId++;
 
     setDriver(other.driver());
     setHostName(other.hostName());
+    setPort(other.port());
+    setDatabaseName(other.databaseName());
+    setUserName(other.userName());
+    setPassword(other.password());
+}
+
+Database::Database(const QSqlDatabase &other)
+{
+    DatabasePrivate::lastId++;
+
+    setDriver(other.driver());
+    setHostName(other.hostName());
+    setPort(other.port());
     setDatabaseName(other.databaseName());
     setUserName(other.userName());
     setPassword(other.password());

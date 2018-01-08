@@ -43,6 +43,7 @@ class NUT_EXPORT Database : public QObject
     Q_DECLARE_PRIVATE(Database)
 
 public:
+    //TODO: create constructor with accepting QSqlDatabase
     Database(QObject *parent = 0);
     Database(const Database &other, QObject *parent = 0);
     ~Database();
