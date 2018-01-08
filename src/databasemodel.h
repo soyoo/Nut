@@ -22,6 +22,9 @@
 #define DATABASEMODEL_H
 
 #include <QtCore/QList>
+#include <QtCore/QMap>
+#include <QtCore/QString>
+
 #include "defines.h"
 
 class QJsonObject;
