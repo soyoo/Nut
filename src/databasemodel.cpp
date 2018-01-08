@@ -63,8 +63,8 @@ TableModel *DatabaseModel::tableByName(QString tableName) const
             return s;
     }
 
-    qWarning("Table with name '%s' not found in model",
-             qUtf8Printable(tableName));
+//    qWarning("Table with name '%s' not found in model",
+//             qUtf8Printable(tableName));
     return 0;
 }
 
@@ -77,8 +77,8 @@ TableModel *DatabaseModel::tableByClassName(QString className) const
             return s;
     }
 
-    qWarning("Table with class name '%s' not found in model",
-             qUtf8Printable(className));
+//    qWarning("Table with class name '%s' not found in model",
+//             qUtf8Printable(className));
 //    Q_UNREACHABLE();
     return 0;
 }
@@ -120,7 +120,7 @@ QJsonObject DatabaseModel::toJson() const
 {
     QJsonObject obj;
 
-    obj.insert(QT_STRINGIFY(version), QJsonValue(_version));
+    obj.insert(NODE_VERSION, QJsonValue(_version));
     QJsonObject tables;
     for(int i = 0; i < size(); i++){
         TableModel *s = at(i);
