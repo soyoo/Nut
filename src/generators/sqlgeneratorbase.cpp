@@ -271,14 +271,10 @@ QString SqlGeneratorBase::fromTableText(const QString &tableName,
                                 .arg(rel->localColumn);
             orderBy = tableName + "." + pk;
         } else {
-            qWarning(
-                QString(
-                    "Relation between table %1 and class %2 (%3) not exists!")
-                    .arg(tableName)
-                    .arg(joinClassName)
-                    .arg(joinTableName.isNull() ? "NULL" : joinTableName)
-                    .toLatin1()
-                    .data());
+            qWarning("Relation between table %s and class %s (%s) not exists!",
+                     qPrintable(tableName),
+                     qPrintable(joinClassName),
+                     qPrintable(joinTableName.isNull() ? "NULL" : joinTableName));
             joinClassName = QString::null;
         }
     }

@@ -32,7 +32,9 @@
 #include "defines.h"
 #include "types/dbgeography.h"
 
+#if __cplusplus >= 201103L
 #include <initializer_list>
+#endif
 
 NUT_BEGIN_NAMESPACE
 
@@ -448,11 +450,13 @@ public:
         return WherePhrase(this, PhraseData::In, vlist);
     }
 
+#if __cplusplus >= 201103L
     template<typename T>
     WherePhrase in(std::initializer_list<T> list)
     {
         return in(QList<T>(list));
     }
+#endif
 
     WherePhrase in(int count, ...)
     {
