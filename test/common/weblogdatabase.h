@@ -9,15 +9,16 @@ using namespace NUT_NAMESPACE;
 
 class Post;
 class Comment;
+class User;
 class WeblogDatabase : public Database
 {
     Q_OBJECT
 
-    NUT_DB_VERSION(1, 1)
+    NUT_DB_VERSION(1)
 
     NUT_DECLARE_TABLE(Post, post)
-
     NUT_DECLARE_TABLE(Comment, comment)
+    NUT_DECLARE_TABLE(User, user)
 
 public:
     WeblogDatabase();

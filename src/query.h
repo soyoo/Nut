@@ -60,6 +60,14 @@ public:
         return this;
     }
 
+    template<class TABLE>
+    Query<T> *join()
+    {
+        join(TABLE::staticMetaObject.className());
+        return this;
+    }
+
+
 //    Query<T> *orderBy(QString fieldName, QString type);
     Query<T> *skip(int &n);
     Query<T> *take(int &n);

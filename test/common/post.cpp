@@ -7,3 +7,5 @@ Post::Post(QObject *parent) : Table(parent),
 {
 
 }
+
+NUT_IMPLEMENT_CHILD_TABLE(Post, Comment, comments)

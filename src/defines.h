@@ -81,23 +81,27 @@ public:                                                                     \
     private:                                                                \
         NUT_WRAP_NAMESPACE(TableSet)<type> *m_##n;                                              \
     public:                                                                 \
-        static type *n##Table(){                                            \
-            static type *f = new type();                                    \
-            return f;                                                       \
-        }                                                                   \
-        NUT_WRAP_NAMESPACE(TableSet)<type> *n(){                                                \
-            return m_##n;                                                   \
-        }
+        static type *n##Table();                                            \
+        NUT_WRAP_NAMESPACE(TableSet)<type> *n();
 
-#define NUT_INDEX(name, field, order)
+#define NUT_IMPLEMENT_CHILD_TABLE(class, type, n)                           \
+    type *class::n##Table(){                                            \
+        static type *f = new type();                                    \
+        return f;                                                       \
+    }                                                                   \
+    NUT_WRAP_NAMESPACE(TableSet)<type> *class::n(){                     \
+        return m_##n;                                                   \
+    }
+
 #define NUT_PRIMARY_KEY(x)                  Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #x " " __nut_PRIMARY_KEY),  #x)
 #define NUT_AUTO_INCREMENT(x)               Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #x " " __nut_AUTO_INCREMENT),  #x)
-#define NUT_PRIMARY_AUTO_INCREMENT(x)       NUT_PRIMARY_KEY(x)          \
-                                            NUT_AUTO_INCREMENT(x)
+#define NUT_PRIMARY_AUTO_INCREMENT(x)           NUT_PRIMARY_KEY(x)          \
+                                                NUT_AUTO_INCREMENT(x)
 #define NUT_UNIQUE(x)                       Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #x " " __nut_UNIQUE),  #x)
 #define NUT_LEN(field, len)                 Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #field " " __nut_LEN),    #len)
 #define NUT_DEFAULT_VALUE(x, n)             Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #x " " __nut_DEFAULT_VALUE),    #n)
 #define NUT_NOT_NULL(x)                     Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #x " " __nut_NOT_NULL), "1")
+#define NUT_INDEX(name, field, order)
 
 #ifndef NUT_NO_KEYWORDS
 #   define FROM(x)          (x->query())
