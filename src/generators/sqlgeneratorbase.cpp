@@ -81,18 +81,15 @@ QStringList SqlGeneratorBase::diff(DatabaseModel lastModel,
 {
     QStringList ret;
 
-    QSet<QString> tableNames;
-    foreach (TableModel *table, lastModel)
-        tableNames.insert(table->name());
+    DatabaseModel unionModel = lastModel + newModel;
 
-    foreach (TableModel *table, newModel)
-        tableNames.insert(table->name());
-
-    foreach (QString tableName, tableNames) {
-        TableModel *oldTable = lastModel.tableByName(tableName);
-        TableModel *newTable = newModel.tableByName(tableName);
+    foreach (TableModel *table, unionModel) {
+        TableModel *oldTable = lastModel.tableByName(table->name());
+        TableModel *newTable = newModel.tableByName(table->name());
         QString sql = diff(oldTable, newTable);
-        ret << sql;
+
+        if (!sql.isEmpty())
+            ret << sql;
     }
 
     return ret;

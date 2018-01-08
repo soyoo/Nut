@@ -21,12 +21,15 @@
 #include "databasemodel.h"
 #include "tablemodel.h"
 
+#include <QJsonArray>
 #include <QJsonObject>
 
 NUT_BEGIN_NAMESPACE
 
 QMap<QString, DatabaseModel*> DatabaseModel::_models;
 
+#define NODE_VERSION "version"
+#define NODE_TABLES  "tables"
 DatabaseModel::DatabaseModel(const QString &name) : QList<TableModel*>(), _databaseClassName(name), _version(QString::null)
 {
     _models.insert(name, this);
@@ -39,13 +42,14 @@ DatabaseModel::DatabaseModel(const DatabaseModel &other) : QList<TableModel*>(ot
 
 DatabaseModel::DatabaseModel(const QJsonObject &json) : QList<TableModel*>()
 {
-    setVersion(json.value(QT_STRINGIFY(version)).toString());
+    setVersion(json.value(NODE_VERSION).toString());
 
-    foreach (QString key, json.keys()) {
-        if(!json.value(key).isObject())
+    QJsonObject tables = json.value(NODE_TABLES).toObject();
+    foreach (QString key, tables.keys()) {
+        if(!tables.value(key).isObject())
             continue;
 
-        TableModel *sch = new TableModel(json.value(key).toObject(), key);
+        TableModel *sch = new TableModel(tables.value(key).toObject(), key);
         append(sch);
     }
 }
@@ -98,16 +102,32 @@ bool DatabaseModel::operator ==(const DatabaseModel &other) const
     return true;
 }
 
+DatabaseModel DatabaseModel::operator +(const DatabaseModel &other)
+{
+    DatabaseModel model;
+    DatabaseModel::const_iterator i;
+
+    for (i = constBegin(); i != constEnd(); ++i)
+        model.append(*i);
+
+    for (i = other.constBegin(); i != other.constEnd(); ++i)
+        model.append(*i);
+
+    return model;
+}
+
 QJsonObject DatabaseModel::toJson() const
 {
     QJsonObject obj;
 
     obj.insert(QT_STRINGIFY(version), QJsonValue(_version));
-
+    QJsonObject tables;
     for(int i = 0; i < size(); i++){
         TableModel *s = at(i);
-        obj.insert(s->name(), s->toJson());
+        tables.insert(s->name(), s->toJson());
     }
+
+    obj.insert(NODE_TABLES, tables);
 
     return obj;
 }
@@ -149,10 +169,10 @@ DatabaseModel DatabaseModel::fromJson(QJsonObject &json)
 {
     DatabaseModel model(QString::null);
 
-//    model.setVersionMajor(json.value(QT_STRINGIFY(versionMajor)).toInt());
-//    model.setVersionMinor(json.value(QT_STRINGIFY(versionMinor)).toInt());
+    model.setVersion(json.value(NODE_VERSION).toString());
 
-    foreach (QString key, json.keys()) {
+    QJsonObject tables = json.value(NODE_TABLES).toObject();
+    foreach (QString key, tables.keys()) {
         if(!json.value(key).isObject())
             continue;
 

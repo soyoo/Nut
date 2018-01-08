@@ -30,7 +30,7 @@
 #include <QPoint>
 #include <QSharedPointer>
 #include "defines.h"
-#include "dbgeography.h"
+#include "types/dbgeography.h"
 
 #include <initializer_list>
 

@@ -109,7 +109,6 @@ template <class T>
 Q_OUTOFLINE_TEMPLATE Query<T>::~Query()
 {
     Q_D(Query);
-
     delete d;
 }
 

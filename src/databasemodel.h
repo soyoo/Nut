@@ -50,6 +50,7 @@ public:
                                         const QString &childClassName);
 
     bool operator==(const DatabaseModel &other) const;
+    DatabaseModel operator +(const DatabaseModel &other);
 
     Q_DECL_DEPRECATED
     static DatabaseModel fromJson(QJsonObject &json);

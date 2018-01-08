@@ -41,7 +41,7 @@ public:
 
     bool updateDatabase();
     void createChangeLogs();
-    bool storeScheemaInDB();
+    bool putModelToDatabase();
     DatabaseModel getLastScheema();
     bool getCurrectScheema();
 
@@ -63,9 +63,17 @@ public:
     QT_DEPRECATED
     QHash<QString, QString> tables;
     static QMap<QString, DatabaseModel> allTableMaps;
-    static int lastId;
+    static qulonglong lastId;
 
     QSet<TableSetBase *> tableSets;
+
+
+    enum DatabaseStatus{
+        New,
+        Modified,
+        NotChanged
+    };
+    DatabaseStatus _databaseStatus;
 };
 
 NUT_END_NAMESPACE

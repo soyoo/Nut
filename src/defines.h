@@ -26,7 +26,6 @@
 #include "defines_p.h"
 #include "qglobal.h"
 
-
 #ifdef NUT_COMPILE_STATIC
 #   define NUT_EXPORT
 #else
@@ -36,7 +35,7 @@
 // Database
 //TODO: remove minor version
 #define NUT_DB_VERSION(version)  \
-    Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX __nut_DB_VERSION), #version))
+    Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX __nut_DB_VERSION), #version)
 
 #define NUT_DECLARE_TABLE(type, name)                                       \
     Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX __nut_TABLE " "  #type), #name)                              \
@@ -90,7 +89,6 @@ public:                                                                     \
             return m_##n;                                                   \
         }
 
-
 #define NUT_INDEX(name, field, order)
 #define NUT_PRIMARY_KEY(x)                  Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #x " " __nut_PRIMARY_KEY),  #x)
 #define NUT_AUTO_INCREMENT(x)               Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #x " " __nut_AUTO_INCREMENT),  #x)
@@ -113,7 +111,5 @@ public:                                                                     \
 #   define DELETE()         ->remove()
 #   define FIRST()          ->first()
 #endif // NUT_NO_KEYWORDS
-
-
 
 #endif // SYNTAX_DEFINES_H

@@ -47,7 +47,7 @@
 
 NUT_BEGIN_NAMESPACE
 
-int DatabasePrivate::lastId = 0;
+qulonglong DatabasePrivate::lastId = 0;
 QMap<QString, DatabaseModel> DatabasePrivate::allTableMaps;
 
 DatabasePrivate::DatabasePrivate(Database *parent) : q_ptr(parent)
@@ -58,8 +58,6 @@ bool DatabasePrivate::open(bool update)
 {
     Q_Q(Database);
 //    if (update)
-    bool isNew = getCurrectScheema();
-
     connectionName = q->metaObject()->className()
                      + QString::number(DatabasePrivate::lastId);
 
@@ -79,6 +77,8 @@ bool DatabasePrivate::open(bool update)
             || db.lastError().text().contains("Cannot open database")
             || db.lastError().text().contains("Unknown database '"
                                               + databaseName + "'")) {
+
+            db.close();
             db.setDatabaseName(sqlGenertor->masterDatabaseName(databaseName));
             ok = db.open();
             qDebug("Creating database");
@@ -86,10 +86,13 @@ bool DatabasePrivate::open(bool update)
                 db.exec("CREATE DATABASE " + databaseName);
                 db.close();
 
-                if (db.lastError().type() != QSqlError::NoError)
+                if (db.lastError().type() != QSqlError::NoError) {
                     qWarning("Creating database error: %s",
                              db.lastError().text().toLatin1().data());
+                    return false;
+                }
 
+                _databaseStatus = New;
                 return open(update);
             } else {
                 qWarning("Unknown error detecting change logs, %s",
@@ -99,7 +102,7 @@ bool DatabasePrivate::open(bool update)
         return false;
     }
 
-    if(isNew)
+    if(update)
         return updateDatabase();
     else
         return true;
@@ -109,7 +112,10 @@ bool DatabasePrivate::updateDatabase()
 {
     Q_Q(Database);
 
-    DatabaseModel last = getLastScheema();
+    if (!getCurrectScheema())
+        return true;
+
+    DatabaseModel last = _databaseStatus == New ? DatabaseModel() : getLastScheema();
     DatabaseModel current = currentModel;
 
     if (last == current) {
@@ -123,15 +129,17 @@ bool DatabasePrivate::updateDatabase()
         qDebug("Databse is changed");
 
     QStringList sql = sqlGenertor->diff(last, current);
+
     db.transaction();
     foreach (QString s, sql) {
         db.exec(s);
 
         if (db.lastError().type() != QSqlError::NoError)
-            qWarning("Error executing sql command, %s",
+            qWarning("Error executing sql command `%s`, %s",
+                     qPrintable(s),
                      db.lastError().text().toLatin1().data());
     }
-    storeScheemaInDB();
+    putModelToDatabase();
     bool ok = db.commit();
 
     if (db.lastError().type() == QSqlError::NoError) {
@@ -160,6 +168,7 @@ bool DatabasePrivate::getCurrectScheema()
 
     if (allTableMaps.contains(q->metaObject()->className())) {
         currentModel = allTableMaps[q->metaObject()->className()];
+        qDebug() << "******************";
         return false;
     }
 
@@ -229,21 +238,22 @@ DatabaseModel DatabasePrivate::getLastScheema()
             ->orderBy(!ChangeLogTable::idField())
             ->first();
 
-    DatabaseModel ret(q->metaObject()->className());
+//    DatabaseModel ret(q->metaObject()->className());
 
     if (u) {
         QJsonObject json
             = QJsonDocument::fromJson(
                   QByteArray(u->data().toLocal8Bit().data())).object();
 
+        DatabaseModel ret = json;
+        return ret;
+        /*
         foreach (QString key, json.keys()) {
             TableModel *sch = new TableModel(json.value(key).toObject(), key);
             ret.append(sch);
-        }
-
-        u->deleteLater();
+        }*/
     }
-    return ret;
+    return DatabaseModel();
 
     //    QSqlQuery query = q->exec("select * from __change_logs order by id
     //    desc limit 1");
@@ -261,7 +271,7 @@ DatabaseModel DatabasePrivate::getLastScheema()
     //    return ret;
 }
 
-bool DatabasePrivate::storeScheemaInDB()
+bool DatabasePrivate::putModelToDatabase()
 {
     Q_Q(Database);
     DatabaseModel current = currentModel;

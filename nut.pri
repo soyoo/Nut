@@ -8,6 +8,7 @@ HEADERS += \
     $$PWD/src/generators/mysqlgenerator.h \
     $$PWD/src/generators/sqlitegenerator.h \
     $$PWD/src/generators/sqlservergenerator.h \
+    $$PWD/src/types/dbgeography.h \
     $$PWD/src/tableset.h \
     $$PWD/src/defines_p.h \
     $$PWD/src/defines.h \
@@ -22,7 +23,6 @@ HEADERS += \
     $$PWD/src/table.h \
     $$PWD/src/database.h \
     $$PWD/src/database_p.h \
-    $$PWD/src/dbgeography.h \
     $$PWD/src/serializableobject.h
 
 SOURCES += \
@@ -31,6 +31,7 @@ SOURCES += \
     $$PWD/src/generators/mysqlgenerator.cpp \
     $$PWD/src/generators/sqlitegenerator.cpp \
     $$PWD/src/generators/sqlservergenerator.cpp \
+    $$PWD/src/types/dbgeography.cpp \
     $$PWD/src/tableset.cpp \
     $$PWD/src/query.cpp \
     $$PWD/src/databasemodel.cpp \
@@ -41,5 +42,4 @@ SOURCES += \
     $$PWD/src/wherephrase.cpp \
     $$PWD/src/table.cpp \
     $$PWD/src/database.cpp \
-    $$PWD/src/dbgeography.cpp \
     $$PWD/src/serializableobject.cpp
