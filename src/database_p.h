@@ -58,7 +58,7 @@ public:
     SqlGeneratorBase *sqlGenertor;
     DatabaseModel currentModel;
 
-    TableSet<ChangeLogTable> *changeLogs;
+    TableSet<ChangeLogTable*> *changeLogs;
 
     QT_DEPRECATED
     QHash<QString, QString> tables;

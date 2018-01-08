@@ -12,6 +12,7 @@ SOURCES += \
     maintest.cpp \
     ../common/comment.cpp \
     ../common/post.cpp \
+    ../common/user.cpp \
     ../common/weblogdatabase.cpp
 
 HEADERS += \
@@ -19,4 +20,5 @@ HEADERS += \
     ../common/consts.h \
     ../common/comment.h \
     ../common/post.h \
+    ../common/user.h \
     ../common/weblogdatabase.h

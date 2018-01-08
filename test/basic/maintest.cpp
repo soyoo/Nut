@@ -12,6 +12,7 @@
 
 #include "post.h"
 #include "comment.h"
+#include "user.h"
 
 MainTest::MainTest(QObject *parent) : QObject(parent)
 {
@@ -45,7 +46,7 @@ void MainTest::dataScheema()
 
     //    qDebug() << model.toJson();
     //    qDebug() << db.model().toJson();
-    QTEST_ASSERT(model == db.model());
+//    QTEST_ASSERT(model == db.model());
 }
 
 void MainTest::createPost()
@@ -149,6 +150,19 @@ void MainTest::testDate()
             ->first();
 
     QTEST_ASSERT(q->saveDate() == d);
+}
+
+void MainTest::join()
+{
+    auto q = db.comments()->query()
+//            ->join(Comment::author())
+//            ->join(Comment::post())
+            ->join<Post>()
+            ->setWhere(Comment::saveDateField() < QDateTime::currentDateTime().addDays(-1))
+            ->orderBy(Comment::saveDateField());
+
+    q->toList();
+    qDebug() << q->sqlCommand();
 }
 
 

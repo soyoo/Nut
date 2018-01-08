@@ -24,7 +24,10 @@
 #include <QtCore/qglobal.h>
 #include <QtCore/QVariant>
 #include <QtCore/QMetaMethod>
+#include <QtCore/QMetaType>
 #include <QtSql/QSqlQuery>
+
+#include <type_traits>
 
 #include "tablesetbase_p.h"
 //#include "database.h"
@@ -42,15 +45,15 @@ public:
     TableSet(Database *parent);
     TableSet(Table *parent);
 
-    void append(T *t);
-    void append(QList<T*> t);
-    void remove(T *t);
-    void remove(QList<T*> t);
+    void append(T t);
+    void append(QList<T> t);
+    void remove(T t);
+    void remove(QList<T> t);
 
     inline T type() const {}
 
     int length() const;
-    T *at(int i) const;
+    T at(int i) const;
     const T &operator[](int i) const;
     Query<T> *query();
     Query<T> *query(bool autoDelete);
@@ -59,13 +62,15 @@ public:
 template<class T>
 Q_OUTOFLINE_TEMPLATE TableSet<T>::TableSet(Database *parent) : TableSetBase(parent)
 {
-    _childClassName = T::staticMetaObject.className();
+    auto t = new QMetaType(qRegisterMetaType<T>());
+    _childClassName = t->metaObject()->className();
 }
 
 template<class T>
 Q_OUTOFLINE_TEMPLATE TableSet<T>::TableSet(Table *parent) : TableSetBase(parent)
 {
-    _childClassName = T::staticMetaObject.className();
+    auto t = new QMetaType(qRegisterMetaType<T>());
+    _childClassName = t->metaObject()->className();
 }
 
 template<class T>
@@ -91,9 +96,9 @@ Q_OUTOFLINE_TEMPLATE int TableSet<T>::length() const
 }
 
 template<class T>
-Q_OUTOFLINE_TEMPLATE T *TableSet<T>::at(int i) const
+Q_OUTOFLINE_TEMPLATE T TableSet<T>::at(int i) const
 {
-    return (T*)_tablesList.at(i);
+    return (T)_tablesList.at(i);
 }
 
 template<class T>
@@ -103,7 +108,7 @@ Q_OUTOFLINE_TEMPLATE const T &TableSet<T>::operator[](int i) const
 }
 
 template<class T>
-Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(T *t)
+Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(T t)
 {
     _tables.insert(t);
     _tablesList.append(t);
@@ -114,21 +119,21 @@ Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(T *t)
 }
 
 template<class T>
-Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(QList<T *> t)
+Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(QList<T> t)
 {
     foreach (T* i, t)
         append(i);
 }
 
 template<class T>
-Q_OUTOFLINE_TEMPLATE void TableSet<T>::remove(T *t)
+Q_OUTOFLINE_TEMPLATE void TableSet<T>::remove(T t)
 {
     _tables.remove(t);
     t->setStatus(Table::Deleted);
 }
 
 template<class T>
-Q_OUTOFLINE_TEMPLATE void TableSet<T>::remove(QList<T *> t)
+Q_OUTOFLINE_TEMPLATE void TableSet<T>::remove(QList<T> t)
 {
     foreach (T* i, t)
         remove(i);

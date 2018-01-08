@@ -56,6 +56,8 @@ DatabasePrivate::DatabasePrivate(Database *parent) : q_ptr(parent), isDatabaseNe
 
 bool DatabasePrivate::open(bool update)
 {
+    if (db.isOpen())
+        return true;
     Q_Q(Database);
 //    if (update)
     connectionName = q->metaObject()->className()
@@ -182,7 +184,7 @@ bool DatabasePrivate::getCurrectScheema()
     tables.insert(ChangeLogTable::staticMetaObject.className(),
                   __CHANGE_LOG_TABLE_NAME);
 
-    changeLogs = new TableSet<ChangeLogTable>(q);
+    changeLogs = new TableSet<ChangeLogTable*>(q);
 
     for (int i = 0; i < q->metaObject()->classInfoCount(); i++) {
         QMetaClassInfo ci = q->metaObject()->classInfo(i);
@@ -321,6 +323,7 @@ Database::Database(const Database &other)
     : QObject(other.parent()), d_ptr(new DatabasePrivate(this))
 {
     DatabasePrivate::lastId++;
+    Q_D(Database);
 
     setDriver(other.driver());
     setHostName(other.hostName());
@@ -332,9 +335,10 @@ Database::Database(const Database &other)
 
 Database::Database(const QSqlDatabase &other)
 {
+    //TODO: make a polish here
     DatabasePrivate::lastId++;
 
-    setDriver(other.driver());
+//    setDriver(other.driver());
     setHostName(other.hostName());
     setPort(other.port());
     setDatabaseName(other.databaseName());

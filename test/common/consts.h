@@ -7,7 +7,7 @@
 //#define USERNAME "postgres"
 //#define PASSWORD "856856"
 
-#define DRIVER "QMYSQL"
+#define DRIVER "QSQLITE"
 #define HOST "127.0.0.1"
 #define DATABASE "nutdb"
 #define USERNAME "root"

@@ -56,4 +56,12 @@ void MainTest::cmd2()
     qDebug() << q->sqlCommand();
 }
 
+void MainTest::join()
+{
+    auto q = db.posts()->query()
+            ->join<User>()
+            ->toList();
+
+}
+
 QTEST_MAIN(MainTest)

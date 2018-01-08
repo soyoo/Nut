@@ -36,5 +36,6 @@ signals:
 public slots:
 };
 
-//Q_DECLARE_METATYPE(User*)
+Q_DECLARE_METATYPE(Post*)
+
 #endif // USER_H

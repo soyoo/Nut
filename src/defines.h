@@ -40,13 +40,13 @@
 #define NUT_DECLARE_TABLE(type, name)                                       \
     Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX __nut_TABLE " "  #type), #name)                              \
     Q_PROPERTY(type* name READ name)                                        \
-    Q_PROPERTY(NUT_WRAP_NAMESPACE(TableSet<type>) name##s READ name##s)                         \
+    Q_PROPERTY(NUT_WRAP_NAMESPACE(TableSet<type*>) name##s READ name##s)                         \
     type* m_##name;                                                         \
-    NUT_WRAP_NAMESPACE(TableSet<type>) *m_##name##s;                                            \
+    NUT_WRAP_NAMESPACE(TableSet<type*>) *m_##name##s;                                            \
 public:                                                                     \
     static const type _##name;                                              \
     type* name() const{ return m_##name; }                                  \
-    NUT_WRAP_NAMESPACE(TableSet<type>) *name##s() const { return m_##name##s; }
+    NUT_WRAP_NAMESPACE(TableSet<type*>) *name##s() const { return m_##name##s; }
 
 //Table
 #define NUT_DECLARE_FIELD(type, name, read, write)                          \
@@ -79,13 +79,13 @@ public:                                                                     \
 
 #define NUT_DECLARE_CHILD_TABLE(type, n)                                    \
     private:                                                                \
-        NUT_WRAP_NAMESPACE(TableSet)<type> *m_##n;                                              \
+        NUT_WRAP_NAMESPACE(TableSet)<type*> *m_##n;                                              \
     public:                                                                 \
         static type *n##Table(){                                            \
             static type *f = new type();                                    \
             return f;                                                       \
         }                                                                   \
-        NUT_WRAP_NAMESPACE(TableSet)<type> *n(){                                                \
+        NUT_WRAP_NAMESPACE(TableSet)<type*> *n(){                                                \
             return m_##n;                                                   \
         }
 

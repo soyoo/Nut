@@ -27,6 +27,7 @@ private slots:
     void selectPostsWithoutTitle();
     void selectPostIds();
     void testDate();
+    void join();
     void selectWithInvalidRelation();
     void select10NewstPosts();
     void modifyPost();
