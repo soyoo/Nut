@@ -62,15 +62,15 @@ public:
 template<class T>
 Q_OUTOFLINE_TEMPLATE TableSet<T>::TableSet(Database *parent) : TableSetBase(parent)
 {
-    auto t = new QMetaType(qRegisterMetaType<T>());
-    _childClassName = t->metaObject()->className();
+//    auto t = new QMetaType(qRegisterMetaType<T>());
+//    _childClassName = t->metaObject()->className();
 }
 
 template<class T>
 Q_OUTOFLINE_TEMPLATE TableSet<T>::TableSet(Table *parent) : TableSetBase(parent)
 {
-    auto t = new QMetaType(qRegisterMetaType<T>());
-    _childClassName = t->metaObject()->className();
+//    auto t = new QMetaType(qRegisterMetaType<T>());
+//    _childClassName = t->metaObject()->className();
 }
 
 template<class T>

@@ -84,6 +84,10 @@ public:                                                                     \
         NUT_WRAP_NAMESPACE(TableSet)<type*> *n(){                                                \
             return m_##n;                                                   \
         }
+//static type *n##Table(){                                            \
+//    /*static type *f = new type();*/                                    \
+//    /*return f;*/                                                       \
+//}                                                                   \
 
 #define NUT_INDEX(name, field, order)
 #define NUT_PRIMARY_KEY(x)                  Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #x " " __nut_PRIMARY_KEY),  #x)

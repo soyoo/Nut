@@ -16,12 +16,12 @@
 
 MainTest::MainTest(QObject *parent) : QObject(parent)
 {
-
 }
 
 void MainTest::initTestCase()
 {
-    qDebug() << "User type id:" << qRegisterMetaType<Post*>();
+    qDebug() << "User type id:" << qRegisterMetaType<User*>();
+    qDebug() << "Post type id:" << qRegisterMetaType<Post*>();
     qDebug() << "Comment type id:" << qRegisterMetaType<Comment*>();
     qDebug() << "DB type id:" << qRegisterMetaType<WeblogDatabase*>();
 
@@ -96,7 +96,7 @@ void MainTest::createPost2()
 void MainTest::selectPosts()
 {
     auto q = db.posts()->query();
-    q->join(Post::commentsTable());
+//    q->join(Post::commentsTable());
     q->orderBy(!Post::saveDateField() & Post::bodyField());
     q->setWhere(Post::idField() == postId);
 
