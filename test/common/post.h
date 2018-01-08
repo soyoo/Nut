@@ -4,13 +4,14 @@
 #include <QtCore/qglobal.h>
 #include "table.h"
 #include "database.h"
-#include "comment.h"
+//#include "comment.h"
 #include "databasemodel.h"
 
 #ifdef NUT_NAMESPACE
 using namespace NUT_NAMESPACE;
 #endif
 
+class Comment;
 class Post : public Table
 {
     Q_OBJECT

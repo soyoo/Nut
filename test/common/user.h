@@ -4,12 +4,13 @@
 #include <QtCore/QUuid>
 #include "table.h"
 #include "tableset.h"
-#include "comment.h"
+//#include "comment.h"
 
 #ifdef NUT_NAMESPACE
 using namespace NUT_NAMESPACE;
 #endif
 
+class Comment;
 class User : public Table
 {
     Q_OBJECT

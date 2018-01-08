@@ -81,10 +81,6 @@ public:                                                                     \
     private:                                                                \
         NUT_WRAP_NAMESPACE(TableSet)<type*> *m_##n;                                              \
     public:                                                                 \
-        static type *n##Table(){                                            \
-            static type *f = new type();                                    \
-            return f;                                                       \
-        }                                                                   \
         NUT_WRAP_NAMESPACE(TableSet)<type*> *n(){                                                \
             return m_##n;                                                   \
         }
