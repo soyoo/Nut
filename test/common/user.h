@@ -1,17 +1,18 @@
 #ifndef USER_H
 #define USER_H
 
-#include <QtCore/QUuid>
 #include "table.h"
 #include "tableset.h"
-//#include "comment.h"
+
+#include <QtCore/QUuid>
+#include <QtCore/QString>
 
 #ifdef NUT_NAMESPACE
 using namespace NUT_NAMESPACE;
 #endif
 
 class Comment;
-class User : public Table
+class User : public Nut::Table
 {
     Q_OBJECT
 
@@ -29,7 +30,7 @@ class User : public Table
     NUT_DECLARE_CHILD_TABLE(Comment, comments)
 
 public:
-    User(QObject *tableSet = 0);
+    Q_INVOKABLE User(QObject *tableSet = 0);
 };
 
 Q_DECLARE_METATYPE(User*)

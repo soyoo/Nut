@@ -10,9 +10,9 @@
 #include "tablemodel.h"
 #include "databasemodel.h"
 
+#include "user.h"
 #include "post.h"
 #include "comment.h"
-#include "user.h"
 
 MainTest::MainTest(QObject *parent) : QObject(parent)
 {
@@ -95,13 +95,15 @@ void MainTest::createPost2()
 
 void MainTest::selectPosts()
 {
-    auto q = db.posts()->query();
+    auto q = db.posts()->query()
 //    q->join(Post::commentsTable());
-    q->orderBy(!Post::saveDateField() & Post::bodyField());
-    q->setWhere(Post::idField() == postId);
+//    q->join(Post::commentsTable());
+//        ->join<Comment>()
+        ->orderBy(!Post::saveDateField() & Post::bodyField())
+        ->setWhere(Post::idField() == postId);
 
     auto posts = q->toList();
-
+    qDebug() << "SQL="<<q->sqlCommand();
     post = posts.at(0);
     post->setBody("");
 

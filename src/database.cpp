@@ -184,7 +184,7 @@ bool DatabasePrivate::getCurrectScheema()
     tables.insert(ChangeLogTable::staticMetaObject.className(),
                   __CHANGE_LOG_TABLE_NAME);
 
-    changeLogs = new TableSet<ChangeLogTable*>(q);
+    changeLogs = new TableSet<ChangeLogTable>(q);
 
     for (int i = 0; i < q->metaObject()->classInfoCount(); i++) {
         QMetaClassInfo ci = q->metaObject()->classInfo(i);

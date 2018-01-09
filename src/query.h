@@ -48,17 +48,13 @@ class NUT_EXPORT Query : public QueryBase
 
 public:
     Query(Database *database, TableSetBase *tableSet, bool autoDelete);
-
     ~Query();
 
-    Query<T> *join(const QString &tableName);
+    //ddl
     Query<T> *setWhere(WherePhrase where);
 
-    Query<T> *join(Table *c)
-    {
-        join(c->metaObject()->className());
-        return this;
-    }
+    Query<T> *join(const QString &tableName);
+    Query<T> *join(Table *c);
 
     template<class TABLE>
     Query<T> *join()
@@ -68,24 +64,27 @@ public:
     }
 
 //    Query<T> *orderBy(QString fieldName, QString type);
-    Query<T> *skip(int &n);
-    Query<T> *take(int &n);
+    Query<T> *skip(int n);
+    Query<T> *take(int n);
     Query<T> *orderBy(WherePhrase phrase);
     Query<T> *include(TableSetBase *t);
     Query<T> *include(Table *t);
 
+    //data selecting
+    T *first();
+    QList<T*> toList(int count = -1);
+    template <typename F>
+    QList<F> select(const FieldPhrase<F> f);
     int count();
     QVariant max(FieldPhrase<int> &f);
     QVariant min(FieldPhrase<int> &f);
     QVariant average(FieldPhrase<int> &f);
-    T first();
-    QList<T> toList(int count = -1);
-    template <typename F>
-    QList<F> select(const FieldPhrase<F> f);
 
+    //data mailpulation
     int update(WherePhrase phrase);
     int remove();
 
+    //debug purpose
     QString sqlCommand() const;
 };
 
@@ -120,10 +119,10 @@ Q_OUTOFLINE_TEMPLATE Query<T>::~Query()
 }
 
 template <class T>
-Q_OUTOFLINE_TEMPLATE QList<T> Query<T>::toList(int count)
+Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
 {
     Q_D(Query);
-    QList<T> result;
+    QList<T*> result;
     d->select = "*";
 
     //    QSqlQuery q =
@@ -138,7 +137,7 @@ Q_OUTOFLINE_TEMPLATE QList<T> Query<T>::toList(int count)
     QString pk = d->database->model().tableByName(d->tableName)->primaryKey();
     QVariant lastPkValue = QVariant();
     int childTypeId = 0;
-    T lastRow = 0;
+    T *lastRow = 0;
     TableSetBase *childTableSet = Q_NULLPTR;
 
     // FIXME: getting table error
@@ -164,7 +163,7 @@ Q_OUTOFLINE_TEMPLATE QList<T> Query<T>::toList(int count)
 
     while (q.next()) {
         if (lastPkValue != q.value(pk)) {
-            T t = T();//new std::remove_pointer<T>::type();
+            T *t = new T();//new std::remove_pointer<T>::type();
             foreach (QString field, masterFields)
                 t->setProperty(field.toLatin1().data(), q.value(field));
             //            for (int i = 0; i < t->metaObject()->propertyCount();
@@ -244,9 +243,11 @@ Q_OUTOFLINE_TEMPLATE QList<F> Query<T>::select(const FieldPhrase<F> f)
 }
 
 template <class T>
-Q_OUTOFLINE_TEMPLATE T Query<T>::first()
+Q_OUTOFLINE_TEMPLATE T *Query<T>::first()
 {
-    QList<T> list = toList(1);
+    skip(0);
+    take(1);
+    QList<T*> list = toList(1);
 
     if (list.count())
         return list.first();
@@ -322,6 +323,13 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::join(const QString &tableName)
     return this;
 }
 
+template<class T>
+Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::join(Table *c)
+{
+    join(c->metaObject()->className());
+    return this;
+}
+
 template <class T>
 Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::setWhere(WherePhrase where)
 {
@@ -331,7 +339,7 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::setWhere(WherePhrase where)
 }
 
 template<class T>
-Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::skip(int &n)
+Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::skip(int n)
 {
     Q_D(Query);
     d->skip = n;
@@ -339,7 +347,7 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::skip(int &n)
 }
 
 template<class T>
-Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::take(int &n)
+Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::take(int n)
 {
     Q_D(Query);
     d->take = n;

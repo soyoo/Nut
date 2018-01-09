@@ -1,10 +1,9 @@
-#ifndef USER_H
-#define USER_H
+#ifndef POST_H
+#define POST_H
 
 #include <QtCore/qglobal.h>
 #include "table.h"
 #include "database.h"
-//#include "comment.h"
 #include "databasemodel.h"
 
 #ifdef NUT_NAMESPACE
@@ -39,4 +38,4 @@ public slots:
 
 Q_DECLARE_METATYPE(Post*)
 
-#endif // USER_H
+#endif // POST_H
