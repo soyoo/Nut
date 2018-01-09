@@ -7,3 +7,6 @@ before_install:
 script:
  - qmake nut.pro
  - make
+
+ notifications:
+    email: false
