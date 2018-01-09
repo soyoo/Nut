@@ -38,9 +38,11 @@ class ChangeLogTable : public Table
     NUT_DECLARE_FIELD(QString, version, version, setVersion)
 
 public:
-    ChangeLogTable();
+    ChangeLogTable(QObject *tableSet = Q_NULLPTR);
 };
 
 NUT_END_NAMESPACE
+
+Q_DECLARE_METATYPE(Nut::ChangeLogTable*)
 
 #endif // CHANGELOGTABLE_H

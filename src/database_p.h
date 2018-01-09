@@ -23,12 +23,12 @@
 
 #include "database.h"
 #include "databasemodel.h"
-#include "changelogtable.h"
 
 #include <QDebug>
 
 NUT_BEGIN_NAMESPACE
 
+class ChangeLogTable;
 class DatabasePrivate
 {
     Database *q_ptr;

@@ -22,7 +22,7 @@
 
 NUT_BEGIN_NAMESPACE
 
-ChangeLogTable::ChangeLogTable()
+ChangeLogTable::ChangeLogTable(QObject *tableSet) : Table(tableSet)
 {
 
 

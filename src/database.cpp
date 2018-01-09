@@ -39,6 +39,7 @@
 #include "generators/sqlitegenerator.h"
 #include "generators/sqlservergenerator.h"
 #include "query.h"
+#include "changelogtable.h"
 
 #include <iostream>
 #include <cstdarg>
@@ -188,9 +189,10 @@ bool DatabasePrivate::getCurrectScheema()
 
     for (int i = 0; i < q->metaObject()->classInfoCount(); i++) {
         QMetaClassInfo ci = q->metaObject()->classInfo(i);
-        QString ciName
-            = QString(ci.name()).replace(__nut_NAME_PERFIX, "").replace("\"",
-                                                                        "");
+        QString ciName = QString(ci.name())
+                .replace(__nut_NAME_PERFIX, "")
+                .replace("\"", "");
+
         if (ciName.startsWith(__nut_TABLE))
             tables.insert(ciName.split(" ").at(1), ci.value());
 
@@ -317,6 +319,7 @@ Database::Database(QObject *parent)
     : QObject(parent), d_ptr(new DatabasePrivate(this))
 {
     DatabasePrivate::lastId++;
+    qRegisterMetaType<ChangeLogTable*>();
 }
 
 Database::Database(const Database &other)
@@ -331,6 +334,7 @@ Database::Database(const Database &other)
     setDatabaseName(other.databaseName());
     setUserName(other.userName());
     setPassword(other.password());
+    qRegisterMetaType<ChangeLogTable*>();
 }
 
 Database::Database(const QSqlDatabase &other)
@@ -344,6 +348,7 @@ Database::Database(const QSqlDatabase &other)
     setDatabaseName(other.databaseName());
     setUserName(other.userName());
     setPassword(other.password());
+    qRegisterMetaType<ChangeLogTable*>();
 }
 
 Database::~Database()
