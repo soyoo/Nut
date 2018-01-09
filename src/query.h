@@ -107,7 +107,7 @@ Q_OUTOFLINE_TEMPLATE Query<T>::Query(Database *database, TableSetBase *tableSet,
     d->tableName
         = // TableModel::findByClassName(T::staticMetaObject.className())->name();
         d->database->model()
-            .tableByClassName(std::remove_pointer<T>::type::staticMetaObject.className())
+            .tableByClassName(T::staticMetaObject.className())
             ->name();
 }
 
@@ -163,7 +163,7 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
 
     while (q.next()) {
         if (lastPkValue != q.value(pk)) {
-            T *t = new T();//new std::remove_pointer<T>::type();
+            T *t = new T();
             foreach (QString field, masterFields)
                 t->setProperty(field.toLatin1().data(), q.value(field));
             //            for (int i = 0; i < t->metaObject()->propertyCount();
