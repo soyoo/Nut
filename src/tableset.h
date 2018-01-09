@@ -27,8 +27,6 @@
 #include <QtCore/QMetaType>
 #include <QtSql/QSqlQuery>
 
-#include <type_traits>
-
 #include "tablesetbase_p.h"
 //#include "database.h"
 #include "table.h"
@@ -62,15 +60,13 @@ public:
 template<class T>
 Q_OUTOFLINE_TEMPLATE TableSet<T>::TableSet(Database *parent) : TableSetBase(parent)
 {
-//    auto t = new QMetaType(qRegisterMetaType<T>());
-//    _childClassName = t->metaObject()->className();
+    _childClassName = T::staticMetaObject.className();
 }
 
 template<class T>
 Q_OUTOFLINE_TEMPLATE TableSet<T>::TableSet(Table *parent) : TableSetBase(parent)
 {
-//    auto t = new QMetaType(qRegisterMetaType<T>());
-//    _childClassName = t->metaObject()->className();
+    _childClassName = T::staticMetaObject.className();
 }
 
 template<class T>

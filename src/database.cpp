@@ -179,7 +179,7 @@ bool DatabasePrivate::getCurrectScheema()
     tables.clear();
 
     // TODO: change logs must not be in model
-    int changeLogTypeId = qRegisterMetaType<ChangeLogTable *>();
+    int changeLogTypeId = qRegisterMetaType<ChangeLogTable*>();
     currentModel.append(
         new TableModel(changeLogTypeId, __CHANGE_LOG_TABLE_NAME));
     tables.insert(ChangeLogTable::staticMetaObject.className(),
@@ -237,8 +237,6 @@ bool DatabasePrivate::getCurrectScheema()
 
 DatabaseModel DatabasePrivate::getLastScheema()
 {
-    Q_Q(Database);
-
     ChangeLogTable *u = changeLogs->query()
             ->orderBy(!ChangeLogTable::idField())
             ->first();
@@ -326,7 +324,6 @@ Database::Database(const Database &other)
     : QObject(other.parent()), d_ptr(new DatabasePrivate(this))
 {
     DatabasePrivate::lastId++;
-    Q_D(Database);
 
     setDriver(other.driver());
     setHostName(other.hostName());
@@ -481,6 +478,12 @@ void Database::databaseUpdated(QString oldVersion, QString newVersion)
 }
 
 
+/**
+ * @brief Database::open
+ * Opens the database connection using the current connection values.
+ * Returns true on success; otherwise returns false.
+ * @return bool
+ */
 bool Database::open()
 {
     return open(true);

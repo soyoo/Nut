@@ -41,8 +41,8 @@ void MainTest::initTestCase()
 
 void MainTest::dataScheema()
 {
-    auto json = db.model().toJson();
-    auto model = DatabaseModel::fromJson(json);
+//    auto json = db.model().toJson();
+//    auto model = DatabaseModel::fromJson(json);
 
     //    qDebug() << model.toJson();
     //    qDebug() << db.model().toJson();
@@ -98,7 +98,7 @@ void MainTest::selectPosts()
     auto q = db.posts()->query()
 //    q->join(Post::commentsTable());
 //    q->join(Post::commentsTable());
-//        ->join<Comment>()
+        ->join<Comment>()
         ->orderBy(!Post::saveDateField() & Post::bodyField())
         ->setWhere(Post::idField() == postId);
 
