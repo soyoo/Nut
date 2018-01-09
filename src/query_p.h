@@ -46,6 +46,7 @@ public:
     Database *database;
     TableSetBase *tableSet;
     QString joinClassName;
+    QStringList joins;
     QList<WherePhrase> wheres;
     QList<WherePhrase> orderPhrases;
     QHash<QString, QString> orders;

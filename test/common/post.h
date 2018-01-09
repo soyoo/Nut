@@ -29,7 +29,7 @@ class Post : public Table
     NUT_DECLARE_CHILD_TABLE(Comment, comments)
 
 public:
-    explicit Post(QObject *tableSet = 0);
+    Q_INVOKABLE Post(QObject *tableSet = 0);
 
 signals:
 

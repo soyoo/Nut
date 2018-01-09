@@ -59,12 +59,16 @@ public:
 
     virtual QString masterDatabaseName(QString databaseName);
 
+    virtual QString createTable(TableModel *table);
+
     virtual QString fieldType(FieldModel *field) = 0;
     virtual QString fieldDeclare(FieldModel *field);
 
     virtual QStringList diff(DatabaseModel lastModel, DatabaseModel newModel);
     virtual QString diff(FieldModel *oldField, FieldModel *newField);
     virtual QString diff(TableModel *oldTable, TableModel *newTable);
+
+    virtual QString join(const QStringList &list);
 
     virtual QString saveRecord(Table *t, QString tableName);
     virtual QString insertRecord(Table *t, QString tableName);

@@ -53,7 +53,7 @@ public:
     //ddl
     Query<T> *setWhere(WherePhrase where);
 
-    Query<T> *join(const QString &tableName);
+    Query<T> *join(const QString &className);
     Query<T> *join(Table *c);
 
     template<class TABLE>
@@ -125,6 +125,8 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
     QList<T*> result;
     d->select = "*";
 
+    d->joins.prepend(d->tableName);
+    qDebug() << "JOINS="<<    d->database->sqlGenertor()->join(d->joins);
     //    QSqlQuery q =
     //    d->database->exec(d->database->sqlGenertor()->selectCommand(d->wheres,
     //    d->orders, d->tableName, d->joinClassName));
@@ -316,10 +318,11 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::average(FieldPhrase<int> &f)
 }
 
 template <class T>
-Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::join(const QString &tableName)
+Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::join(const QString &className)
 {
     Q_D(Query);
-    d->joinClassName = tableName;
+    d->joinClassName = className;
+    d->joins.append(className);
     return this;
 }
 

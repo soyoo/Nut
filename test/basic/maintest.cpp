@@ -98,6 +98,7 @@ void MainTest::selectPosts()
     auto q = db.posts()->query()
 //    q->join(Post::commentsTable());
 //    q->join(Post::commentsTable());
+        ->join<User>()
         ->join<Comment>()
         ->orderBy(!Post::saveDateField() & Post::bodyField())
         ->setWhere(Post::idField() == postId);

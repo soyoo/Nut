@@ -33,6 +33,18 @@
 
 NUT_BEGIN_NAMESPACE
 
+/*
+ * Index:
+ *  ALTER TABLE `travelLog` ADD INDEX(`driverId`);
+ *
+ * Foreign key:
+ * ALTER TABLE `travelLog`
+ *      ADD CONSTRAINT `travelLog_ibfk_1`
+ *      FOREIGN KEY (`driverId`)
+ *      REFERENCES `account` (`id`)
+ *      ON DELETE CASCADE
+ *      ON UPDATE CASCADE;
+ */
 SqlGeneratorBase::SqlGeneratorBase(Database *parent)
     : QObject((QObject *)parent)
 {
@@ -48,6 +60,11 @@ QString SqlGeneratorBase::masterDatabaseName(QString databaseName)
 {
     Q_UNUSED(databaseName);
     return "";
+}
+
+QString SqlGeneratorBase::createTable(TableModel *table)
+{
+
 }
 
 QString SqlGeneratorBase::saveRecord(Table *t, QString tableName)
@@ -159,6 +176,32 @@ QString SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
             columnSql.join(",\n"));
     }
     return sql;
+}
+
+QString SqlGeneratorBase::join(const QStringList &list)
+{
+    if (!list.count())
+        return "";
+
+    if (list.count() == 1)
+        return list.first();
+
+    DatabaseModel model = _database->model();
+    QStringList clone = list;
+    QString mainTable = clone.takeFirst();
+    QString ret = mainTable;
+
+    do {
+        QString t = model.tableByClassName(clone.first())->name();
+        RelationModel *rel = model.relationByTableNames(mainTable, t);
+
+        if (rel) {
+            clone.takeFirst();
+            ret.append(", " + _database->tableName(clone.takeFirst()));
+        }
+    } while (clone.count());
+
+    return ret;
 }
 
 QString SqlGeneratorBase::insertRecord(Table *t, QString tableName)
