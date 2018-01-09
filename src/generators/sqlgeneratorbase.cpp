@@ -19,6 +19,7 @@
 **************************************************************************/
 
 #include <QDate>
+#include <QDebug>
 #include <QDateTime>
 #include <QPointF>
 #include <QTime>
