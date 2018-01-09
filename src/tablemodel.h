@@ -65,9 +65,9 @@ struct FieldModel{
 };
 
 struct RelationModel{
+    TableModel *table;
     QString className;
     QString localColumn;
-    TableModel *table;
     QString foregionColumn;
 };
 class TableModel

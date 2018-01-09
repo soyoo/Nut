@@ -44,6 +44,11 @@ NUT_BEGIN_NAMESPACE
  *      REFERENCES `account` (`id`)
  *      ON DELETE CASCADE
  *      ON UPDATE CASCADE;
+ *
+ * SELECT
+ *  FROM            dbo.GiftTypes
+ *      INNER JOIN dbo.GiftCards ON dbo.GiftTypes.GiftTypeID = dbo.GiftCards.GiftTypeID
+ *      INNER JOIN dbo.Entities ON dbo.GiftCards.GiftCardID = dbo.Entities.GiftCardID
  */
 SqlGeneratorBase::SqlGeneratorBase(Database *parent)
     : QObject((QObject *)parent)
@@ -180,6 +185,12 @@ QString SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
 
 QString SqlGeneratorBase::join(const QStringList &list)
 {
+    //TODO: make this ungly code better and bugless :-)
+    /*
+     * Known issues:
+     *  Support onle near joins, far supports with medium table finding not support yet
+     */
+
     if (!list.count())
         return "";
 
@@ -192,12 +203,31 @@ QString SqlGeneratorBase::join(const QStringList &list)
     QString ret = mainTable;
 
     do {
-        QString t = model.tableByClassName(clone.first())->name();
-        RelationModel *rel = model.relationByTableNames(mainTable, t);
-
+        QString table = model.tableByClassName(clone.first())->name();
+        clone.takeFirst();
+        RelationModel *rel = model.relationByTableNames(mainTable, table);
         if (rel) {
-            clone.takeFirst();
-            ret.append(", " + _database->tableName(clone.takeFirst()));
+            //mainTable is master of table
+            ret.append(QString(" INNER JOIN %1 ON %4.%2 = %1.%3")
+                       .arg(table)
+                       .arg(rel->table->primaryKey())
+                       .arg(rel->localColumn)
+                       .arg(mainTable));
+
+        } else{
+            rel = model.relationByTableNames(table, mainTable);
+            if (rel) {
+                // table is master of mainTable
+                ret.append(QString(" INNER JOIN %1 ON %4.%2 = %1.%3")
+                           .arg(table)
+                           .arg(rel->localColumn)
+                           .arg(rel->table->primaryKey())
+                           .arg(mainTable));
+
+            } else {
+                qInfo("Relation for %s and %s not exists",
+                      qPrintable(table), qPrintable(mainTable));
+            }
         }
     } while (clone.count());
 

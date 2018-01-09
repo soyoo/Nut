@@ -98,7 +98,7 @@ void MainTest::selectPosts()
     auto q = db.posts()->query()
 //    q->join(Post::commentsTable());
 //    q->join(Post::commentsTable());
-        ->join<User>()
+//        ->join<User>()
         ->join<Comment>()
         ->orderBy(!Post::saveDateField() & Post::bodyField())
         ->setWhere(Post::idField() == postId);
@@ -158,8 +158,7 @@ void MainTest::testDate()
 void MainTest::join()
 {
     auto q = db.comments()->query()
-//            ->join(Comment::author())
-//            ->join(Comment::post())
+            ->join<User>()
             ->join<Post>()
             ->setWhere(Comment::saveDateField() < QDateTime::currentDateTime().addDays(-1))
             ->orderBy(Comment::saveDateField());

@@ -32,6 +32,9 @@
 #   define NUT_EXPORT Q_DECL_EXPORT
 #endif
 
+#define NUT_INFO(type, name, value) \
+    Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #name "\n" #type), #value)
+
 // Database
 //TODO: remove minor version
 #define NUT_DB_VERSION(version)  \

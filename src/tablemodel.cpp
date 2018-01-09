@@ -211,6 +211,7 @@ TableModel::TableModel(int typeId, QString tableName)
                 fk->foregionColumn = value;
                 fk->className = value;
                 _foregionKeys.append(fk);
+                qDebug() << "REL="<<parts<<value<<fk;
             }
 
             if(propName == __nut_FIELD){

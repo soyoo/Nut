@@ -227,8 +227,8 @@ bool DatabasePrivate::getCurrectScheema()
         }
     }
 
-    foreach (TableModel *sch, currentModel)
-        foreach (RelationModel *fk, sch->foregionKeys())
+    foreach (TableModel *table, currentModel)
+        foreach (RelationModel *fk, table->foregionKeys())
             fk->table = currentModel.tableByClassName(fk->className);
 
     allTableMaps.insert(q->metaObject()->className(), currentModel);

@@ -209,7 +209,8 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
             childTable->setStatus(Table::FeatchedFromDB);
             childTable->setTableSet(childTableSet);
             childTable->clear();
-            childTableSet->add(childTable);
+            addTableToSet(childTableSet, childTable);
+//            childTableSet->add(childTable);
         }
         lastPkValue = q.value(pk);
 

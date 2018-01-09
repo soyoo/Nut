@@ -28,13 +28,16 @@
 NUT_BEGIN_NAMESPACE
 
 //TODO: remove this class
+class Table;
+class TableSetBase;
 class QueryBase : public QObject
 {
     Q_OBJECT
 public:
     explicit QueryBase(QObject *parent = 0);
 
-signals:
+protected:
+    void addTableToSet(TableSetBase *set, Table *table);
 
 public slots:
 };
