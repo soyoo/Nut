@@ -134,4 +134,15 @@ QString MySqlGenerator::phrase(const PhraseData *d) const
     return SqlGeneratorBase::phrase(d);
 }
 
+QString MySqlGenerator::selectCommand(SqlGeneratorBase::AgregateType t, QString agregateArg, QList<WherePhrase> &wheres, QList<WherePhrase> &orders, QStringList joins, int skip, int take)
+{
+    QString command = SqlGeneratorBase::selectCommand(t, agregateArg, wheres, orders, joins, skip, take);
+
+    if (take != -1 && skip != -1)
+        command.append(QString(" LIMIT %1 OFFSET %2")
+                       .arg(skip)
+                       .arg(take));
+    return command;
+}
+
 NUT_END_NAMESPACE

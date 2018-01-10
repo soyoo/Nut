@@ -126,13 +126,14 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
     d->select = "*";
 
     d->joins.prepend(d->tableName);
+
     qDebug() << "JOINS="<<    d->database->sqlGenertor()->join(d->joins);
     //    QSqlQuery q =
     //    d->database->exec(d->database->sqlGenertor()->selectCommand(d->wheres,
     //    d->orders, d->tableName, d->joinClassName));
     d->sql = d->database->sqlGenertor()->selectCommand(
         SqlGeneratorBase::SelectAll, "", d->wheres, d->orderPhrases,
-        d->tableName, d->joinClassName, d->skip, d->take);
+        d->joins, d->skip, d->take);
     QSqlQuery q = d->database->exec(d->sql);
 
     //    QString pk = TableModel::findByName(d->tableName)->primaryKey();
@@ -229,9 +230,11 @@ Q_OUTOFLINE_TEMPLATE QList<F> Query<T>::select(const FieldPhrase<F> f)
 {
     Q_D(Query);
     QList<F> ret;
+
+    d->joins.prepend(d->tableName);
     d->sql = d->database->sqlGenertor()->selectCommand(
         SqlGeneratorBase::SignleField, f.data()->text, d->wheres,
-        d->orderPhrases, d->tableName, d->joinClassName, d->skip, d->take);
+        d->orderPhrases, d->joins, d->skip, d->take);
 
     QSqlQuery q = d->database->exec(d->sql);
 
@@ -263,9 +266,10 @@ Q_OUTOFLINE_TEMPLATE int Query<T>::count()
 {
     Q_D(Query);
 
+    d->joins.prepend(d->tableName);
     d->select = "COUNT(*)";
     d->sql = d->database->sqlGenertor()->selectCommand(SqlGeneratorBase::Count,
-        QStringLiteral("*"), d->wheres, d->orderPhrases, d->tableName, d->joinClassName);
+        QStringLiteral("*"), d->wheres, d->orderPhrases, d->joins);
     QSqlQuery q = d->database->exec(d->sql);
 
     if (q.next())
@@ -278,9 +282,10 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::max(FieldPhrase<int> &f)
 {
     Q_D(Query);
 
+    d->joins.prepend(d->tableName);
     d->sql = d->database->sqlGenertor()->selectCommand(
         SqlGeneratorBase::Max, f.data()->text, d->wheres, d->orderPhrases,
-        d->tableName, d->joinClassName);
+        d->joins);
     QSqlQuery q = d->database->exec(d->sql);
 
     if (q.next())
@@ -293,9 +298,10 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::min(FieldPhrase<int> &f)
 {
     Q_D(Query);
 
+    d->joins.prepend(d->tableName);
     d->sql = d->database->sqlGenertor()->selectCommand(
         SqlGeneratorBase::Min, f.data()->text, d->wheres, d->orderPhrases,
-        d->tableName, d->joinClassName);
+        d->joins);
     QSqlQuery q = d->database->exec(d->sql);
 
     if (q.next())
@@ -308,9 +314,10 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::average(FieldPhrase<int> &f)
 {
     Q_D(Query);
 
+    d->joins.prepend(d->tableName);
     d->sql = d->database->sqlGenertor()->selectCommand(
         SqlGeneratorBase::Average, f.data()->text, d->wheres, d->orderPhrases,
-        d->tableName, d->joinClassName);
+        d->joins);
     QSqlQuery q = d->database->exec(d->sql);
 
     if (q.next())

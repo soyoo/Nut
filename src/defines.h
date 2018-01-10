@@ -33,7 +33,7 @@
 #endif
 
 #define NUT_INFO(type, name, value) \
-    Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #name "\n" #type), #value)
+    Q_CLASSINFO(__nut_NAME_PERFIX #type #name #value, #value)
 
 // Database
 //TODO: remove minor version
@@ -106,18 +106,5 @@ public:                                                                     \
 #define NUT_DEFAULT_VALUE(x, n)             Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #x " " __nut_DEFAULT_VALUE),    #n)
 #define NUT_NOT_NULL(x)                     Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #x " " __nut_NOT_NULL), "1")
 #define NUT_INDEX(name, field, order)
-
-#ifndef NUT_NO_KEYWORDS
-#   define FROM(x)          (x->query())
-#   define WHERE(x)         ->setWhere(x)
-#   define JOIN(x)          ->join<x>()
-#   define ORDERBY(x)       ->orderBy(#x);
-#   define ORDERBY_DESC(x)  ->orderBy(!#x);
-
-#   define SELECT()         ->toList()
-#   define COUNT()          ->count()
-#   define DELETE()         ->remove()
-#   define FIRST()          ->first()
-#endif // NUT_NO_KEYWORDS
 
 #endif // SYNTAX_DEFINES_H

@@ -35,6 +35,7 @@ public:
     QString escapeValue(const QVariant &v) const;
     QVariant readValue(const QVariant::Type &type, const QVariant &dbValue);
     QString phrase(const PhraseData *d) const;
+    QString selectCommand(AgregateType t, QString agregateArg, QList<WherePhrase> &wheres, QList<WherePhrase> &orders, QStringList joins, int skip, int take);
 };
 
 NUT_END_NAMESPACE

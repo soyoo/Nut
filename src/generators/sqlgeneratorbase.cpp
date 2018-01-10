@@ -180,11 +180,12 @@ QString SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
 
         sql = QString("CREATE TABLE %1 \n(%2)").arg(newTable->name()).arg(
             columnSql.join(",\n"));
+        qDebug() << sql;
     }
     return sql;
 }
 
-QString SqlGeneratorBase::join(const QStringList &list)
+QString SqlGeneratorBase::join(const QStringList &list, QStringList *order)
 {
     //TODO: make this ungly code better and bugless :-)
     /*
@@ -215,6 +216,9 @@ QString SqlGeneratorBase::join(const QStringList &list)
                        .arg(rel->localColumn)
                        .arg(mainTable));
 
+            if (order != Q_NULLPTR)
+                order->append(table + "." + rel->localColumn);
+
         } else{
             rel = model.relationByTableNames(table, mainTable);
             if (rel) {
@@ -224,6 +228,9 @@ QString SqlGeneratorBase::join(const QStringList &list)
                            .arg(rel->localColumn)
                            .arg(rel->table->primaryKey())
                            .arg(mainTable));
+
+                if (order != Q_NULLPTR)
+                    order->append(table + "." + rel->table->primaryKey());
 
             } else {
                 qInfo("Relation for %s and %s not exists",
@@ -373,16 +380,16 @@ QString SqlGeneratorBase::selectCommand(SqlGeneratorBase::AgregateType t,
                                         QString agregateArg,
                                         QList<WherePhrase> &wheres,
                                         QList<WherePhrase> &orders,
-                                        QString tableName,
-                                        QString joinClassName, int skip, int take)
+                                        QStringList joins, int skip, int take)
 {
     Q_UNUSED(take);
     Q_UNUSED(skip);
 
+    QStringList joinedOrders;
     QString select = agregateText(t, agregateArg);
+    QString from = join(joins, &joinedOrders);
     QString where = createWhere(wheres);
-    QString order = "";
-    QString from = fromTableText(tableName, joinClassName, order);
+    QString order = joinedOrders.join(", ");
 
     foreach (WherePhrase p, orders) {
         if (order != "")
@@ -404,7 +411,7 @@ QString SqlGeneratorBase::selectCommand(SqlGeneratorBase::AgregateType t,
 
     replaceTableNames(sql);
 
-    return sql;
+    return sql + " ";
 }
 
 QString SqlGeneratorBase::createWhere(QList<WherePhrase> &wheres)

@@ -68,7 +68,7 @@ public:
     virtual QString diff(FieldModel *oldField, FieldModel *newField);
     virtual QString diff(TableModel *oldTable, TableModel *newTable);
 
-    virtual QString join(const QStringList &list);
+    virtual QString join(const QStringList &list, QStringList *order = Q_NULLPTR);
 
     virtual QString saveRecord(Table *t, QString tableName);
     virtual QString insertRecord(Table *t, QString tableName);
@@ -82,8 +82,7 @@ public:
                                   QString agregateArg,
                                   QList<WherePhrase> &wheres,
                                   QList<WherePhrase> &orders,
-                                  QString tableName,
-                                  QString joinClassName,
+                                  QStringList joins,
                                   int skip = -1, int take = -1);
 
     virtual QString deleteCommand(QList<WherePhrase> &wheres, QString tableName);

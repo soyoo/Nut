@@ -54,10 +54,9 @@ QString SqliteGenerator::fieldType(FieldModel *field)
         dbType = "real";
         break;
     case QVariant::Int:
-//        if(field->isPrimaryKey)
-//            dbType = "INTEGER PRIMARY KEY";
-//        else
-            dbType = "integer";
+        dbType = "integer";
+//        if (field->isAutoIncrement)
+//            dbType.append(" PRIMARY KEY AUTOINCREMENT");
         break;
     case QVariant::String:
         if(field->length)
