@@ -104,6 +104,7 @@ Q_OUTOFLINE_TEMPLATE Query<T>::Query(Database *database, TableSetBase *tableSet,
 
     d->database = database;
     d->tableSet = tableSet;
+    d->className = T::staticMetaObject.className();
     d->tableName
         = // TableModel::findByClassName(T::staticMetaObject.className())->name();
         d->database->model()
@@ -125,22 +126,76 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
     QList<T*> result;
     d->select = "*";
 
-    d->joins.prepend(d->tableName);
+    d->joins.prepend(d->className);
 
-    qDebug() << "JOINS="<<    d->database->sqlGenertor()->join(d->joins);
-    //    QSqlQuery q =
-    //    d->database->exec(d->database->sqlGenertor()->selectCommand(d->wheres,
-    //    d->orders, d->tableName, d->joinClassName));
-    QStringList orders;
+    qDebug() << "JOINS="<<    d->joins;
+
     d->sql = d->database->sqlGenertor()->selectCommand(
         SqlGeneratorBase::SelectAll, "", d->wheres, d->orderPhrases,
-        d->joins, d->skip, d->take, &orders);
+        d->joins, d->skip, d->take);
     QSqlQuery q = d->database->exec(d->sql);
 
-    while (q.next()) {
-
+    struct LevelData{
+        QString key;
+        QString className;
+        QVariant keyValue;
+        int typeId;
+        TableSetBase *tableSet;
+        Table *lastRow;
+    };
+    QVector<LevelData> levels;
+    foreach (QString className, d->joins) {
+        LevelData data;
+        data.className = className;
+        TableModel *m = d->database->model().tableByClassName(className);
+        if (!m)
+            qFatal("Model '%s' not found!!!", qPrintable(className));
+        data.key = m->primaryKey();
+        data.typeId = m->typeId();
+        data.keyValue = QVariant();
+        data.tableSet = 0;
+        levels.append(data);
     }
 
+    QList<T*> returnList;
+    while (q.next()) {
+        for (int i = 0; i < levels.count(); i++) {
+            LevelData &data = levels[i];
+            if (!data.tableSet || data.keyValue != q.value(data.key)) {
+
+                //create table row
+                Table *childTable;
+                if (data.className == d->className) {
+                    childTable = new T();
+                    returnList.append(dynamic_cast<T*>(childTable));
+                } else {
+                    const QMetaObject *childMetaObject
+                        = QMetaType::metaObjectForType(data.typeId);
+                    childTable = qobject_cast<Table *>(childMetaObject->newInstance());
+                }
+
+                QStringList childFields
+                    = d->database->model().tableByClassName(data.className)->fieldsNames();
+                foreach (QString field, childFields)
+                    childTable->setProperty(field.toLatin1().data(), q.value(field));
+
+                //set last created row
+                data.lastRow = childTable;
+                if (i < levels.count() - 1) {
+                    QSet<TableSetBase *> tableSets = childTable->tableSets;
+                    foreach (TableSetBase *ts, tableSets)
+                        if (ts->childClassName() == levels[i + 1].className)
+                            data.tableSet = ts;
+                }
+                if (i)
+                    childTable->setTableSet(levels[i - 1].tableSet);
+            }
+        }
+    }
+    if (m_autoDelete)
+        deleteLater();
+    return returnList;
+/*
     QString pk = d->database->model().tableByName(d->tableName)->primaryKey();
     QVariant lastPkValue = QVariant();
     int childTypeId = 0;
@@ -173,15 +228,6 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
             T *t = new T();
             foreach (QString field, masterFields)
                 t->setProperty(field.toLatin1().data(), q.value(field));
-            //            for (int i = 0; i < t->metaObject()->propertyCount();
-            //            i++) {
-            //                const QMetaProperty p =
-            //                t->metaObject()->property(i);
-
-            //                p.write(t,
-            //                d->database->sqlGenertor()->readValue(p.type(),
-            //                q.value(p.name())));
-            //            }
 
             t->setTableSet(d->tableSet);
             t->setStatus(Table::FeatchedFromDB);
@@ -226,6 +272,7 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
     if (m_autoDelete)
         deleteLater();
     return result;
+    */
 }
 
 template <typename T>

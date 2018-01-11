@@ -13,7 +13,7 @@ class MainTest : public QObject
     WeblogDatabase db;
     int postId;
     Post *post;
-    User *User;
+    User *user;
 
 public:
     explicit MainTest(QObject *parent = 0);

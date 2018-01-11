@@ -41,6 +41,7 @@ public:
     ~QueryPrivate();
 
     QString sql;
+    QString className;
     QString tableName;
     QString select;
     Database *database;
