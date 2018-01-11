@@ -198,7 +198,7 @@ bool DatabasePrivate::getCurrectScheema()
         }
 
         if (type == __nut_TABLE)
-            tables.insert(name, type);
+            tables.insert(name, value);
 
         if (type == __nut_DB_VERSION)
             currentModel.setVersion(name);
@@ -250,7 +250,6 @@ bool DatabasePrivate::checkClassInfo(const QMetaClassInfo &classInfo, QString &t
         type = parts[0];
         name = parts[1];
         value = parts[2];
-        qDebug() << Q_FUNC_INFO << parts;
         return true;
     }
 }

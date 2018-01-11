@@ -14,6 +14,8 @@
 #include "post.h"
 #include "comment.h"
 
+#define PRINT(x)
+//qDebug() << #x "=" << x;
 MainTest::MainTest(QObject *parent) : QObject(parent)
 {
 }
@@ -70,6 +72,7 @@ void MainTest::createPost()
         Comment *comment = new Comment;
         comment->setMessage("comment #" + QString::number(i));
         comment->setSaveDate(QDateTime::currentDateTime());
+        comment->setAuthorId(user->id());
         newPost->comments()->append(comment);
     }
     db.saveChanges();
@@ -106,18 +109,16 @@ void MainTest::createPost2()
 void MainTest::selectPosts()
 {
     auto q = db.posts()->query()
-//    q->join(Post::commentsTable());
-//    q->join(Post::commentsTable());
-//        ->join<User>()
         ->join<Comment>()
         ->orderBy(!Post::saveDateField() & Post::bodyField())
         ->setWhere(Post::idField() == postId);
 
     auto posts = q->toList();
-    qDebug() << "SQL="<<q->sqlCommand();
     post = posts.at(0);
     post->setBody("");
 
+    PRINT(posts.length());
+    PRINT(posts.at(0)->comments()->length());
     QTEST_ASSERT(posts.length() == 1);
     QTEST_ASSERT(posts.at(0)->comments()->length() == 3);
     QTEST_ASSERT(posts.at(0)->title() == "post title");
@@ -128,12 +129,18 @@ void MainTest::selectPosts()
     db.cleanUp();
 }
 
+void MainTest::selectFirst()
+{
+    auto posts = db.posts()->query()
+            ->first();
+    QTEST_ASSERT(posts != Q_NULLPTR);
+}
+
 void MainTest::selectPostsWithoutTitle()
 {
     auto q = db.posts()->query();
     q->setWhere(Post::titleField().isNull());
     auto count = q->count();
-    qDebug() << q->sqlCommand();
     QTEST_ASSERT(count == 0);
 }
 
@@ -169,12 +176,13 @@ void MainTest::join()
 {
     auto q = db.comments()->query()
             ->join<User>()
-            ->join<Post>()
-            ->setWhere(Comment::saveDateField() < QDateTime::currentDateTime().addDays(-1))
-            ->orderBy(Comment::saveDateField());
+            ->join<Post>();
 
-    q->toList();
+    Comment *comment = q->first();
+
+//    Comment *comment = q->toList().first();
     qDebug() << q->sqlCommand();
+    QTEST_ASSERT(comment->author()->username() == "admin");
 }
 
 
@@ -208,6 +216,7 @@ void MainTest::modifyPost()
             ->setWhere(Post::idField() == postId);
 
     post = q->first();
+    PRINT(post->title());
     QTEST_ASSERT(post->title() == "new name");
 }
 
@@ -215,7 +224,6 @@ void MainTest::emptyDatabase()
 {
     auto commentsCount = db.comments()->query()->remove();
     auto postsCount = db.posts()->query()->remove();
-
     QTEST_ASSERT(postsCount == 3);
     QTEST_ASSERT(commentsCount == 6);
 }

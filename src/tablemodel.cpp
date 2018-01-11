@@ -157,7 +157,6 @@ bool TableModel::checkClassInfo(const QMetaClassInfo &classInfo,
         type = parts[0];
         name = parts[1];
         value = parts[2];
-        qDebug() << Q_FUNC_INFO << parts;
         return true;
     }
 }
@@ -190,7 +189,6 @@ TableModel::TableModel(int typeId, QString tableName)
             continue;
         }
 
-        qDebug() << "**********" << type << __nut_FIELD << (type == __nut_FIELD);
         if(type == __nut_FIELD){
             FieldModel *f = new FieldModel;
             f->name = name;

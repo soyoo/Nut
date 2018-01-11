@@ -122,73 +122,99 @@ Q_OUTOFLINE_TEMPLATE Query<T>::~Query()
 template <class T>
 Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
 {
+    Q_UNUSED(count);
     Q_D(Query);
     QList<T*> result;
     d->select = "*";
 
     d->joins.prepend(d->className);
 
-    qDebug() << "JOINS="<<    d->joins;
 
     d->sql = d->database->sqlGenertor()->selectCommand(
         SqlGeneratorBase::SelectAll, "", d->wheres, d->orderPhrases,
         d->joins, d->skip, d->take);
+    qDebug() << d->sql;
     QSqlQuery q = d->database->exec(d->sql);
 
     struct LevelData{
         QString key;
         QString className;
+        QString tableName;
         QVariant keyValue;
         int typeId;
         TableSetBase *tableSet;
         Table *lastRow;
     };
     QVector<LevelData> levels;
+    QList<T*> returnList;
     foreach (QString className, d->joins) {
         LevelData data;
         data.className = className;
         TableModel *m = d->database->model().tableByClassName(className);
-        if (!m)
-            qFatal("Model '%s' not found!!!", qPrintable(className));
-        data.key = m->primaryKey();
+        if (!m) {
+            qWarning("Model '%s' not found!!!", qPrintable(className));
+            return returnList;
+        }
+        data.key = m->name() + "_" + m->primaryKey();
         data.typeId = m->typeId();
         data.keyValue = QVariant();
         data.tableSet = 0;
+        data.tableName = m->name();
         levels.append(data);
     }
 
-    QList<T*> returnList;
     while (q.next()) {
         for (int i = 0; i < levels.count(); i++) {
             LevelData &data = levels[i];
-            if (!data.tableSet || data.keyValue != q.value(data.key)) {
+            if (/*!data.tableSet ||*/ data.keyValue != q.value(data.key)) {
+                data.keyValue = q.value(data.key);
 
                 //create table row
-                Table *childTable;
+                Table *table;
                 if (data.className == d->className) {
-                    childTable = new T();
-                    returnList.append(dynamic_cast<T*>(childTable));
+                    table = new T();
+                    table->setTableSet(d->tableSet);
+                    returnList.append(dynamic_cast<T*>(table));
                 } else {
                     const QMetaObject *childMetaObject
                         = QMetaType::metaObjectForType(data.typeId);
-                    childTable = qobject_cast<Table *>(childMetaObject->newInstance());
+                    table = qobject_cast<Table *>(childMetaObject->newInstance());
                 }
 
                 QStringList childFields
                     = d->database->model().tableByClassName(data.className)->fieldsNames();
                 foreach (QString field, childFields)
-                    childTable->setProperty(field.toLatin1().data(), q.value(field));
+                    table->setProperty(field.toLatin1().data(),
+                                       q.value(data.tableName + "_" + field));
+
+                table->setStatus(Table::FeatchedFromDB);
+                table->setParent(this);
+                table->clear();
 
                 //set last created row
-                data.lastRow = childTable;
+                data.lastRow = table;
                 if (i < levels.count() - 1) {
-                    QSet<TableSetBase *> tableSets = childTable->tableSets;
-                    foreach (TableSetBase *ts, tableSets)
-                        if (ts->childClassName() == levels[i + 1].className)
-                            data.tableSet = ts;
+//                    if (data.className == d->className) {
+//                        data.tableSet = d->tableSet;
+//                    } else
+                    {
+                        QSet<TableSetBase *> tableSets = table->tableSets;
+                        foreach (TableSetBase *ts, tableSets)
+                            if (ts->childClassName() == levels[i + 1].className)
+                                data.tableSet = ts;
+
+                        if (!data.tableSet)
+                            qWarning() << "Dataset not found for" << data.className;
+                    }
                 }
-                if (i)
-                    childTable->setTableSet(levels[i - 1].tableSet);
+                if (i) {
+//                    if (!table->tableSet())
+                        table->setTableSet(levels[i - 1].tableSet);
+                    table->setParentTable(levels[i - 1].lastRow);
+                } else {
+//                    table->setTableSet(d->tableSet);
+//                    data.tableSet = d->tableSet;
+                }
             }
         }
     }

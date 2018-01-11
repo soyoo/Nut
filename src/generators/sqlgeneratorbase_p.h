@@ -72,6 +72,8 @@ public:
 
     virtual QString saveRecord(Table *t, QString tableName);
 
+    virtual QString recordsPhrase(QString className);
+
     virtual QString insertRecord(Table *t, QString tableName);
     virtual QString updateRecord(Table *t, QString tableName);
     virtual QString deleteRecord(Table *t, QString tableName);

@@ -70,16 +70,15 @@ TableModel *DatabaseModel::tableByName(QString tableName) const
 
 TableModel *DatabaseModel::tableByClassName(QString className) const
 {
+    QStringList l;
     for(int i = 0; i < size(); i++){
         TableModel *s = at(i);
 
+        l.append(s->className());
         if(s->className() == className)
             return s;
     }
 
-//    qWarning("Table with class name '%s' not found in model",
-//             qUtf8Printable(className));
-    Q_UNREACHABLE();
     return 0;
 }
 

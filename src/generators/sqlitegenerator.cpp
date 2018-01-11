@@ -71,4 +71,19 @@ QString SqliteGenerator::fieldType(FieldModel *field)
     return dbType;
 }
 
+QString SqliteGenerator::selectCommand(SqlGeneratorBase::AgregateType t,
+                                       QString agregateArg,
+                                       QList<WherePhrase> &wheres,
+                                       QList<WherePhrase> &orders,
+                                       QStringList joins, int skip, int take)
+{
+    QString command = SqlGeneratorBase::selectCommand(t, agregateArg, wheres, orders, joins, skip, take);
+
+    if (take != -1 && skip != -1)
+        command.append(QString(" LIMIT %1 OFFSET %2")
+                       .arg(take)
+                       .arg(skip));
+    return command;
+}
+
 NUT_END_NAMESPACE

@@ -71,7 +71,8 @@ QString SqlGeneratorBase::masterDatabaseName(QString databaseName)
 
 QString SqlGeneratorBase::createTable(TableModel *table)
 {
-
+    Q_UNUSED(table);
+    return "";
 }
 
 QString SqlGeneratorBase::saveRecord(Table *t, QString tableName)
@@ -93,6 +94,21 @@ QString SqlGeneratorBase::saveRecord(Table *t, QString tableName)
     }
 
     return "";
+}
+
+QString SqlGeneratorBase::recordsPhrase(QString className)
+{
+    TableModel *table = _database->model().tableByClassName(className);
+    if (!table)
+        return "";
+
+    QString ret = "";
+    foreach (FieldModel *f, table->fields()) {
+        if (!ret.isEmpty())
+            ret.append(", ");
+        ret.append(QString("%1.%2 AS %1_%2").arg(table->name()).arg(f->name));
+    }
+    return ret;
 }
 
 QString SqlGeneratorBase::fieldDeclare(FieldModel *field)
@@ -181,13 +197,13 @@ QString SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
 
         sql = QString("CREATE TABLE %1 \n(%2)").arg(newTable->name()).arg(
             columnSql.join(",\n"));
-        qDebug() << sql;
     }
     return sql;
 }
 
 QString SqlGeneratorBase::join(const QStringList &list, QStringList *order)
 {
+    //TODO: reorder list first!
     //TODO: make this ungly code better and bugless :-)
     /*
      * Known issues:
@@ -198,46 +214,50 @@ QString SqlGeneratorBase::join(const QStringList &list, QStringList *order)
         return "";
 
     if (list.count() == 1)
-        return list.first();
+        return "[" + list.first() + "]";
 
     DatabaseModel model = _database->model();
     QStringList clone = list;
     QString mainTable = clone.takeFirst();
-    QString ret = mainTable;
+    QString ret = "[" + mainTable + "]";
 
     do {
-        QString table = model.tableByClassName(clone.first())->name();
-        clone.takeFirst();
-        RelationModel *rel = model.relationByTableNames(mainTable, table);
+        if (!clone.count())
+            break;
+
+        QString table = clone.first();// model.tableByClassName(clone.first())->name();
+        RelationModel *rel = model.relationByClassNames(mainTable, clone.first());
         if (rel) {
             //mainTable is master of table
-            ret.append(QString(" INNER JOIN %1 ON %4.%2 = %1.%3")
+            ret.append(QString(" INNER JOIN [%1] ON %4.%2 = %1.%3")
                        .arg(table)
                        .arg(rel->table->primaryKey())
                        .arg(rel->localColumn)
                        .arg(mainTable));
 
             if (order != Q_NULLPTR)
-                order->append(table + "." + rel->localColumn);
+                order->append(mainTable + "." + rel->table->primaryKey());
 
         } else{
-            rel = model.relationByTableNames(table, mainTable);
+            rel = model.relationByClassNames(clone.first(), mainTable);
             if (rel) {
                 // table is master of mainTable
-                ret.append(QString(" INNER JOIN %1 ON %4.%2 = %1.%3")
+                ret.append(QString(" INNER JOIN [%1] ON %4.%2 = %1.%3")
                            .arg(table)
                            .arg(rel->localColumn)
                            .arg(rel->table->primaryKey())
                            .arg(mainTable));
 
                 if (order != Q_NULLPTR)
-                    order->append(table + "." + rel->table->primaryKey());
+                    order->append(mainTable + "." + rel->localColumn);
 
             } else {
                 qInfo("Relation for %s and %s not exists",
                       qPrintable(table), qPrintable(mainTable));
             }
         }
+
+        clone.takeFirst();
     } while (clone.count());
 
     return ret;
@@ -389,6 +409,15 @@ QString SqlGeneratorBase::selectCommand(SqlGeneratorBase::AgregateType t,
 
     QStringList joinedOrders;
     QString select = agregateText(t, agregateArg);
+
+    if (select == "*") {
+        select = "";
+        foreach (QString c, joins) {
+            if (!select.isEmpty())
+                select.append(", ");
+            select.append(recordsPhrase(c));
+        }
+    }
     QString from = join(joins, &joinedOrders);
     QString where = createWhere(wheres);
     QString orderText = joinedOrders.join(", ");
@@ -433,7 +462,8 @@ QString SqlGeneratorBase::createWhere(QList<WherePhrase> &wheres)
 void SqlGeneratorBase::replaceTableNames(QString &command)
 {
     foreach (TableModel *m, TableModel::allModels())
-        command = command.replace("[" + m->className() + "].", "`" + m->name() + "`.");
+        command = command
+                .replace("[" + m->className() + "]", "`" + m->name() + "`");
 }
 
 void SqlGeneratorBase::removeTableNames(QString &command)

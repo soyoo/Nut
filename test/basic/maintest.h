@@ -28,10 +28,11 @@ private slots:
     void createPost();
     void createPost2();
     void selectPosts();
+    void selectFirst();
+    void join();
     void selectPostsWithoutTitle();
     void selectPostIds();
     void testDate();
-    void join();
     void selectWithInvalidRelation();
     void select10NewstPosts();
     void modifyPost();

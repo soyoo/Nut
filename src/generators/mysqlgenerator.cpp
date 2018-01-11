@@ -140,8 +140,8 @@ QString MySqlGenerator::selectCommand(SqlGeneratorBase::AgregateType t, QString 
 
     if (take != -1 && skip != -1)
         command.append(QString(" LIMIT %1 OFFSET %2")
-                       .arg(skip)
-                       .arg(take));
+                       .arg(take)
+                       .arg(skip));
     return command;
 }
 

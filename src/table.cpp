@@ -134,7 +134,6 @@ int Table::save(Database *db)
 {
     QSqlQuery q = db->exec(db->sqlGenertor()->saveRecord(this, db->tableName(metaObject()->className())));
 
-
     if(status() == Added && isPrimaryKeyAutoIncrement())
         setProperty(primaryKey().toLatin1().data(), q.lastInsertId());
 

@@ -32,6 +32,11 @@ public:
     SqliteGenerator(Database *parent = 0);
 
     QString fieldType(FieldModel *field);
+
+    QString selectCommand(AgregateType t, QString agregateArg,
+                          QList<WherePhrase> &wheres,
+                          QList<WherePhrase> &orders,
+                          QStringList joins, int skip, int take);
 };
 
 NUT_END_NAMESPACE
