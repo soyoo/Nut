@@ -6,12 +6,14 @@
 
 #include "weblogdatabase.h"
 class Post;
+class User;
 class MainTest : public QObject
 {
     Q_OBJECT
     WeblogDatabase db;
     int postId;
     Post *post;
+    User *User;
 
 public:
     explicit MainTest(QObject *parent = 0);
@@ -22,6 +24,7 @@ private slots:
     void initTestCase();
 
     void dataScheema();
+    void createUser();
     void createPost();
     void createPost2();
     void selectPosts();

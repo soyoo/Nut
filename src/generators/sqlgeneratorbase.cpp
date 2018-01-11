@@ -23,6 +23,7 @@
 #include <QDateTime>
 #include <QPointF>
 #include <QTime>
+#include <QUuid>
 #include <QVariant>
 
 #include "sqlgeneratorbase_p.h"
@@ -382,6 +383,17 @@ QString SqlGeneratorBase::selectCommand(SqlGeneratorBase::AgregateType t,
                                         QList<WherePhrase> &orders,
                                         QStringList joins, int skip, int take)
 {
+    return selectCommand(t, agregateArg, wheres, orders, joins, skip, take);
+}
+
+QString SqlGeneratorBase::selectCommand(SqlGeneratorBase::AgregateType t,
+                                        QString agregateArg,
+                                        QList<WherePhrase> &wheres,
+                                        QList<WherePhrase> &orders,
+                                        QStringList joins,
+                                        int skip, int take,
+                                        QStringList *order)
+{
     Q_UNUSED(take);
     Q_UNUSED(skip);
 
@@ -389,12 +401,14 @@ QString SqlGeneratorBase::selectCommand(SqlGeneratorBase::AgregateType t,
     QString select = agregateText(t, agregateArg);
     QString from = join(joins, &joinedOrders);
     QString where = createWhere(wheres);
-    QString order = joinedOrders.join(", ");
+    QString orderText = joinedOrders.join(", ");
+    if (order != Q_NULLPTR)
+        order = joinedOrders;
 
     foreach (WherePhrase p, orders) {
-        if (order != "")
-            order.append(", ");
-        order.append(phraseOrder(p.data()));
+        if (orderText != "")
+            orderText.append(", ");
+        orderText.append(phraseOrder(p.data()));
     }
 
     QString sql = "SELECT " + select + " FROM " + from;
@@ -402,8 +416,8 @@ QString SqlGeneratorBase::selectCommand(SqlGeneratorBase::AgregateType t,
     if (where != "")
         sql.append(" WHERE " + where);
 
-    if (order != "")
-        sql.append(" ORDER BY " + order);
+    if (orderText != "")
+        sql.append(" ORDER BY " + orderText);
 
     for (int i = 0; i < _database->model().count(); i++)
         sql = sql.replace(_database->model().at(i)->className() + ".",
@@ -479,14 +493,6 @@ QString SqlGeneratorBase::updateCommand(WherePhrase &phrase,
     return sql;
 }
 
-QString SqlGeneratorBase::joinTables(QStringList tables)
-{
-    Q_UNUSED(tables);
-    //TODO: implement me
-//    _database->model().relationByClassNames()
-    return "";
-}
-
 QString SqlGeneratorBase::escapeValue(const QVariant &v) const
 {
     switch (v.type()) {
@@ -502,18 +508,22 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
         return v.toString();
         break;
 
+    case QVariant::Uuid:
+        return v.toUuid().toString();
+        break;
+
     case QVariant::Char:
     case QVariant::String:
         return "'" + v.toString() + "'";
 
     case QVariant::DateTime:
-        return "'" + v.toDateTime().toString() + "'";
+        return "'" + v.toDateTime().toString(Qt::ISODate) + "'";
 
     case QVariant::Date:
-        return "'" + v.toDate().toString() + "'";
+        return "'" + v.toDate().toString(Qt::ISODate) + "'";
 
     case QVariant::Time:
-        return "'" + v.toTime().toString() + "'";
+        return "'" + v.toTime().toString(Qt::ISODate) + "'";
 
     case QVariant::StringList:
     case QVariant::List:
@@ -534,6 +544,7 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
         return "<FAIL>";
 
     default:
+        Q_UNREACHABLE();
         return "";
     }
 }

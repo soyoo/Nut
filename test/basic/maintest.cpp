@@ -46,7 +46,16 @@ void MainTest::dataScheema()
 
     //    qDebug() << model.toJson();
     //    qDebug() << db.model().toJson();
-//    QTEST_ASSERT(model == db.model());
+    //    QTEST_ASSERT(model == db.model());
+}
+
+void MainTest::createUser()
+{
+    user = new User;
+    user->setUsername("admin");
+    user->setPassword("123456");
+    db.users()->append(user);
+    db.saveChanges();
 }
 
 void MainTest::createPost()
@@ -84,6 +93,7 @@ void MainTest::createPost2()
         Comment *comment = new Comment;
         comment->setMessage("comment #" + QString::number(i));
         comment->setSaveDate(QDateTime::currentDateTime());
+        comment->setAuthor(user);
         comment->setPostId(newPost->id());
         db.comments()->append(comment);
     }

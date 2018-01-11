@@ -71,11 +71,10 @@ public:
     virtual QString join(const QStringList &list, QStringList *order = Q_NULLPTR);
 
     virtual QString saveRecord(Table *t, QString tableName);
+
     virtual QString insertRecord(Table *t, QString tableName);
     virtual QString updateRecord(Table *t, QString tableName);
     virtual QString deleteRecord(Table *t, QString tableName);
-
-
     virtual QString deleteRecords(QString tableName, QString where);
 
     virtual QString selectCommand(AgregateType t,
@@ -84,12 +83,17 @@ public:
                                   QList<WherePhrase> &orders,
                                   QStringList joins,
                                   int skip = -1, int take = -1);
+    virtual QString selectCommand(AgregateType t,
+                                  QString agregateArg,
+                                  QList<WherePhrase> &wheres,
+                                  QList<WherePhrase> &orders,
+                                  QStringList joins,
+                                  int skip = -1, int take = -1,
+                                  QStringList *order = Q_NULLPTR);
 
     virtual QString deleteCommand(QList<WherePhrase> &wheres, QString tableName);
 
     virtual QString updateCommand(WherePhrase &phrase, QList<WherePhrase> &wheres, QString tableName);
-
-    virtual QString joinTables(QStringList tables);
 
     virtual QString escapeValue(const QVariant &v) const;
     virtual QVariant readValue(const QVariant::Type &type, const QVariant &dbValue);

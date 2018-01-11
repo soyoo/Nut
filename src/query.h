@@ -131,12 +131,16 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
     //    QSqlQuery q =
     //    d->database->exec(d->database->sqlGenertor()->selectCommand(d->wheres,
     //    d->orders, d->tableName, d->joinClassName));
+    QStringList orders;
     d->sql = d->database->sqlGenertor()->selectCommand(
         SqlGeneratorBase::SelectAll, "", d->wheres, d->orderPhrases,
-        d->joins, d->skip, d->take);
+        d->joins, d->skip, d->take, &orders);
     QSqlQuery q = d->database->exec(d->sql);
 
-    //    QString pk = TableModel::findByName(d->tableName)->primaryKey();
+    while (q.next()) {
+
+    }
+
     QString pk = d->database->model().tableByName(d->tableName)->primaryKey();
     QVariant lastPkValue = QVariant();
     int childTypeId = 0;
