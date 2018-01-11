@@ -117,7 +117,8 @@ private:
     QList<FieldModel*> _fields;
     QList<RelationModel*> _foregionKeys;
     static QSet<TableModel*>_allModels;
-    bool checkClassInfo(const QMetaClassInfo &classInfo, QString type, QString name, QString value);
+    bool checkClassInfo(const QMetaClassInfo &classInfo,
+                        QString &type, QString &name, QString &value);
 };
 
 NUT_END_NAMESPACE

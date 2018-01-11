@@ -79,7 +79,7 @@ TableModel *DatabaseModel::tableByClassName(QString className) const
 
 //    qWarning("Table with class name '%s' not found in model",
 //             qUtf8Printable(className));
-//    Q_UNREACHABLE();
+    Q_UNREACHABLE();
     return 0;
 }
 

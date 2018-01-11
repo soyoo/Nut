@@ -33,10 +33,9 @@
 #endif
 
 #define NUT_INFO(type, name, value) \
-    Q_CLASSINFO(__nut_NAME_PERFIX #type #name #value, #type "\n" #name "\n" #value)
+    Q_CLASSINFO(__nut_NAME_PERFIX type #name #value, type "\n" #name "\n" #value)
 
 // Database
-//TODO: remove minor version
 #define NUT_DB_VERSION(version)  \
     NUT_INFO(__nut_DB_VERSION, version, 0)
 

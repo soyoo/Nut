@@ -68,7 +68,10 @@ QString Table::primaryKey() const
 
 bool Table::isPrimaryKeyAutoIncrement() const
 {
-    return TableModel::findByClassName(metaObject()->className())->field(primaryKey())->isAutoIncrement;
+    auto m = TableModel::findByClassName(metaObject()->className());
+    auto pk = m->primaryKey();
+    auto f = m->field(pk);
+    return f->isAutoIncrement;
 }
 
 

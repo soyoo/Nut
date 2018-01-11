@@ -188,16 +188,20 @@ bool DatabasePrivate::getCurrectScheema()
     changeLogs = new TableSet<ChangeLogTable>(q);
 
     for (int i = 0; i < q->metaObject()->classInfoCount(); i++) {
-        QMetaClassInfo ci = q->metaObject()->classInfo(i);
-        QString ciName = QString(ci.name())
-                .replace(__nut_NAME_PERFIX, "")
-                .replace("\"", "");
+        QString type;
+        QString name;
+        QString value;
 
-        if (ciName.startsWith(__nut_TABLE))
-            tables.insert(ciName.split(" ").at(1), ci.value());
+        if (!checkClassInfo(q->metaObject()->classInfo(i),
+                            type, name, value)) {
+            continue;
+        }
 
-        if (ciName == __nut_DB_VERSION) {
-            currentModel.setVersion(QString(ci.value()));
+        if (type == __nut_TABLE)
+            tables.insert(name, type);
+
+        if (type == __nut_DB_VERSION)
+            currentModel.setVersion(name);
 
             /* TODO: remove
             QStringList version
@@ -213,7 +217,6 @@ bool DatabasePrivate::getCurrectScheema()
             if (!ok)
                 qFatal("NUT_DB_VERSION macro accept version in format 'x' or "
                        "'x[.y]' only, and x,y must be integer values\n");*/
-        }
     }
 
     for (int i = 1; i < q->metaObject()->propertyCount(); i++) {
@@ -233,6 +236,23 @@ bool DatabasePrivate::getCurrectScheema()
 
     allTableMaps.insert(q->metaObject()->className(), currentModel);
     return true;
+}
+
+bool DatabasePrivate::checkClassInfo(const QMetaClassInfo &classInfo, QString &type, QString &name, QString &value)
+{
+    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
+        return false;
+    } else {
+        QStringList parts = QString(classInfo.value()).split("\n");
+        if (parts.count() != 3)
+            return false;
+
+        type = parts[0];
+        name = parts[1];
+        value = parts[2];
+        qDebug() << Q_FUNC_INFO << parts;
+        return true;
+    }
 }
 
 DatabaseModel DatabasePrivate::getLastScheema()

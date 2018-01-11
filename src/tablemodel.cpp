@@ -144,7 +144,8 @@ bool TableModel::operator !=(const TableModel &t) const
     return !(*this == t);
 }
 
-bool TableModel::checkClassInfo(const QMetaClassInfo &classInfo, QString type, QString name, QString value)
+bool TableModel::checkClassInfo(const QMetaClassInfo &classInfo,
+                                QString &type, QString &name, QString &value)
 {
     if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
         return false;
@@ -189,6 +190,7 @@ TableModel::TableModel(int typeId, QString tableName)
             continue;
         }
 
+        qDebug() << "**********" << type << __nut_FIELD << (type == __nut_FIELD);
         if(type == __nut_FIELD){
             FieldModel *f = new FieldModel;
             f->name = name;
