@@ -381,18 +381,8 @@ QString SqlGeneratorBase::selectCommand(SqlGeneratorBase::AgregateType t,
                                         QString agregateArg,
                                         QList<WherePhrase> &wheres,
                                         QList<WherePhrase> &orders,
-                                        QStringList joins, int skip, int take)
-{
-    return selectCommand(t, agregateArg, wheres, orders, joins, skip, take);
-}
-
-QString SqlGeneratorBase::selectCommand(SqlGeneratorBase::AgregateType t,
-                                        QString agregateArg,
-                                        QList<WherePhrase> &wheres,
-                                        QList<WherePhrase> &orders,
                                         QStringList joins,
-                                        int skip, int take,
-                                        QStringList *order)
+                                        int skip, int take)
 {
     Q_UNUSED(take);
     Q_UNUSED(skip);
@@ -402,8 +392,6 @@ QString SqlGeneratorBase::selectCommand(SqlGeneratorBase::AgregateType t,
     QString from = join(joins, &joinedOrders);
     QString where = createWhere(wheres);
     QString orderText = joinedOrders.join(", ");
-    if (order != Q_NULLPTR)
-        order = joinedOrders;
 
     foreach (WherePhrase p, orders) {
         if (orderText != "")

@@ -83,13 +83,6 @@ public:
                                   QList<WherePhrase> &orders,
                                   QStringList joins,
                                   int skip = -1, int take = -1);
-    virtual QString selectCommand(AgregateType t,
-                                  QString agregateArg,
-                                  QList<WherePhrase> &wheres,
-                                  QList<WherePhrase> &orders,
-                                  QStringList joins,
-                                  int skip = -1, int take = -1,
-                                  QStringList *order = Q_NULLPTR);
 
     virtual QString deleteCommand(QList<WherePhrase> &wheres, QString tableName);
 

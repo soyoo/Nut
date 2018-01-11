@@ -22,6 +22,7 @@
 #include <QVariant>
 #include "table.h"
 #include "database.h"
+#include "databasemodel.h"
 #include "generators/sqlgeneratorbase_p.h"
 
 NUT_BEGIN_NAMESPACE
@@ -129,6 +130,7 @@ void Table::setTableSet(TableSetBase *parent)
 int Table::save(Database *db)
 {
     QSqlQuery q = db->exec(db->sqlGenertor()->saveRecord(this, db->tableName(metaObject()->className())));
+
 
     if(status() == Added && isPrimaryKeyAutoIncrement())
         setProperty(primaryKey().toLatin1().data(), q.lastInsertId());
