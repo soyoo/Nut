@@ -36,6 +36,8 @@
 #include "wherephrase.h"
 #include "tablemodel.h"
 
+#include <functional>
+
 NUT_BEGIN_NAMESPACE
 
 template <class T>
@@ -73,6 +75,15 @@ public:
     //data selecting
     T *first();
     QList<T*> toList(int count = -1);
+    template<typename R>
+    QList<T*> toList(std::function<R*(T*)> func) {
+        QList<T*> l = toList();
+        QList<R*> ret;
+        foreach (T *t, l)
+            ret.append(func(t));
+        return ret;
+    }
+
     template <typename F>
     QList<F> select(const FieldPhrase<F> f);
     int count();
@@ -122,27 +133,34 @@ Q_OUTOFLINE_TEMPLATE Query<T>::~Query()
 template <class T>
 Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
 {
+    /*
+     * TODO: make this as good as possible, this is heart of Nut
+     * Known issues:
+     *  Is complex: O(n*j) n=db rows count, j=joins count
+     */
+
     Q_UNUSED(count);
     Q_D(Query);
-    QList<T*> result;
+
     d->select = "*";
-
     d->joins.prepend(d->className);
-
-
     d->sql = d->database->sqlGenertor()->selectCommand(
         SqlGeneratorBase::SelectAll, "", d->wheres, d->orderPhrases,
         d->joins, d->skip, d->take);
-    qDebug() << d->sql;
+
     QSqlQuery q = d->database->exec(d->sql);
 
     struct LevelData{
-        QString key;
+        QString key;            // key field name
         QString className;
         QString tableName;
+        TableModel *model;
+        QSet<Table*> rows;      // found rows related to this join level
+        TableSetBase *tableSet;
+        int parentId;
+
         QVariant keyValue;
         int typeId;
-        TableSetBase *tableSet;
         Table *lastRow;
     };
     QVector<LevelData> levels;
@@ -155,6 +173,7 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
             qWarning("Model '%s' not found!!!", qPrintable(className));
             return returnList;
         }
+        data.model = m;
         data.key = m->name() + "_" + m->primaryKey();
         data.typeId = m->typeId();
         data.keyValue = QVariant();
@@ -190,22 +209,39 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
                 table->setStatus(Table::FeatchedFromDB);
                 table->setParent(this);
                 table->clear();
+                data.rows.insert(table);
 
                 //set last created row
                 data.lastRow = table;
-                if (i < levels.count() - 1) {
+                foreach (RelationModel *rel, data.model->foregionKeys()) {
+                    for (int j = 0; j < levels.count(); ++j) {
+                        if (rel->className == levels[j].className && i != j) {
+                            if (levels[j].tableSet) {
+                                data.tableSet = levels[j].tableSet;
+                                table->setTableSet(levels[j].tableSet);
+                                table->setParentTable(levels[j].lastRow);
+                            } else {
+                                qWarning() << "Dataset not found for" << data.className;
+                            }
+                        }
+                    }
+                }
+                /*if (i < levels.count() - 1) {
+
 //                    if (data.className == d->className) {
 //                        data.tableSet = d->tableSet;
 //                    } else
-                    {
-                        QSet<TableSetBase *> tableSets = table->tableSets;
-                        foreach (TableSetBase *ts, tableSets)
-                            if (ts->childClassName() == levels[i + 1].className)
-                                data.tableSet = ts;
+//                    {
+//                        QSet<TableSetBase *> tableSets = table->tableSets;
+//                        foreach (TableSetBase *ts, tableSets) {
+//                            qDebug() << "checking" << ts->childClassName() << levels[i + 1].className;
+//                            if (ts->childClassName() == levels[i + 1].className)
+//                                data.tableSet = ts;
+//                        }
 
-                        if (!data.tableSet)
-                            qWarning() << "Dataset not found for" << data.className;
-                    }
+//                        if (!data.tableSet)
+//                            qWarning() << "Dataset not found for" << data.className;
+//                    }
                 }
                 if (i) {
 //                    if (!table->tableSet())
@@ -214,12 +250,24 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
                 } else {
 //                    table->setTableSet(d->tableSet);
 //                    data.tableSet = d->tableSet;
-                }
+                }*/
             }
         }
     }
+
+    for (int i = 0; i < levels.count(); i++) {
+        LevelData &data = levels[i];
+        qDebug() <<"RESULT" << data.className << data.rows.count();
+        QSet<Table*>::iterator it;
+        for (it = data.rows.begin(); it != data.rows.end(); ++it) {
+//              qDebug() << *i
+//            add *i to it's parent row
+        }
+    }
+
     if (m_autoDelete)
         deleteLater();
+
     return returnList;
 /*
     QString pk = d->database->model().tableByName(d->tableName)->primaryKey();

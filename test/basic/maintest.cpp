@@ -14,8 +14,7 @@
 #include "post.h"
 #include "comment.h"
 
-#define PRINT(x)
-//qDebug() << #x "=" << x;
+#define PRINT(x) qDebug() << #x "=" << x;
 MainTest::MainTest(QObject *parent) : QObject(parent)
 {
 }
@@ -175,8 +174,8 @@ void MainTest::testDate()
 void MainTest::join()
 {
     auto q = db.comments()->query()
-            ->join<User>()
-            ->join<Post>();
+            ->join<Post>()
+            ->join<User>();
 
     Comment *comment = q->first();
 

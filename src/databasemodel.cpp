@@ -18,11 +18,13 @@
 **
 **************************************************************************/
 
-#include "databasemodel.h"
-#include "tablemodel.h"
-
 #include <QJsonArray>
 #include <QJsonObject>
+
+#include <functional>
+
+#include "tablemodel.h"
+#include "databasemodel.h"
 
 NUT_BEGIN_NAMESPACE
 

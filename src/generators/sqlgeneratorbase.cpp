@@ -106,7 +106,7 @@ QString SqlGeneratorBase::recordsPhrase(QString className)
     foreach (FieldModel *f, table->fields()) {
         if (!ret.isEmpty())
             ret.append(", ");
-        ret.append(QString("%1.%2 AS %1_%2").arg(table->name()).arg(f->name));
+        ret.append(QString("%1.%2 AS [%1_%2]").arg(table->name()).arg(f->name));
     }
     return ret;
 }
