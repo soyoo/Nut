@@ -178,10 +178,12 @@ void MainTest::join()
             ->join<Post>();
 
 //    Comment *comment = q->first();
-    q->toList();
+    auto comments = q->toList();
 //    Comment *comment = q->toList().first();
     qDebug() << q->sqlCommand();
-//    QTEST_ASSERT(comment->author()->username() == "admin");
+    QTEST_ASSERT(comments.length());
+    QTEST_ASSERT(comments[0]->author());
+    QTEST_ASSERT(comments[0]->author()->username() == "admin");
 }
 
 

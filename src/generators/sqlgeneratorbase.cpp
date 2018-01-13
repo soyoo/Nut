@@ -96,9 +96,8 @@ QString SqlGeneratorBase::saveRecord(Table *t, QString tableName)
     return "";
 }
 
-QString SqlGeneratorBase::recordsPhrase(QString className)
+QString SqlGeneratorBase::recordsPhrase(TableModel *table)
 {
-    TableModel *table = _database->model().tableByClassName(className);
     if (!table)
         return "";
 
@@ -209,20 +208,20 @@ QString SqlGeneratorBase::join(const QString &mainTable,
     QList<RelationModel*>::const_iterator i;
     for (i = list.begin(); i != list.end(); ++i) {
         if ((*i)->masterTable->name() == mainTable) {
-            ret.append(QString(" INNER JOIN %1 ON %1.%2 = %3.%4")
-                       .arg((*i)->slaveTable->name())
-                       .arg((*i)->localColumn)
+            ret.append(QString(" INNER JOIN %3 ON %1.%2 = %3.%4")
                        .arg((*i)->masterTable->name())
-                       .arg((*i)->masterTable->primaryKey()));
+                       .arg((*i)->masterTable->primaryKey())
+                       .arg((*i)->slaveTable->name())
+                       .arg((*i)->localColumn));
 
             if (order != Q_NULLPTR)
                 order->append(mainTable + "." + (*i)->slaveTable->primaryKey());
         } else {
-            ret.append(QString(" INNER JOIN %1 ON %1.%2 = %3.%4")
-                       .arg((*i)->masterTable->name())
-                       .arg((*i)->masterTable->primaryKey())
+            ret.append(QString(" INNER JOIN %3 ON %1.%2 = %3.%4")
                        .arg(mainTable)
-                       .arg((*i)->localColumn));
+                       .arg((*i)->localColumn)
+                       .arg((*i)->masterTable->name())
+                       .arg((*i)->masterTable->primaryKey()));
 
             if (order != Q_NULLPTR)
                 order->append(mainTable + "." + (*i)->masterTable->primaryKey());
@@ -443,11 +442,16 @@ QString SqlGeneratorBase::selectCommand(SqlGeneratorBase::AgregateType t,
 
     //TODO: temporatory disabled
     if (t == SelectAll) {
+        QSet<TableModel*> tables;
+        tables.insert(_database->model().tableByName(tableName));
+        foreach (RelationModel *rel, joins)
+            tables << rel->masterTable << rel->slaveTable;
+
         select = "";
-        foreach (RelationModel *c, joins) {
+        foreach (TableModel *t, tables) {
             if (!select.isEmpty())
                 select.append(", ");
-            select.append(recordsPhrase(c->slaveTable->className()));
+            select.append(recordsPhrase(t));
         }
     }
     QString from = join(tableName, joins, &joinedOrders);

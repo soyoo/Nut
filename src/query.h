@@ -27,6 +27,7 @@
 #include <QtCore/QRegularExpression>
 #include <QtCore/QMetaObject>
 #include <QtSql/QSqlResult>
+#include <QElapsedTimer>
 #include <QSqlError>
 
 #include "query_p.h"
@@ -129,22 +130,28 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
     Q_D(Query);
     QList<T*> result;
     d->select = "*";
+    QElapsedTimer t;
+    t.start();
 
-    d->joins.prepend(d->className);
 
     d->sql = d->database->sqlGenertor()->selectCommand(
                 SqlGeneratorBase::SelectAll, "",
                 d->tableName,
                 d->wheres, d->orderPhrases, d->relations,
                 d->skip, d->take);
-    //    qDebug() << "JOINS=" << d->database->sqlGenertor()->join(d->relations);
-    qDebug() << "SQL=" << d->sql;
     QSqlQuery q = d->database->exec(d->sql);
-qDebug() <<"==========================" <<q.numRowsAffected();
-if (q.lastError().isValid())
-    qDebug() << q.lastError().text();
+    if (q.lastError().isValid())
+        qDebug() << q.lastError().text();
+
+
+    QSet<QString> relatedTables;
+    foreach (RelationModel *rel, d->relations)
+        relatedTables << rel->slaveTable->name() << rel->masterTable->name();
+
 
     QStringList childTables, masterTables;
+    QMap<QString, Table*> lastClassRow;
+
     foreach (RelationModel *rel, d->relations) {
         childTables.append(rel->slaveTable->name());
         masterTables.append(rel->masterTable->name());
@@ -171,7 +178,12 @@ qDebug() << masterTables;
     for (int i = 0; i < d->relations.count(); ++i) {
         LevelData data;
         data.relation = d->relations[i];
+        qDebug() <<"relation" << data.relation->masterTable->name() << data.relation->slaveTable->name();
         data.key = data.relation->slaveTable->name() + "." + data.relation->localColumn;
+        data.className = data.relation->slaveTable->className();
+        data.typeId = d->relations[i]->slaveTable->typeId();
+        data.tableName = data.relation->slaveTable->name();
+
         data.tableSet = 0;
         for (int j = 0; j < i; ++j) {
             if (d->relations[i]->masterTable->name() == d->relations[j]->slaveTable->name()) {
@@ -179,7 +191,6 @@ qDebug() << masterTables;
                 levels[i].slaves.append(i);
             }
         }
-        data.typeId = d->relations[i]->slaveTable->typeId();
         levels.append(data);
     }
 qDebug()<<"count="<<levels.count();
@@ -208,9 +219,9 @@ qDebug()<<"count="<<levels.count();
         while (p) {
             for (int i = 0; i < levels.count(); i++) {
                 LevelData &data = levels[i];
-                qDebug()<<"key="<<data.key;
+                qDebug() << "level"<<i << data.className;
+                --p;
                 if (/*!data.tableSet ||*/ data.keyValue != q.value(data.key)) {
-                    --p;
                     data.keyValue = q.value(data.key);
 
                     //create table row
@@ -235,16 +246,17 @@ qDebug()<<"count="<<levels.count();
                     table->setParent(this);
                     table->clear();
 
+                    qDebug() << "table created" << table;
                     //set last created row
                     data.lastRow = table;
-
-                    qDebug() << "*" << data.masters << data.slaves;
                 }
             }
         }
     }
     if (m_autoDelete)
         deleteLater();
+
+    qDebug() << "Elapsed time:" << QString("%1ms").arg(t.elapsed() / 1000.);
     return returnList;
 }
 
