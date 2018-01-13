@@ -230,4 +230,5 @@ WherePhrase WherePhrase::operator>=(const QVariant &other)
     return WherePhrase(this, PhraseData::GreaterEqual, other);
 }
 
+
 NUT_END_NAMESPACE

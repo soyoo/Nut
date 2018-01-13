@@ -145,6 +145,8 @@ class FieldPhrase : public WherePhrase
 public:
     FieldPhrase(const char *className, const char *s);
 
+    WherePhrase operator=(const FieldPhrase<T> &other);
+
     WherePhrase operator=(const WherePhrase &other);
     WherePhrase operator=(const QVariant &other);
     WherePhrase operator+(const QVariant &other);
@@ -177,6 +179,13 @@ Q_OUTOFLINE_TEMPLATE WherePhrase FieldPhrase<T>::
 operator=(const QVariant &other)
 {
     return WherePhrase(this, PhraseData::Set, other);
+}
+
+template <typename T>
+Q_OUTOFLINE_TEMPLATE WherePhrase
+FieldPhrase<T>::operator=(const FieldPhrase<T> &other)
+{
+    return WherePhrase(this, PhraseData::Equal, &other);
 }
 
 template <typename T>

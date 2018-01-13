@@ -33,6 +33,7 @@ struct FieldModel;
 class DatabaseModel;
 class TableModel;
 class Database;
+class RelationModel;
 class SqlGeneratorBase : public QObject
 {
 //    Q_OBJECT
@@ -68,6 +69,9 @@ public:
     virtual QString diff(FieldModel *oldField, FieldModel *newField);
     virtual QString diff(TableModel *oldTable, TableModel *newTable);
 
+    virtual QString join(const QString &mainTable,
+                         const QList<RelationModel*> list,
+                         QStringList *order = Q_NULLPTR);
     virtual QString join(const QStringList &list, QStringList *order = Q_NULLPTR);
 
     virtual QString saveRecord(Table *t, QString tableName);
@@ -80,10 +84,10 @@ public:
     virtual QString deleteRecords(QString tableName, QString where);
 
     virtual QString selectCommand(AgregateType t,
-                                  QString agregateArg,
+                                  QString agregateArg, QString tableName,
                                   QList<WherePhrase> &wheres,
                                   QList<WherePhrase> &orders,
-                                  QStringList joins,
+                                  QList<RelationModel*> joins,
                                   int skip = -1, int take = -1);
 
     virtual QString deleteCommand(QList<WherePhrase> &wheres, QString tableName);

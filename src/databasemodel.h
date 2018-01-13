@@ -65,6 +65,9 @@ public:
 
     bool remove(const QString &tableName);
 
+    //TODO: may be private (called from DatabasePrivate::getCurrectScheema only)
+    void fixRelations();
+
     static DatabaseModel *modelByName(const QString &name);
 };
 

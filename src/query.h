@@ -26,6 +26,8 @@
 #include <QtCore/QScopedPointer>
 #include <QtCore/QRegularExpression>
 #include <QtCore/QMetaObject>
+#include <QtSql/QSqlResult>
+#include <QSqlError>
 
 #include "query_p.h"
 #include "database.h"
@@ -39,7 +41,7 @@
 NUT_BEGIN_NAMESPACE
 
 template <class T>
-class NUT_EXPORT Query : public QueryBase
+        class NUT_EXPORT Query : public QueryBase
 {
     QueryPrivate *d_ptr;
     Q_DECLARE_PRIVATE(Query)
@@ -63,7 +65,8 @@ public:
         return this;
     }
 
-//    Query<T> *orderBy(QString fieldName, QString type);
+
+    //    Query<T> *orderBy(QString fieldName, QString type);
     Query<T> *skip(int n);
     Query<T> *take(int n);
     Query<T> *orderBy(WherePhrase phrase);
@@ -106,8 +109,8 @@ Q_OUTOFLINE_TEMPLATE Query<T>::Query(Database *database, TableSetBase *tableSet,
     d->tableSet = tableSet;
     d->className = T::staticMetaObject.className();
     d->tableName
-        = // TableModel::findByClassName(T::staticMetaObject.className())->name();
-        d->database->model()
+            = // TableModel::findByClassName(T::staticMetaObject.className())->name();
+            d->database->model()
             .tableByClassName(T::staticMetaObject.className())
             ->name();
 }
@@ -129,25 +132,61 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
 
     d->joins.prepend(d->className);
 
-
     d->sql = d->database->sqlGenertor()->selectCommand(
-        SqlGeneratorBase::SelectAll, "", d->wheres, d->orderPhrases,
-        d->joins, d->skip, d->take);
-    qDebug() << d->sql;
+                SqlGeneratorBase::SelectAll, "",
+                d->tableName,
+                d->wheres, d->orderPhrases, d->relations,
+                d->skip, d->take);
+    //    qDebug() << "JOINS=" << d->database->sqlGenertor()->join(d->relations);
+    qDebug() << "SQL=" << d->sql;
     QSqlQuery q = d->database->exec(d->sql);
+qDebug() <<"==========================" <<q.numRowsAffected();
+if (q.lastError().isValid())
+    qDebug() << q.lastError().text();
+
+    QStringList childTables, masterTables;
+    foreach (RelationModel *rel, d->relations) {
+        childTables.append(rel->slaveTable->name());
+        masterTables.append(rel->masterTable->name());
+    }
+qDebug() << childTables;
+qDebug() << masterTables;
 
     struct LevelData{
+        QVariant keyValue;
+        TableSetBase *tableSet;
+        RelationModel *relation;
+        QList<int> masters;
+        QList<int> slaves;
+
         QString key;
         QString className;
         QString tableName;
-        QVariant keyValue;
         int typeId;
-        TableSetBase *tableSet;
         Table *lastRow;
     };
     QVector<LevelData> levels;
     QList<T*> returnList;
-    foreach (QString className, d->joins) {
+    QList<RelationModel*>::iterator i;
+    for (int i = 0; i < d->relations.count(); ++i) {
+        LevelData data;
+        data.relation = d->relations[i];
+        data.key = data.relation->slaveTable->name() + "." + data.relation->localColumn;
+        data.tableSet = 0;
+        for (int j = 0; j < i; ++j) {
+            if (d->relations[i]->masterTable->name() == d->relations[j]->slaveTable->name()) {
+                data.masters.append(j);
+                levels[i].slaves.append(i);
+            }
+        }
+        data.typeId = d->relations[i]->slaveTable->typeId();
+        levels.append(data);
+    }
+qDebug()<<"count="<<levels.count();
+
+    /*for (int i = d->joins.count() - 1; i >= 0; i--) {
+        QString className = d->joins[i];
+        //    foreach (QString className, d->joins) {
         LevelData data;
         data.className = className;
         TableModel *m = d->database->model().tableByClassName(className);
@@ -155,65 +194,51 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
             qWarning("Model '%s' not found!!!", qPrintable(className));
             return returnList;
         }
-        data.key = m->name() + "_" + m->primaryKey();
+        data.key = m->name() + "." + m->primaryKey();
         data.typeId = m->typeId();
         data.keyValue = QVariant();
         data.tableSet = 0;
         data.tableName = m->name();
         levels.append(data);
-    }
+    }*/
 
     while (q.next()) {
-        for (int i = 0; i < levels.count(); i++) {
-            LevelData &data = levels[i];
-            if (/*!data.tableSet ||*/ data.keyValue != q.value(data.key)) {
-                data.keyValue = q.value(data.key);
+        qDebug() << "HAS";
+        int p = levels.count();
+        while (p) {
+            for (int i = 0; i < levels.count(); i++) {
+                LevelData &data = levels[i];
+                qDebug()<<"key="<<data.key;
+                if (/*!data.tableSet ||*/ data.keyValue != q.value(data.key)) {
+                    --p;
+                    data.keyValue = q.value(data.key);
 
-                //create table row
-                Table *table;
-                if (data.className == d->className) {
-                    table = new T();
-                    table->setTableSet(d->tableSet);
-                    returnList.append(dynamic_cast<T*>(table));
-                } else {
-                    const QMetaObject *childMetaObject
-                        = QMetaType::metaObjectForType(data.typeId);
-                    table = qobject_cast<Table *>(childMetaObject->newInstance());
-                }
-
-                QStringList childFields
-                    = d->database->model().tableByClassName(data.className)->fieldsNames();
-                foreach (QString field, childFields)
-                    table->setProperty(field.toLatin1().data(),
-                                       q.value(data.tableName + "_" + field));
-
-                table->setStatus(Table::FeatchedFromDB);
-                table->setParent(this);
-                table->clear();
-
-                //set last created row
-                data.lastRow = table;
-                if (i < levels.count() - 1) {
-//                    if (data.className == d->className) {
-//                        data.tableSet = d->tableSet;
-//                    } else
-                    {
-                        QSet<TableSetBase *> tableSets = table->tableSets;
-                        foreach (TableSetBase *ts, tableSets)
-                            if (ts->childClassName() == levels[i + 1].className)
-                                data.tableSet = ts;
-
-                        if (!data.tableSet)
-                            qWarning() << "Dataset not found for" << data.className;
+                    //create table row
+                    Table *table;
+                    if (data.className == d->className) {
+                        table = new T();
+                        table->setTableSet(d->tableSet);
+                        returnList.append(dynamic_cast<T*>(table));
+                    } else {
+                        const QMetaObject *childMetaObject
+                                = QMetaType::metaObjectForType(data.typeId);
+                        table = qobject_cast<Table *>(childMetaObject->newInstance());
                     }
-                }
-                if (i) {
-//                    if (!table->tableSet())
-                        table->setTableSet(levels[i - 1].tableSet);
-                    table->setParentTable(levels[i - 1].lastRow);
-                } else {
-//                    table->setTableSet(d->tableSet);
-//                    data.tableSet = d->tableSet;
+
+                    QStringList childFields
+                            = d->database->model().tableByClassName(data.className)->fieldsNames();
+                    foreach (QString field, childFields)
+                        table->setProperty(field.toLatin1().data(),
+                                           q.value(data.tableName + "." + field));
+
+                    table->setStatus(Table::FeatchedFromDB);
+                    table->setParent(this);
+                    table->clear();
+
+                    //set last created row
+                    data.lastRow = table;
+
+                    qDebug() << "*" << data.masters << data.slaves;
                 }
             }
         }
@@ -221,84 +246,6 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
     if (m_autoDelete)
         deleteLater();
     return returnList;
-/*
-    QString pk = d->database->model().tableByName(d->tableName)->primaryKey();
-    QVariant lastPkValue = QVariant();
-    int childTypeId = 0;
-    T *lastRow = 0;
-    TableSetBase *childTableSet = Q_NULLPTR;
-
-    // FIXME: getting table error
-    //    QStringList masterFields =
-    //    TableModel::findByName(d->tableName)->fieldsNames();
-    QStringList masterFields
-        = d->database->model().tableByName(d->tableName)->fieldsNames();
-    QStringList childFields;
-    if (!d->joinClassName.isNull()) {
-        TableModel *joinTableModel
-            = TableModel::findByClassName(d->joinClassName);
-        if (joinTableModel) {
-            //            childFields =
-            //            d->database->model().modelByClass(d->joinClassName)->fieldsNames();
-            childFields
-                = TableModel::findByClassName(d->joinClassName)->fieldsNames();
-            QString joinTableName = d->database->tableName(d->joinClassName);
-            childTypeId = d->database->model().tableByName(joinTableName)->typeId();
-            //            childTypeId =
-            //            TableModel::findByName(joinTableName)->typeId();
-        }
-    }
-
-    while (q.next()) {
-        if (lastPkValue != q.value(pk)) {
-            T *t = new T();
-            foreach (QString field, masterFields)
-                t->setProperty(field.toLatin1().data(), q.value(field));
-
-            t->setTableSet(d->tableSet);
-            t->setStatus(Table::FeatchedFromDB);
-            t->setParent(this);
-            t->clear();
-
-            result.append(t);
-            lastRow = t;
-
-            if (childTypeId) {
-                QSet<TableSetBase *> tableSets = t->tableSets;
-                foreach (TableSetBase *ts, tableSets)
-                    if (ts->childClassName() == d->joinClassName)
-                        childTableSet = ts;
-            }
-        }
-
-        if (childTypeId) {
-            const QMetaObject *childMetaObject
-                = QMetaType::metaObjectForType(childTypeId);
-            Table *childTable
-                = qobject_cast<Table *>(childMetaObject->newInstance());
-
-            foreach (QString field, childFields)
-                childTable->setProperty(field.toLatin1().data(),
-                                        q.value(field));
-            // TODO: set database for table
-            childTable->setParent(this);
-            childTable->setParentTable(lastRow);
-            childTable->setStatus(Table::FeatchedFromDB);
-            childTable->setTableSet(childTableSet);
-            childTable->clear();
-            addTableToSet(childTableSet, childTable);
-//            childTableSet->add(childTable);
-        }
-        lastPkValue = q.value(pk);
-
-        if (!--count)
-            break;
-    }
-
-    if (m_autoDelete)
-        deleteLater();
-    return result;
-    */
 }
 
 template <typename T>
@@ -310,8 +257,9 @@ Q_OUTOFLINE_TEMPLATE QList<F> Query<T>::select(const FieldPhrase<F> f)
 
     d->joins.prepend(d->tableName);
     d->sql = d->database->sqlGenertor()->selectCommand(
-        SqlGeneratorBase::SignleField, f.data()->text, d->wheres,
-        d->orderPhrases, d->joins, d->skip, d->take);
+                SqlGeneratorBase::SignleField, f.data()->text,
+                d->tableName, d->wheres,
+                d->orderPhrases, d->relations, d->skip, d->take);
 
     QSqlQuery q = d->database->exec(d->sql);
 
@@ -346,7 +294,11 @@ Q_OUTOFLINE_TEMPLATE int Query<T>::count()
     d->joins.prepend(d->tableName);
     d->select = "COUNT(*)";
     d->sql = d->database->sqlGenertor()->selectCommand(SqlGeneratorBase::Count,
-        QStringLiteral("*"), d->wheres, d->orderPhrases, d->joins);
+                                                       QStringLiteral("*"),
+                                                       d->tableName,
+                                                       d->wheres,
+                                                       d->orderPhrases,
+                                                       d->relations);
     QSqlQuery q = d->database->exec(d->sql);
 
     if (q.next())
@@ -361,8 +313,9 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::max(FieldPhrase<int> &f)
 
     d->joins.prepend(d->tableName);
     d->sql = d->database->sqlGenertor()->selectCommand(
-        SqlGeneratorBase::Max, f.data()->text, d->wheres, d->orderPhrases,
-        d->joins);
+                SqlGeneratorBase::Max, f.data()->text, d->tableName,
+                d->wheres, d->orderPhrases,
+                d->relations);
     QSqlQuery q = d->database->exec(d->sql);
 
     if (q.next())
@@ -377,8 +330,9 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::min(FieldPhrase<int> &f)
 
     d->joins.prepend(d->tableName);
     d->sql = d->database->sqlGenertor()->selectCommand(
-        SqlGeneratorBase::Min, f.data()->text, d->wheres, d->orderPhrases,
-        d->joins);
+                SqlGeneratorBase::Min, f.data()->text, d->tableName,
+                d->wheres, d->orderPhrases,
+                d->relations);
     QSqlQuery q = d->database->exec(d->sql);
 
     if (q.next())
@@ -393,8 +347,9 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::average(FieldPhrase<int> &f)
 
     d->joins.prepend(d->tableName);
     d->sql = d->database->sqlGenertor()->selectCommand(
-        SqlGeneratorBase::Average, f.data()->text, d->wheres, d->orderPhrases,
-        d->joins);
+                SqlGeneratorBase::Average, f.data()->text, d->tableName,
+                d->wheres, d->orderPhrases,
+                d->relations);
     QSqlQuery q = d->database->exec(d->sql);
 
     if (q.next())
@@ -406,6 +361,16 @@ template <class T>
 Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::join(const QString &className)
 {
     Q_D(Query);
+
+    RelationModel *rel = d->database->model().relationByClassNames(d->className, className);
+    if (!rel)
+        rel = d->database->model().relationByClassNames(className, d->className);
+
+    if (!rel)
+        qFatal("No relation beyween %s and %s",
+               qPrintable(d->className), qPrintable(className));
+
+    d->relations.append(rel);
     d->joinClassName = className;
     d->joins.append(className);
     return this;

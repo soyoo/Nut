@@ -109,7 +109,7 @@ bool Table::setParentTable(Table *master)
     TableModel *myModel = TableModel::findByClassName(metaObject()->className());
 
     foreach (RelationModel *r, myModel->foregionKeys())
-        if(r->className == masterClassName)
+        if(r->masterClassName == masterClassName)
         {
             setProperty(QString(r->localColumn).toLatin1().data(), master->primaryValue());
             _changedProperties.insert(r->localColumn);

@@ -30,8 +30,8 @@ NUT_BEGIN_NAMESPACE
 
 class Database;
 class TableSetBase;
-//template<class T>
 class QueryBase;
+class RelationModel;
 class QueryPrivate{
     QueryBase *q_ptr;
     Q_DECLARE_PUBLIC(QueryBase)
@@ -48,6 +48,7 @@ public:
     TableSetBase *tableSet;
     QString joinClassName;
     QStringList joins;
+    QList<RelationModel*> relations;
     QList<WherePhrase> wheres;
     QList<WherePhrase> orderPhrases;
     QHash<QString, QString> orders;

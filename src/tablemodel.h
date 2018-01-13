@@ -65,10 +65,14 @@ struct FieldModel{
 };
 
 struct RelationModel{
-    TableModel *table;
-    QString className;
+    //slave
     QString localColumn;
+    TableModel *slaveTable;
+    //master
     QString foregionColumn;
+    TableModel *masterTable;
+
+    QString masterClassName;
 };
 class TableModel
 {

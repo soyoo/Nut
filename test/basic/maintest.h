@@ -24,12 +24,12 @@ private slots:
     void initTestCase();
 
     void dataScheema();
+    void join();
     void createUser();
     void createPost();
     void createPost2();
     void selectPosts();
     void selectFirst();
-    void join();
     void selectPostsWithoutTitle();
     void selectPostIds();
     void testDate();

@@ -106,7 +106,7 @@ QString SqlGeneratorBase::recordsPhrase(QString className)
     foreach (FieldModel *f, table->fields()) {
         if (!ret.isEmpty())
             ret.append(", ");
-        ret.append(QString("%1.%2 AS %1_%2").arg(table->name()).arg(f->name));
+        ret.append(QString("%1.%2 AS [%1.%2]").arg(table->name()).arg(f->name));
     }
     return ret;
 }
@@ -201,6 +201,36 @@ QString SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
     return sql;
 }
 
+QString SqlGeneratorBase::join(const QString &mainTable,
+                               const QList<RelationModel*> list,
+                               QStringList *order)
+{
+    QString ret = mainTable;
+    QList<RelationModel*>::const_iterator i;
+    for (i = list.begin(); i != list.end(); ++i) {
+        if ((*i)->masterTable->name() == mainTable) {
+            ret.append(QString(" INNER JOIN %1 ON %1.%2 = %3.%4")
+                       .arg((*i)->slaveTable->name())
+                       .arg((*i)->localColumn)
+                       .arg((*i)->masterTable->name())
+                       .arg((*i)->masterTable->primaryKey()));
+
+            if (order != Q_NULLPTR)
+                order->append(mainTable + "." + (*i)->slaveTable->primaryKey());
+        } else {
+            ret.append(QString(" INNER JOIN %1 ON %1.%2 = %3.%4")
+                       .arg((*i)->masterTable->name())
+                       .arg((*i)->masterTable->primaryKey())
+                       .arg(mainTable)
+                       .arg((*i)->localColumn));
+
+            if (order != Q_NULLPTR)
+                order->append(mainTable + "." + (*i)->masterTable->primaryKey());
+        }
+    }
+    return ret;
+}
+
 QString SqlGeneratorBase::join(const QStringList &list, QStringList *order)
 {
     //TODO: reorder list first!
@@ -231,12 +261,12 @@ QString SqlGeneratorBase::join(const QStringList &list, QStringList *order)
             //mainTable is master of table
             ret.append(QString(" INNER JOIN [%1] ON %4.%2 = %1.%3")
                        .arg(table)
-                       .arg(rel->table->primaryKey())
+                       .arg(rel->masterTable->primaryKey())
                        .arg(rel->localColumn)
                        .arg(mainTable));
 
             if (order != Q_NULLPTR)
-                order->append(mainTable + "." + rel->table->primaryKey());
+                order->append(mainTable + "." + rel->masterTable->primaryKey());
 
         } else{
             rel = model.relationByClassNames(clone.first(), mainTable);
@@ -245,7 +275,7 @@ QString SqlGeneratorBase::join(const QStringList &list, QStringList *order)
                 ret.append(QString(" INNER JOIN [%1] ON %4.%2 = %1.%3")
                            .arg(table)
                            .arg(rel->localColumn)
-                           .arg(rel->table->primaryKey())
+                           .arg(rel->masterTable->primaryKey())
                            .arg(mainTable));
 
                 if (order != Q_NULLPTR)
@@ -399,9 +429,10 @@ QString SqlGeneratorBase::deleteRecords(QString tableName, QString where)
 
 QString SqlGeneratorBase::selectCommand(SqlGeneratorBase::AgregateType t,
                                         QString agregateArg,
+                                        QString tableName,
                                         QList<WherePhrase> &wheres,
                                         QList<WherePhrase> &orders,
-                                        QStringList joins,
+                                        QList<RelationModel*> joins,
                                         int skip, int take)
 {
     Q_UNUSED(take);
@@ -410,15 +441,16 @@ QString SqlGeneratorBase::selectCommand(SqlGeneratorBase::AgregateType t,
     QStringList joinedOrders;
     QString select = agregateText(t, agregateArg);
 
-    if (select == "*") {
+    //TODO: temporatory disabled
+    if (t == SelectAll) {
         select = "";
-        foreach (QString c, joins) {
+        foreach (RelationModel *c, joins) {
             if (!select.isEmpty())
                 select.append(", ");
-            select.append(recordsPhrase(c));
+            select.append(recordsPhrase(c->slaveTable->className()));
         }
     }
-    QString from = join(joins, &joinedOrders);
+    QString from = join(tableName, joins, &joinedOrders);
     QString where = createWhere(wheres);
     QString orderText = joinedOrders.join(", ");
 

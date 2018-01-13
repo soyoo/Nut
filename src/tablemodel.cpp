@@ -222,9 +222,10 @@ TableModel::TableModel(int typeId, QString tableName)
 
         if(type == __nut_FOREGION_KEY){
             RelationModel *fk = new RelationModel;
+            fk->slaveTable = this;
             fk->localColumn = name;
             fk->foregionColumn = value;
-            fk->className = value;
+            fk->masterClassName = value;
             _foregionKeys.append(fk);
         }
 
@@ -370,7 +371,7 @@ QJsonObject TableModel::toJson() const
 RelationModel *TableModel::foregionKey(QString otherTable) const
 {
     foreach (RelationModel *fk, _foregionKeys)
-        if(fk->className == otherTable)
+        if(fk->masterClassName == otherTable)
             return fk;
 
     return 0;

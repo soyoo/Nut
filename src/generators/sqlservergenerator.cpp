@@ -133,11 +133,17 @@ QString SqlServerGenerator::escapeValue(const QVariant &v) const
     return SqlGeneratorBase::escapeValue(v);
 }
 
-QString SqlServerGenerator::selectCommand(
-    SqlGeneratorBase::AgregateType t, QString agregateArg,
-    QList<WherePhrase> &wheres, QList<WherePhrase> &orders, QStringList joins, int skip, int take)
+QString SqlServerGenerator::selectCommand(SqlGeneratorBase::AgregateType t,
+                                          QString agregateArg,
+                                          QString tableName,
+                                          QList<WherePhrase> &wheres,
+                                          QList<WherePhrase> &orders,
+        QList<RelationModel*> joins, int skip, int take)
 {
-    QString command = SqlGeneratorBase::selectCommand(t, agregateArg, wheres, orders, joins, skip, take);
+    QString command = SqlGeneratorBase::selectCommand(t, agregateArg,
+                                                      tableName,
+                                                      wheres, orders,
+                                                      joins, skip, take);
 
     if (take != -1 && skip != -1)
         command.append(QString("OFFSET %1 ROWS FETCH NEXT %2 ROWS ONLY")

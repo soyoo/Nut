@@ -72,6 +72,7 @@ protected:
 private:
     Status _status;
     QSet<QString> _changedProperties;
+    //TODO: is this removable?
     TableSetBase *_tableSet;
 
     QSet<TableSetBase*> tableSets;
