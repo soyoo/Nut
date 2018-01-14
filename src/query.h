@@ -145,120 +145,130 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
         return returnList;
     }
 
-    QSet<QString> relatedTables;
+    QSet<TableModel*> relatedTables;
+    relatedTables << d->database->model().tableByName(d->tableName);
     foreach (RelationModel *rel, d->relations)
-        relatedTables << rel->slaveTable->name() << rel->masterTable->name();
+        relatedTables << rel->slaveTable << rel->masterTable;
 
-
-    QSet<QString> childTables, masterTables;
-    QMap<QString, Table*> lastClassRow;
-
-    foreach (RelationModel *rel, d->relations) {
-        childTables.insert(rel->slaveTable->name());
-        masterTables.insert(rel->masterTable->name());
-    }
-    foreach (QString ch, childTables) {
-        if (masterTables.contains(ch))
-            childTables.remove(ch);
-    }
-
-    qDebug() << "TABLES:";
-qDebug() << childTables;
-qDebug() << masterTables;
 
     struct LevelData{
-        QVariant keyValue;
-        TableSetBase *tableSet;
-        RelationModel *relation;
         QList<int> masters;
         QList<int> slaves;
-
-        QString key;
-        QString className;
-        QString tableName;
-        int typeId;
+        QString keyFiledname;
+        QVariant lastKeyValue;
+        TableModel *table;
         Table *lastRow;
     };
     QVector<LevelData> levels;
-    QList<RelationModel*>::iterator i;
-    for (int i = 0; i < d->relations.count(); ++i) {
+    QSet<QString> importedTables;
+    auto add_table = [&](int i, TableModel* table) {
+        if (importedTables.contains(table->name()))
+            return;
+        importedTables.insert(table->name());
+
         LevelData data;
-        data.relation = d->relations[i];
-        qDebug() <<"relation" << data.relation->masterTable->name() << data.relation->slaveTable->name();
-        data.key = data.relation->slaveTable->name() + "." + data.relation->localColumn;
-        data.className = data.relation->slaveTable->className();
-        data.typeId = d->relations[i]->slaveTable->typeId();
-        data.tableName = data.relation->slaveTable->name();
+        data.table = table;
+        data.keyFiledname = data.table->name() + "." + data.table->primaryKey();
+        data.lastKeyValue = QVariant();
 
-        data.tableSet = 0;
-        for (int j = 0; j < i; ++j) {
-            if (d->relations[i]->masterTable->name() == d->relations[j]->slaveTable->name()) {
-                data.masters.append(j);
-                levels[i].slaves.append(i);
-            }
-        }
-        levels.append(data);
-    }
-qDebug()<<"count="<<levels.count();
+        QSet<QString> masters;
+        foreach (RelationModel *rel, d->relations)
+            if (rel->slaveTable->name() == table->name())
+                masters.insert(rel->masterTable->name());
 
-    /*for (int i = d->joins.count() - 1; i >= 0; i--) {
-        QString className = d->joins[i];
-        //    foreach (QString className, d->joins) {
-        LevelData data;
-        data.className = className;
-        TableModel *m = d->database->model().tableByClassName(className);
-        if (!m) {
-            qWarning("Model '%s' not found!!!", qPrintable(className));
-            return returnList;
-        }
-        data.key = m->name() + "." + m->primaryKey();
-        data.typeId = m->typeId();
-        data.keyValue = QVariant();
-        data.tableSet = 0;
-        data.tableName = m->name();
-        levels.append(data);
-    }*/
-
-    while (q.next()) {
-        qDebug() << "HAS";
-        int p = levels.count();
-        while (p) {
-            for (int i = 0; i < levels.count(); i++) {
-                LevelData &data = levels[i];
-                qDebug() << "level"<<i << data.className;
-                --p;
-                if (/*!data.tableSet ||*/ data.keyValue != q.value(data.key)) {
-                    data.keyValue = q.value(data.key);
-
-                    //create table row
-                    Table *table;
-                    if (data.className == d->className) {
-                        table = new T();
-                        table->setTableSet(d->tableSet);
-                        returnList.append(dynamic_cast<T*>(table));
-                    } else {
-                        const QMetaObject *childMetaObject
-                                = QMetaType::metaObjectForType(data.typeId);
-                        table = qobject_cast<Table *>(childMetaObject->newInstance());
-                    }
-
-                    QStringList childFields
-                            = d->database->model().tableByClassName(data.className)->fieldsNames();
-                    foreach (QString field, childFields)
-                        table->setProperty(field.toLatin1().data(),
-                                           q.value(data.tableName + "." + field));
-
-                    table->setStatus(Table::FeatchedFromDB);
-                    table->setParent(this);
-                    table->clear();
-
-                    qDebug() << "table created" << table;
-                    //set last created row
-                    data.lastRow = table;
+        for (int j = 0; j < levels.count(); ++j) {
+            LevelData &dt = levels[j];
+            qDebug() <<"[check]"<<table->name() << dt.table->name();
+            foreach (QString m, masters)
+                if (dt.table->name() == m) {
+                    data.masters.append(j);
+                    dt.slaves.append(i);
                 }
-            }
         }
+        qDebug() << data.table->name() <<"added";
+        levels.append(data);
+    };
+    for (int i = 0; i < d->relations.count(); ++i) {
+        RelationModel *rel = d->relations[i];
+        add_table(i, rel->masterTable);
+        add_table(i, rel->slaveTable);
     }
+
+    QVector<bool> checked;
+    checked.reserve(levels.count());
+    for (int i = 0; i < levels.count(); ++i)
+        checked.append(false);
+    qDebug() << "Elapsed time:" << QString("%1ms").arg(t.elapsed() / 1000.);
+    while (q.next()) {
+        checked.fill(false);
+
+        int p = levels.count();
+        qDebug() << "p is"<<p;
+        int n = -1;
+        int lastP = p;
+
+        while (p) {
+            //            Q_ASSERT(p != lastP);
+            //            if (p == lastP)
+            //                qFatal("NULL Loop detected");
+
+            n = (++n) % levels.count();
+            if (checked[n])
+                continue;
+            LevelData &data = levels[n];
+
+            // check if key value is changed
+            if (data.lastKeyValue == q.value(data.keyFiledname)) {
+                --p;
+                continue;
+            }
+
+            // check if master if current table has processed
+            foreach (int m, data.masters)
+                if (!checked[m])
+                    continue;
+
+            checked[n] = true;
+            --p;
+            data.lastKeyValue = q.value(data.keyFiledname);
+
+            //create table row
+            Table *table;
+            if (data.table->className() == d->className) {
+                table = new T();
+                table->setParentTableSet(d->tableSet);
+                returnList.append(dynamic_cast<T*>(table));
+            } else {
+                const QMetaObject *childMetaObject
+                        = QMetaType::metaObjectForType(data.table->typeId());
+                table = qobject_cast<Table *>(childMetaObject->newInstance());
+
+                qDebug() << data.table->name() <<"created";
+            }
+
+            QStringList childFields = data.table->fieldsNames();
+            foreach (QString field, childFields)
+                table->setProperty(field.toLatin1().data(),
+                                   q.value(data.table->name() + "." + field));
+
+            foreach (int master, data.masters) {
+                table->setParentTableSet(levels[master].lastRow->childTableSet(data.table->className()));
+                qDebug() << data.table->name() << "added to" << levels[master].table->name();
+            }
+
+            table->setStatus(Table::FeatchedFromDB);
+            table->setParent(this);
+            table->clear();
+
+            qDebug() << "table created" << table;
+            //set last created row
+            data.lastRow = table;
+
+
+
+            lastP = p;
+        } //while
+    } // while
     if (m_autoDelete)
         deleteLater();
 

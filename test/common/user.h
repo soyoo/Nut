@@ -32,7 +32,7 @@ class User : public Nut::Table
     NUT_DECLARE_CHILD_TABLE(Score, scores)
 
 public:
-    Q_INVOKABLE User(QObject *tableSet = 0);
+    Q_INVOKABLE User(QObject *parentTableSet = 0);
 };
 
 Q_DECLARE_METATYPE(User*)

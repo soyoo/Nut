@@ -19,8 +19,8 @@ signals:
 private slots:
     void initTestCase();
 
-    void join2();
     void join();
+    void join2();
 };
 
 #endif // JOINTEST_H

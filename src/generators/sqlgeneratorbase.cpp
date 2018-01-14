@@ -215,7 +215,7 @@ QString SqlGeneratorBase::join(const QString &mainTable,
                        .arg((*i)->localColumn));
 
             if (order != Q_NULLPTR)
-                order->append(mainTable + "." + (*i)->slaveTable->primaryKey());
+                order->append((*i)->slaveTable->name() + "." + (*i)->slaveTable->primaryKey());
         } else {
             ret.append(QString(" INNER JOIN %3 ON %1.%2 = %3.%4")
                        .arg(mainTable)
@@ -224,7 +224,7 @@ QString SqlGeneratorBase::join(const QString &mainTable,
                        .arg((*i)->masterTable->primaryKey()));
 
             if (order != Q_NULLPTR)
-                order->append(mainTable + "." + (*i)->masterTable->primaryKey());
+                order->append((*i)->masterTable->name() + "." + (*i)->masterTable->primaryKey());
         }
     }
     return ret;

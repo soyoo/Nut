@@ -34,7 +34,7 @@ Table::Table(QObject *parent) : QObject(parent)
 
 void Table::add(TableSetBase *t)
 {
-    this->tableSets.insert(t);
+    this->childTableSets.insert(t);
 }
 
 
@@ -119,15 +119,23 @@ bool Table::setParentTable(Table *master)
     return false;
 }
 
-TableSetBase *Table::tableSet() const
+TableSetBase *Table::parentTableSet() const
 {
-    return _tableSet;
+    return _parentTableSet;
 }
 
-void Table::setTableSet(TableSetBase *parent)
+void Table::setParentTableSet(TableSetBase *parent)
 {
-    _tableSet = parent;
-    _tableSet->add(this);
+    _parentTableSet = parent;
+    _parentTableSet->add(this);
+}
+
+TableSetBase *Table::childTableSet(const QString &name) const
+{
+    foreach (TableSetBase *t, childTableSets)
+        if (t->childClassName() == name)
+            return t;
+    return Q_NULLPTR;
 }
 
 int Table::save(Database *db)
@@ -137,7 +145,7 @@ int Table::save(Database *db)
     if(status() == Added && isPrimaryKeyAutoIncrement())
         setProperty(primaryKey().toLatin1().data(), q.lastInsertId());
 
-    foreach(TableSetBase *ts, tableSets)
+    foreach(TableSetBase *ts, childTableSets)
         ts->save(db);
     setStatus(FeatchedFromDB);
 
