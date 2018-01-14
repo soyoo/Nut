@@ -12,6 +12,7 @@ using namespace NUT_NAMESPACE;
 #endif
 
 class Comment;
+class Score;
 class User : public Nut::Table
 {
     Q_OBJECT
@@ -28,6 +29,7 @@ class User : public Nut::Table
     NUT_DECLARE_FIELD(QString, password, password, setPassword)
 
     NUT_DECLARE_CHILD_TABLE(Comment, comments)
+    NUT_DECLARE_CHILD_TABLE(Score, scores)
 
 public:
     Q_INVOKABLE User(QObject *tableSet = 0);

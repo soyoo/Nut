@@ -9,7 +9,7 @@ INCLUDEPATH += $$PWD/../../src $$PWD/../common
 include(../../nut.pri)
 IMPORTPATH += $$OUT_PWD/../src/imports
 SOURCES += \
-    maintest.cpp \
+    jointest.cpp \
     ../common/comment.cpp \
     ../common/post.cpp \
     ../common/user.cpp \
@@ -17,7 +17,7 @@ SOURCES += \
     ../common/score.cpp
 
 HEADERS += \
-    maintest.h \
+    jointest.h \
     ../common/consts.h \
     ../common/comment.h \
     ../common/post.h \

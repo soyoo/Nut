@@ -46,7 +46,6 @@ public:
     QString select;
     Database *database;
     TableSetBase *tableSet;
-    QString joinClassName;
     QStringList joins;
     QList<RelationModel*> relations;
     QList<WherePhrase> wheres;

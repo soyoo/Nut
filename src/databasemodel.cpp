@@ -30,17 +30,20 @@ QMap<QString, DatabaseModel*> DatabaseModel::_models;
 
 #define NODE_VERSION "version"
 #define NODE_TABLES  "tables"
-DatabaseModel::DatabaseModel(const QString &name) : QList<TableModel*>(), _databaseClassName(name), _version(QString::null)
+DatabaseModel::DatabaseModel(const QString &name) :
+    QList<TableModel*>(), _databaseClassName(name), _version(QString::null)
 {
     _models.insert(name, this);
 }
 
-DatabaseModel::DatabaseModel(const DatabaseModel &other) : QList<TableModel*>(other), _version(QString::null)
+DatabaseModel::DatabaseModel(const DatabaseModel &other) :
+    QList<TableModel*>(other), _version(QString::null)
 {
 
 }
 
-DatabaseModel::DatabaseModel(const QJsonObject &json) : QList<TableModel*>()
+DatabaseModel::DatabaseModel(const QJsonObject &json) :
+    QList<TableModel*>()
 {
     setVersion(json.value(NODE_VERSION).toString());
 

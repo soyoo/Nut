@@ -128,7 +128,7 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
 {
     Q_UNUSED(count);
     Q_D(Query);
-    QList<T*> result;
+    QList<T*> returnList;
     d->select = "*";
     QElapsedTimer t;
     t.start();
@@ -140,22 +140,29 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
                 d->wheres, d->orderPhrases, d->relations,
                 d->skip, d->take);
     QSqlQuery q = d->database->exec(d->sql);
-    if (q.lastError().isValid())
+    if (q.lastError().isValid()) {
         qDebug() << q.lastError().text();
-
+        return returnList;
+    }
 
     QSet<QString> relatedTables;
     foreach (RelationModel *rel, d->relations)
         relatedTables << rel->slaveTable->name() << rel->masterTable->name();
 
 
-    QStringList childTables, masterTables;
+    QSet<QString> childTables, masterTables;
     QMap<QString, Table*> lastClassRow;
 
     foreach (RelationModel *rel, d->relations) {
-        childTables.append(rel->slaveTable->name());
-        masterTables.append(rel->masterTable->name());
+        childTables.insert(rel->slaveTable->name());
+        masterTables.insert(rel->masterTable->name());
     }
+    foreach (QString ch, childTables) {
+        if (masterTables.contains(ch))
+            childTables.remove(ch);
+    }
+
+    qDebug() << "TABLES:";
 qDebug() << childTables;
 qDebug() << masterTables;
 
@@ -173,7 +180,6 @@ qDebug() << masterTables;
         Table *lastRow;
     };
     QVector<LevelData> levels;
-    QList<T*> returnList;
     QList<RelationModel*>::iterator i;
     for (int i = 0; i < d->relations.count(); ++i) {
         LevelData data;
@@ -378,12 +384,13 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::join(const QString &className)
     if (!rel)
         rel = d->database->model().relationByClassNames(className, d->className);
 
-    if (!rel)
-        qFatal("No relation beyween %s and %s",
-               qPrintable(d->className), qPrintable(className));
+    if (!rel) {
+        qInfo("No relation between %s and %s",
+              qPrintable(d->className), qPrintable(className));
+        return this;
+    }
 
     d->relations.append(rel);
-    d->joinClassName = className;
     d->joins.append(className);
     return this;
 }
@@ -440,7 +447,6 @@ template <class T>
 Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::include(TableSetBase *t)
 {
     Q_D(Query);
-    d->joinClassName = t->childClassName();
     return this;
 }
 
@@ -448,7 +454,6 @@ template <class T>
 Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::include(Table *t)
 {
     Q_D(Query);
-    d->joinClassName = t->metaObject()->className();
     return this;
 }
 
