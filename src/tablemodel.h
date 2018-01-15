@@ -65,10 +65,15 @@ struct FieldModel{
 };
 
 struct RelationModel{
-    QString className;
+    //slave
     QString localColumn;
-    TableModel *table;
+    QString localProperty;
+    TableModel *slaveTable;
+    //master
     QString foregionColumn;
+    TableModel *masterTable;
+
+    QString masterClassName;
 };
 class TableModel
 {
@@ -117,6 +122,8 @@ private:
     QList<FieldModel*> _fields;
     QList<RelationModel*> _foregionKeys;
     static QSet<TableModel*>_allModels;
+    bool checkClassInfo(const QMetaClassInfo &classInfo,
+                        QString &type, QString &name, QString &value);
 };
 
 NUT_END_NAMESPACE

@@ -33,6 +33,7 @@ struct FieldModel;
 class DatabaseModel;
 class TableModel;
 class Database;
+class RelationModel;
 class SqlGeneratorBase : public QObject
 {
 //    Q_OBJECT
@@ -68,29 +69,30 @@ public:
     virtual QString diff(FieldModel *oldField, FieldModel *newField);
     virtual QString diff(TableModel *oldTable, TableModel *newTable);
 
-    virtual QString join(const QStringList &list);
+    virtual QString join(const QString &mainTable,
+                         const QList<RelationModel*> list,
+                         QStringList *order = Q_NULLPTR);
+    virtual QString join(const QStringList &list, QStringList *order = Q_NULLPTR);
 
     virtual QString saveRecord(Table *t, QString tableName);
+
+    virtual QString recordsPhrase(TableModel *table);
+
     virtual QString insertRecord(Table *t, QString tableName);
     virtual QString updateRecord(Table *t, QString tableName);
     virtual QString deleteRecord(Table *t, QString tableName);
-
-
     virtual QString deleteRecords(QString tableName, QString where);
 
     virtual QString selectCommand(AgregateType t,
-                                  QString agregateArg,
+                                  QString agregateArg, QString tableName,
                                   QList<WherePhrase> &wheres,
                                   QList<WherePhrase> &orders,
-                                  QString tableName,
-                                  QString joinClassName,
+                                  QList<RelationModel*> joins,
                                   int skip = -1, int take = -1);
 
     virtual QString deleteCommand(QList<WherePhrase> &wheres, QString tableName);
 
     virtual QString updateCommand(WherePhrase &phrase, QList<WherePhrase> &wheres, QString tableName);
-
-    virtual QString joinTables(QStringList tables);
 
     virtual QString escapeValue(const QVariant &v) const;
     virtual QVariant readValue(const QVariant::Type &type, const QVariant &dbValue);

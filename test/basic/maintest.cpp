@@ -14,6 +14,7 @@
 #include "post.h"
 #include "comment.h"
 
+#define PRINT(x) qDebug() << #x "=" << x;
 MainTest::MainTest(QObject *parent) : QObject(parent)
 {
 }
@@ -46,7 +47,16 @@ void MainTest::dataScheema()
 
     //    qDebug() << model.toJson();
     //    qDebug() << db.model().toJson();
-//    QTEST_ASSERT(model == db.model());
+    //    QTEST_ASSERT(model == db.model());
+}
+
+void MainTest::createUser()
+{
+    user = new User;
+    user->setUsername("admin");
+    user->setPassword("123456");
+    db.users()->append(user);
+    db.saveChanges();
 }
 
 void MainTest::createPost()
@@ -61,6 +71,7 @@ void MainTest::createPost()
         Comment *comment = new Comment;
         comment->setMessage("comment #" + QString::number(i));
         comment->setSaveDate(QDateTime::currentDateTime());
+        comment->setAuthorId(user->id());
         newPost->comments()->append(comment);
     }
     db.saveChanges();
@@ -84,6 +95,7 @@ void MainTest::createPost2()
         Comment *comment = new Comment;
         comment->setMessage("comment #" + QString::number(i));
         comment->setSaveDate(QDateTime::currentDateTime());
+        comment->setAuthor(user);
         comment->setPostId(newPost->id());
         db.comments()->append(comment);
     }
@@ -96,18 +108,16 @@ void MainTest::createPost2()
 void MainTest::selectPosts()
 {
     auto q = db.posts()->query()
-//    q->join(Post::commentsTable());
-//    q->join(Post::commentsTable());
-        ->join<User>()
-        ->join<Comment>()
+        ->join<Comment>()//Comment::authorIdField() == Post::idField())
         ->orderBy(!Post::saveDateField() & Post::bodyField())
         ->setWhere(Post::idField() == postId);
 
     auto posts = q->toList();
-    qDebug() << "SQL="<<q->sqlCommand();
     post = posts.at(0);
     post->setBody("");
 
+    PRINT(posts.length());
+    PRINT(posts.at(0)->comments()->length());
     QTEST_ASSERT(posts.length() == 1);
     QTEST_ASSERT(posts.at(0)->comments()->length() == 3);
     QTEST_ASSERT(posts.at(0)->title() == "post title");
@@ -118,12 +128,21 @@ void MainTest::selectPosts()
     db.cleanUp();
 }
 
+void MainTest::selectFirst()
+{
+    auto q = db.posts()->query();
+
+    auto posts = q->first();
+
+    qDebug() << q->sqlCommand();
+    QTEST_ASSERT(posts != Q_NULLPTR);
+}
+
 void MainTest::selectPostsWithoutTitle()
 {
     auto q = db.posts()->query();
     q->setWhere(Post::titleField().isNull());
     auto count = q->count();
-    qDebug() << q->sqlCommand();
     QTEST_ASSERT(count == 0);
 }
 
@@ -158,14 +177,16 @@ void MainTest::testDate()
 void MainTest::join()
 {
     auto q = db.comments()->query()
-//            ->join(Comment::author())
-//            ->join(Comment::post())
-            ->join<Post>()
-            ->setWhere(Comment::saveDateField() < QDateTime::currentDateTime().addDays(-1))
-            ->orderBy(Comment::saveDateField());
+            ->join<User>()
+            ->join<Post>();
 
-    q->toList();
+//    Comment *comment = q->first();
+    auto comments = q->toList();
+//    Comment *comment = q->toList().first();
     qDebug() << q->sqlCommand();
+    QTEST_ASSERT(comments.length());
+    QTEST_ASSERT(comments[0]->author());
+    QTEST_ASSERT(comments[0]->author()->username() == "admin");
 }
 
 
@@ -174,13 +195,6 @@ void MainTest::selectWithInvalidRelation()
     auto q = db.posts()->query();
     q->join("Invalid_Class_Name");
     q->toList();
-}
-
-void MainTest::select10NewstPosts()
-{
-    auto q = db.posts()->query();
-    q->orderBy(!Post::saveDateField());
-    q->toList(10);
 }
 
 void MainTest::modifyPost()
@@ -199,6 +213,7 @@ void MainTest::modifyPost()
             ->setWhere(Post::idField() == postId);
 
     post = q->first();
+    PRINT(post->title());
     QTEST_ASSERT(post->title() == "new name");
 }
 
@@ -206,7 +221,6 @@ void MainTest::emptyDatabase()
 {
     auto commentsCount = db.comments()->query()->remove();
     auto postsCount = db.posts()->query()->remove();
-
     QTEST_ASSERT(postsCount == 3);
     QTEST_ASSERT(commentsCount == 6);
 }

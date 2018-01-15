@@ -109,7 +109,7 @@ Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(T *t)
     _tables.insert(t);
     _tablesList.append(t);
 //    rows.append(t);
-    t->setTableSet(this);
+    t->setParentTableSet(this);
     if(t->status() != Table::FeatchedFromDB)
         t->setStatus(Table::Added);
 }

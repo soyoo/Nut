@@ -40,7 +40,6 @@ public:
 
     virtual int save(Database *db, bool cleanUp = false);
     void clearChilds();
-    void add(Table* t);
     QString childClassName() const;
 
     Database *database() const;
@@ -53,6 +52,12 @@ protected:
     Database *_database;
     Table *_table;
     QString _childClassName;
+
+private:
+    void add(Table* t);
+
+    friend class Table;
+    friend class QueryBase;
 };
 
 NUT_END_NAMESPACE

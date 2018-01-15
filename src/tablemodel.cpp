@@ -144,6 +144,23 @@ bool TableModel::operator !=(const TableModel &t) const
     return !(*this == t);
 }
 
+bool TableModel::checkClassInfo(const QMetaClassInfo &classInfo,
+                                QString &type, QString &name, QString &value)
+{
+    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
+        return false;
+    } else {
+        QStringList parts = QString(classInfo.value()).split("\n");
+        if (parts.count() != 3)
+            return false;
+
+        type = parts[0];
+        name = parts[1];
+        value = parts[2];
+        return true;
+    }
+}
+
 TableModel::TableModel(int typeId, QString tableName)
 {
     //TODO: check that
@@ -163,20 +180,19 @@ TableModel::TableModel(int typeId, QString tableName)
 
     // get fields names
     for(int j = 0; j < tableMetaObject->classInfoCount(); j++){
-        QString name = tableMetaObject->classInfo(j).name();
-        name = name.replace("\"", "");
+        QString type;
+        QString name;
+        QString value;
 
-        name = name.remove(__nut_NAME_PERFIX);
+        if (!checkClassInfo(tableMetaObject->classInfo(j),
+                            type, name, value)) {
+            continue;
+        }
 
-        if(name.contains(" ")){
-            QStringList parts = name.split(" ");
-            QString propName = parts.at(1);
-
-            if(propName == __nut_FIELD){
-                FieldModel *f = new FieldModel;
-                f->name = parts.at(0);
-                _fields.append(f);
-            }
+        if(type == __nut_FIELD){
+            FieldModel *f = new FieldModel;
+            f->name = name;
+            _fields.append(f);
         }
     }
     // Browse all fields
@@ -195,47 +211,48 @@ TableModel::TableModel(int typeId, QString tableName)
 
     // Browse class infos
     for(int j = 0; j < tableMetaObject->classInfoCount(); j++){
-        QString name = tableMetaObject->classInfo(j).name();
-        QString value = tableMetaObject->classInfo(j).value();
+        QString type;
+        QString name;
+        QString value;
 
-        name = name.replace("\"", "").remove(__nut_NAME_PERFIX);
-        value = value.replace("\"", "");
+        if (!checkClassInfo(tableMetaObject->classInfo(j),
+                            type, name, value)) {
+            continue;
+        }
 
-        if(name.contains(" ")){
-            QStringList parts = name.split(" ");
-            QString propName = parts.at(1);
+        if(type == __nut_FOREGION_KEY){
+            RelationModel *fk = new RelationModel;
+            fk->slaveTable = this;
+            fk->localColumn = name + "Id";
+            fk->localProperty = name;
+            fk->foregionColumn = value;
+            fk->masterClassName = value;
+            _foregionKeys.append(fk);
+        }
 
-            if(propName == __nut_FOREGION_KEY){
-                RelationModel *fk = new RelationModel;
-                fk->localColumn = parts.at(0);
-                fk->foregionColumn = value;
-                fk->className = value;
-                _foregionKeys.append(fk);
-            }
-
-            if(propName == __nut_FIELD){
-
-            }
-
-
-            FieldModel *f = field(parts.at(0));
-            if(!f)
-                continue;
-
-            if(propName == __nut_LEN)
-                f->length = value.toInt();
-            else if(propName == __nut_NOT_NULL)
-                f->notNull = true;
-            else if(propName == __nut_DEFAULT_VALUE)
-                f->defaultValue = value;
-            else if(propName == __nut_PRIMARY_KEY)
-                f->isPrimaryKey = true;
-            else if(propName == __nut_AUTO_INCREMENT)
-                f->isAutoIncrement = true;
-            else if(propName == __nut_UNIQUE)
-                f->isUnique = true;
+        if(type == __nut_FIELD){
 
         }
+
+
+        FieldModel *f = field(name);
+        if(!f)
+            continue;
+
+        if(type == __nut_LEN)
+            f->length = value.toInt();
+        else if(type == __nut_NOT_NULL)
+            f->notNull = true;
+        else if(type == __nut_DEFAULT_VALUE)
+            f->defaultValue = value;
+        else if(type == __nut_PRIMARY_KEY)
+            f->isPrimaryKey = true;
+        else if(type == __nut_AUTO_INCREMENT)
+            f->isAutoIncrement = true;
+        else if(type == __nut_UNIQUE)
+            f->isUnique = true;
+
+
     }
 
     if(!findByTypeId(typeId) && !tableName.isNull())
@@ -355,7 +372,7 @@ QJsonObject TableModel::toJson() const
 RelationModel *TableModel::foregionKey(QString otherTable) const
 {
     foreach (RelationModel *fk, _foregionKeys)
-        if(fk->className == otherTable)
+        if(fk->masterClassName == otherTable)
             return fk;
 
     return 0;

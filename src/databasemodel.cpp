@@ -30,17 +30,20 @@ QMap<QString, DatabaseModel*> DatabaseModel::_models;
 
 #define NODE_VERSION "version"
 #define NODE_TABLES  "tables"
-DatabaseModel::DatabaseModel(const QString &name) : QList<TableModel*>(), _databaseClassName(name), _version(QString::null)
+DatabaseModel::DatabaseModel(const QString &name) :
+    QList<TableModel*>(), _databaseClassName(name), _version(QString::null)
 {
     _models.insert(name, this);
 }
 
-DatabaseModel::DatabaseModel(const DatabaseModel &other) : QList<TableModel*>(other), _version(QString::null)
+DatabaseModel::DatabaseModel(const DatabaseModel &other) :
+    QList<TableModel*>(other), _version(QString::null)
 {
 
 }
 
-DatabaseModel::DatabaseModel(const QJsonObject &json) : QList<TableModel*>()
+DatabaseModel::DatabaseModel(const QJsonObject &json) :
+    QList<TableModel*>()
 {
     setVersion(json.value(NODE_VERSION).toString());
 
@@ -70,16 +73,15 @@ TableModel *DatabaseModel::tableByName(QString tableName) const
 
 TableModel *DatabaseModel::tableByClassName(QString className) const
 {
+    QStringList l;
     for(int i = 0; i < size(); i++){
         TableModel *s = at(i);
 
+        l.append(s->className());
         if(s->className() == className)
             return s;
     }
 
-//    qWarning("Table with class name '%s' not found in model",
-//             qUtf8Printable(className));
-//    Q_UNREACHABLE();
     return 0;
 }
 
@@ -145,7 +147,7 @@ RelationModel *DatabaseModel::relationByClassNames(const QString &masterClassNam
         return 0;
 
     foreach (RelationModel *rel, childTable->foregionKeys())
-        if(rel->className == masterClassName)
+        if(rel->masterClassName == masterClassName)
             return rel;
 
     return 0;
@@ -159,7 +161,7 @@ RelationModel *DatabaseModel::relationByTableNames(const QString &masterTableNam
         return 0;
 
     foreach (RelationModel *rel, childTable->foregionKeys())
-        if(rel->table->name() == masterTableName)
+        if(rel->masterTable->name() == masterTableName)
             return rel;
 
     return 0;
@@ -202,6 +204,15 @@ bool DatabaseModel::remove(const QString &tableName)
         }
     }
     return false;
+}
+
+void DatabaseModel::fixRelations()
+{
+    /*TODO: fixme
+    foreach (TableModel *table, currentModel)
+        foreach (RelationModel *fk, table->foregionKeys())
+            fk->masterTable = currentModel.tableByClassName(fk->masterClassName);
+            */
 }
 
 DatabaseModel *DatabaseModel::modelByName(const QString &name)

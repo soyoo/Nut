@@ -45,6 +45,8 @@ public:
     DatabaseModel getLastScheema();
     bool getCurrectScheema();
 
+    bool checkClassInfo(const QMetaClassInfo &classInfo,
+                                    QString &type, QString &name, QString &value);
     QSqlDatabase db;
 
     QString hostName;

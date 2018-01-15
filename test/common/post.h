@@ -11,6 +11,7 @@ using namespace NUT_NAMESPACE;
 #endif
 
 class Comment;
+class Score;
 class Post : public Table
 {
     Q_OBJECT
@@ -27,9 +28,10 @@ class Post : public Table
     NUT_DECLARE_FIELD(QString, body, body, setBody)
 
     NUT_DECLARE_CHILD_TABLE(Comment, comments)
+    NUT_DECLARE_CHILD_TABLE(Score, scores)
 
 public:
-    Q_INVOKABLE Post(QObject *tableSet = 0);
+    Q_INVOKABLE Post(QObject *parentTableSet = 0);
 
 signals:
 

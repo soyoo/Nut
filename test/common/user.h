@@ -12,12 +12,13 @@ using namespace NUT_NAMESPACE;
 #endif
 
 class Comment;
+class Score;
 class User : public Nut::Table
 {
     Q_OBJECT
 
     NUT_PRIMARY_AUTO_INCREMENT(id)
-    NUT_DECLARE_FIELD(QUuid, id, id, setId)
+    NUT_DECLARE_FIELD(int, id, id, setId)
 
     NUT_NOT_NULL(username)
     NUT_LEN(username, 50)
@@ -28,9 +29,10 @@ class User : public Nut::Table
     NUT_DECLARE_FIELD(QString, password, password, setPassword)
 
     NUT_DECLARE_CHILD_TABLE(Comment, comments)
+    NUT_DECLARE_CHILD_TABLE(Score, scores)
 
 public:
-    Q_INVOKABLE User(QObject *tableSet = 0);
+    Q_INVOKABLE User(QObject *parentTableSet = 0);
 };
 
 Q_DECLARE_METATYPE(User*)

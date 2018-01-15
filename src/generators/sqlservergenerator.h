@@ -39,9 +39,10 @@ public:
     QString escapeValue(const QVariant &v) const;
 
     QString selectCommand(AgregateType t, QString agregateArg,
+                          QString tableName,
                           QList<WherePhrase> &wheres,
-                          QList<WherePhrase> &orders, QString tableName,
-                          QString joinClassName, int skip, int take);
+                          QList<WherePhrase> &orders,
+                          QList<RelationModel *> joins, int skip, int take);
 };
 
 NUT_END_NAMESPACE
