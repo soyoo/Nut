@@ -33,6 +33,7 @@ NUT_BEGIN_NAMESPACE
 
 class Database;
 class TableSetBase;
+class TableModel;
 class NUT_EXPORT Table : public QObject
 {
     Q_OBJECT
@@ -72,6 +73,7 @@ protected:
     void propertyChanged(QString propName);
 
 private:
+    TableModel *myModel;
     Status _status;
     QSet<QString> _changedProperties;
     //TODO: is this removable?

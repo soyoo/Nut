@@ -27,6 +27,18 @@
 
 NUT_BEGIN_NAMESPACE
 
+/*
+ * FIXME:
+ *  Qt can not access metaObject inside of constructor
+ *  so, if we can't initalize myModel inside of ctor. in
+ *  other side myModel inited in propertyChanged signal, so
+ *  any method that uses myModel (like: primaryKey, ...) can't
+ *  be accessed before any property set. So ugly, but there are
+ *  no other way for now.
+ *
+ *  This should be fixed to v1.2
+ */
+
 Table::Table(QObject *parent) : QObject(parent)
 {
     setStatus(NewCreated);
@@ -40,38 +52,12 @@ void Table::add(TableSetBase *t)
 
 QString Table::primaryKey() const
 {
-//    static QString ret = QString::null;
-
-//    if(ret == QString::null){
-//        for(int i = 0; i < metaObject()->classInfoCount(); i++){
-//            QMetaClassInfo ci = metaObject()->classInfo(i);
-//            QString ciName = ci.name();
-
-//            if(ciName.startsWith(__nut_NAME_PERFIX))
-//                ciName.remove(__nut_NAME_PERFIX);
-
-//            if(ciName.contains(" ")){
-//                QStringList parts = ciName.split(" ");
-//                QString propName = parts.at(1);
-//                if(propName == __nut_PRIMARY_KEY)
-//                    ret = parts.at(0);
-//            }
-//        }
-
-//        if(ret == QString::null)
-//            ret = "";
-//    }
-
-//    return ret;
-    return TableModel::findByClassName(metaObject()->className())->primaryKey();
+    return myModel->primaryKey();
 }
 
 bool Table::isPrimaryKeyAutoIncrement() const
 {
-    auto m = TableModel::findByClassName(metaObject()->className());
-    auto pk = m->primaryKey();
-    auto f = m->field(pk);
-    return f->isAutoIncrement;
+    return myModel->field(myModel->primaryKey())->isAutoIncrement;
 }
 
 
@@ -82,14 +68,17 @@ QVariant Table::primaryValue() const
 
 void Table::propertyChanged(QString propName)
 {
-    if(propName == primaryKey())
+    if (!myModel)
+         myModel = TableModel::findByClassName(metaObject()->className());
+
+    if (propName == primaryKey())
         return;
 
     _changedProperties.insert(propName);
-    if(_status == FeatchedFromDB)
+    if (_status == FeatchedFromDB)
         _status = Modified;
 
-    if(_status == NewCreated)
+    if (_status == NewCreated)
         _status = Added;
 }
 
@@ -106,12 +95,12 @@ QSet<QString> Table::changedProperties() const
 bool Table::setParentTable(Table *master)
 {
     QString masterClassName = master->metaObject()->className();
-    TableModel *myModel = TableModel::findByClassName(metaObject()->className());
 
     foreach (RelationModel *r, myModel->foregionKeys())
         if(r->masterClassName == masterClassName)
         {
-            setProperty(QString(r->localColumn).toLatin1().data(), master->primaryValue());
+            setProperty(QString(r->localColumn).toLatin1().data(),
+                        master->primaryValue());
             _changedProperties.insert(r->localColumn);
             return true;
         }

@@ -29,6 +29,7 @@ private slots:
     void createPost2();
     void join();
     void selectPosts();
+    void selectScoreAverage();
     void selectFirst();
     void selectPostsWithoutTitle();
     void selectPostIds();

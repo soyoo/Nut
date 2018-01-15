@@ -78,9 +78,9 @@ public:
     template <typename F>
     QList<F> select(const FieldPhrase<F> f);
     int count();
-    QVariant max(FieldPhrase<int> &f);
-    QVariant min(FieldPhrase<int> &f);
-    QVariant average(FieldPhrase<int> &f);
+    QVariant max(const FieldPhrase<int> &f);
+    QVariant min(const FieldPhrase<int> &f);
+    QVariant average(const FieldPhrase<int> &f);
 
     //data mailpulation
     int update(WherePhrase phrase);
@@ -343,7 +343,7 @@ Q_OUTOFLINE_TEMPLATE int Query<T>::count()
 }
 
 template <class T>
-Q_OUTOFLINE_TEMPLATE QVariant Query<T>::max(FieldPhrase<int> &f)
+Q_OUTOFLINE_TEMPLATE QVariant Query<T>::max(const FieldPhrase<int> &f)
 {
     Q_D(Query);
 
@@ -360,7 +360,7 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::max(FieldPhrase<int> &f)
 }
 
 template <class T>
-Q_OUTOFLINE_TEMPLATE QVariant Query<T>::min(FieldPhrase<int> &f)
+Q_OUTOFLINE_TEMPLATE QVariant Query<T>::min(const FieldPhrase<int> &f)
 {
     Q_D(Query);
 
@@ -377,7 +377,7 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::min(FieldPhrase<int> &f)
 }
 
 template <class T>
-Q_OUTOFLINE_TEMPLATE QVariant Query<T>::average(FieldPhrase<int> &f)
+Q_OUTOFLINE_TEMPLATE QVariant Query<T>::average(const FieldPhrase<int> &f)
 {
     Q_D(Query);
 

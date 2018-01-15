@@ -30,8 +30,11 @@
 
 NUT_BEGIN_NAMESPACE
 
+/*
+ * TODO: It may be good idea if we replace this QSet with two QHash!
+ * one for className search and another for typeId.
+ */
 QSet<TableModel*> TableModel::_allModels;
-//QMap<int, TableScheema*> TableScheema::scheemas;
 
 QString TableModel::name() const
 {
@@ -95,6 +98,9 @@ QSet<TableModel *> TableModel::allModels()
     return _allModels;
 }
 
+/*
+ * This is not used anywhere
+ */
 TableModel *TableModel::findByTypeId(int typeId)
 {
     foreach (TableModel *model, _allModels)
@@ -103,20 +109,18 @@ TableModel *TableModel::findByTypeId(int typeId)
     return 0;
 }
 
-//TableModel *TableModel::findByName(QString name)
-//{
-//    foreach (TableModel *model, _allModels)
-//        if(model->name() == name)
-//            return model;
-//    return 0;
-//}
-
+/**
+ * @brief TableModel::findByClassName
+ *  Find a table model by class name
+ * @param className
+ * @return
+ */
 TableModel *TableModel::findByClassName(QString className)
 {
-    foreach (TableModel *model, _allModels){
+    foreach (TableModel *model, _allModels)
         if(model->className() == className)
             return model;
-    }
+
     return 0;
 }
 
@@ -337,37 +341,6 @@ QJsonObject TableModel::toJson() const
 
     return obj;
 }
-
-//TableScheema *TableScheema::registerTable(int typeId, QString tableName)
-//{
-//    TableScheema *scheema = new TableScheema(typeId, tableName);
-//    scheemas.insert(typeId, scheema);
-//    return scheema;
-//}
-
-//void TableScheema::createForegionKeys()
-//{
-//    foreach (TableScheema *sch, scheemas) {
-//        foreach (ForegionKey *fk, sch->_foregionKeys) {
-//            fk->table = scheema(fk->tableName);
-//        }
-//    }
-//}
-
-//TableModel *TableModel::model(QString className)
-//{
-//    qFatal("");
-//#ifdef NUT_NAMESPACE
-//    if(className.startsWith(QT_STRINGIFY(NUT_NAMESPACE) "::"))
-//        className = className.replace(QT_STRINGIFY(NUT_NAMESPACE) "::", "");
-//#endif
-
-//    foreach (TableModel *s, _allModels)
-//        if(s->_className == className){
-//            return s;
-//        }
-//    return 0;
-//}
 
 RelationModel *TableModel::foregionKey(QString otherTable) const
 {

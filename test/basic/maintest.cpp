@@ -14,6 +14,7 @@
 #include "user.h"
 #include "post.h"
 #include "comment.h"
+#include "score.h"
 
 #define PRINT(x) qDebug() << #x "=" << x;
 #define TIC()  QElapsedTimer timer; timer.start()
@@ -29,6 +30,7 @@ void MainTest::initTestCase()
 {
     qDebug() << "User type id:" << qRegisterMetaType<User*>();
     qDebug() << "Post type id:" << qRegisterMetaType<Post*>();
+    qDebug() << "Score type id:" << qRegisterMetaType<Score*>();
     qDebug() << "Comment type id:" << qRegisterMetaType<Comment*>();
     qDebug() << "DB type id:" << qRegisterMetaType<WeblogDatabase*>();
 
@@ -80,6 +82,12 @@ void MainTest::createPost()
         comment->setAuthorId(user->id());
         newPost->comments()->append(comment);
     }
+    for (int i = 0; i < 10; ++i) {
+        Score *score = new Score;
+        score->setScore(i % 5);
+        newPost->scores()->append(score);
+    }
+
     db.saveChanges();
 
     postId = newPost->id();
@@ -99,7 +107,7 @@ void MainTest::createPost2()
 
     for(int i = 0 ; i < 3; i++){
         Comment *comment = new Comment;
-        comment->setMessage("comment #" + QString::number(i));
+        comment->setMessage("comment #" + QString::number(i + 2));
         comment->setSaveDate(QDateTime::currentDateTime());
         comment->setAuthor(user);
         comment->setPostId(newPost->id());
@@ -132,6 +140,15 @@ void MainTest::selectPosts()
     QTEST_ASSERT(posts.at(0)->comments()->at(1)->message() == "comment #1");
     QTEST_ASSERT(posts.at(0)->comments()->at(2)->message() == "comment #2");
     db.cleanUp();
+}
+
+void MainTest::selectScoreAverage()
+{
+    auto a = db.scores()->query()
+            ->join<Post>()
+            ->setWhere(Post::idField() == 1)
+            ->average(Score::scoreField());
+    qDebug() << a;
 }
 
 void MainTest::selectFirst()
