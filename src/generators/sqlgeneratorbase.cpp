@@ -281,8 +281,8 @@ QString SqlGeneratorBase::join(const QStringList &list, QStringList *order)
                     order->append(mainTable + "." + rel->localColumn);
 
             } else {
-                qInfo("Relation for %s and %s not exists",
-                      qPrintable(table), qPrintable(mainTable));
+//                qInfo("Relation for %s and %s not exists",
+//                      qPrintable(table), qPrintable(mainTable));
             }
         }
 
