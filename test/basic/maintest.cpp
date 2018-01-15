@@ -1,6 +1,7 @@
 #include <QtTest>
 #include <QJsonDocument>
 #include <QSqlError>
+#include <QElapsedTimer>
 
 #include "consts.h"
 
@@ -15,6 +16,11 @@
 #include "comment.h"
 
 #define PRINT(x) qDebug() << #x "=" << x;
+#define TIC()  QElapsedTimer timer; timer.start()
+#define TOC()  qDebug() << QString("Elapsed time: %1ms for %2") \
+    .arg(timer.elapsed() / 1000.) \
+    .arg(__func__)
+
 MainTest::MainTest(QObject *parent) : QObject(parent)
 {
 }
@@ -130,11 +136,9 @@ void MainTest::selectPosts()
 
 void MainTest::selectFirst()
 {
-    auto q = db.posts()->query();
+    auto posts = db.posts()->query()
+        ->first();
 
-    auto posts = q->first();
-
-    qDebug() << q->sqlCommand();
     QTEST_ASSERT(posts != Q_NULLPTR);
 }
 
@@ -176,14 +180,14 @@ void MainTest::testDate()
 
 void MainTest::join()
 {
+    TIC();
     auto q = db.comments()->query()
             ->join<User>()
             ->join<Post>();
 
-//    Comment *comment = q->first();
     auto comments = q->toList();
-//    Comment *comment = q->toList().first();
-    qDebug() << q->sqlCommand();
+
+    TOC();
     QTEST_ASSERT(comments.length());
     QTEST_ASSERT(comments[0]->author());
     QTEST_ASSERT(comments[0]->author()->username() == "admin");

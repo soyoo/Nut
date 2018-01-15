@@ -27,8 +27,7 @@
 #include <QtCore/QRegularExpression>
 #include <QtCore/QMetaObject>
 #include <QtSql/QSqlResult>
-#include <QElapsedTimer>
-#include <QSqlError>
+#include <QtSql/QSqlError>
 
 #include "query_p.h"
 #include "database.h"
@@ -65,7 +64,6 @@ public:
         join(TABLE::staticMetaObject.className());
         return this;
     }
-
 
     //    Query<T> *orderBy(QString fieldName, QString type);
     Query<T> *skip(int n);
@@ -109,8 +107,7 @@ Q_OUTOFLINE_TEMPLATE Query<T>::Query(Database *database, TableSetBase *tableSet,
     d->database = database;
     d->tableSet = tableSet;
     d->className = T::staticMetaObject.className();
-    d->tableName
-            = // TableModel::findByClassName(T::staticMetaObject.className())->name();
+    d->tableName =
             d->database->model()
             .tableByClassName(T::staticMetaObject.className())
             ->name();
@@ -130,9 +127,6 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
     Q_D(Query);
     QList<T*> returnList;
     d->select = "*";
-    QElapsedTimer t;
-    t.start();
-
 
     d->sql = d->database->sqlGenertor()->selectCommand(
                 SqlGeneratorBase::SelectAll, "",
@@ -179,7 +173,6 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
 
         for (int j = 0; j < levels.count(); ++j) {
             LevelData &dt = levels[j];
-            qDebug() <<"[check]"<<table->name() << dt.table->name();
 
             QHashIterator<QString, QString> it(masters);
             while (it.hasNext()) {
@@ -192,7 +185,7 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
                 }
             }
         }
-        qDebug() << data.table->name() <<"added";
+
         levels.append(data);
     };
     for (int i = 0; i < d->relations.count(); ++i) {
@@ -214,12 +207,11 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
     checked.reserve(levels.count());
     for (int i = 0; i < levels.count(); ++i)
         checked.append(false);
-    qDebug() << "Elapsed time:" << QString("%1ms").arg(t.elapsed() / 1000.);
+
     while (q.next()) {
         checked.fill(false);
 
         int p = levels.count();
-        qDebug() << "p is"<<p;
         int n = -1;
         int lastP = p;
 
@@ -260,7 +252,6 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
                 table = qobject_cast<Table *>(childMetaObject->newInstance());
 
             }
-            qDebug() << "table created" << table;
 
             QStringList childFields = data.table->fieldsNames();
             foreach (QString field, childFields)
@@ -272,12 +263,9 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
                 table->setProperty(data.masterFields[i].toLocal8Bit().data(),
                                    QVariant::fromValue(levels[master].lastRow));
 
-                table->setParentTableSet(levels[master].lastRow->childTableSet(data.table->className()));
-                TableSetBase *ts = levels[master].lastRow->childTableSet(data.table->className());
-                qDebug() << table << "added to"
-                         << levels[master].lastRow
-                         << ts->childClassName()
-                         << data.masterFields[i];
+                table->setParentTableSet(
+                            levels[master].lastRow->childTableSet(
+                                data.table->className()));
             }
 
             table->setStatus(Table::FeatchedFromDB);
@@ -287,15 +275,12 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
             //set last created row
             data.lastRow = table;
 
-
-
             lastP = p;
         } //while
     } // while
     if (m_autoDelete)
         deleteLater();
 
-    qDebug() << "Elapsed time:" << QString("%1ms").arg(t.elapsed() / 1000.);
     return returnList;
 }
 
@@ -413,9 +398,11 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::join(const QString &className)
 {
     Q_D(Query);
 
-    RelationModel *rel = d->database->model().relationByClassNames(d->className, className);
+    RelationModel *rel = d->database->model()
+            .relationByClassNames(d->className, className);
     if (!rel)
-        rel = d->database->model().relationByClassNames(className, d->className);
+        rel = d->database->model()
+                .relationByClassNames(className, d->className);
 
     if (!rel) {
         qInfo("No relation between %s and %s",

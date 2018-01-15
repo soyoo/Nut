@@ -34,7 +34,6 @@ private slots:
     void selectPostIds();
     void testDate();
     void selectWithInvalidRelation();
-    void select10NewstPosts();
     void modifyPost();
     void emptyDatabase();
 };
