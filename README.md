@@ -1,5 +1,11 @@
 # Nut
 
+## Build result
+| Brancc name   | Icon  |
+| ------------- |:-------------:|
+| master        | [![Build Status](https://travis-ci.org/HamedMasafi/Nut.svg?branch=master)](https://travis-ci.org/HamedMasafi/Nut) |
+| dev           | [![Build Status](https://travis-ci.org/HamedMasafi/Nut.svg?branch=dev)](https://travis-ci.org/HamedMasafi/Nut) |
+
 [![Build Status](https://travis-ci.org/HamedMasafi/Nut.svg?branch=dev)](https://travis-ci.org/HamedMasafi/Nut)
 
 ## Advanced, Powerful and easy to use ORM for Qt5
