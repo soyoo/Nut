@@ -154,6 +154,7 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
     struct LevelData{
         QList<int> masters;
         QList<int> slaves;
+        QList<QString> masterFields;
         QString keyFiledname;
         QVariant lastKeyValue;
         TableModel *table;
@@ -171,19 +172,25 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
         data.keyFiledname = data.table->name() + "." + data.table->primaryKey();
         data.lastKeyValue = QVariant();
 
-        QSet<QString> masters;
+        QHash<QString, QString> masters;
         foreach (RelationModel *rel, d->relations)
             if (rel->slaveTable->name() == table->name())
-                masters.insert(rel->masterTable->name());
+                masters.insert(rel->masterTable->name(), rel->localProperty);
 
         for (int j = 0; j < levels.count(); ++j) {
             LevelData &dt = levels[j];
             qDebug() <<"[check]"<<table->name() << dt.table->name();
-            foreach (QString m, masters)
-                if (dt.table->name() == m) {
+
+            QHashIterator<QString, QString> it(masters);
+            while (it.hasNext()) {
+                it.next();
+
+                if (dt.table->name() == it.key()) {
                     data.masters.append(j);
+                    data.masterFields.append(it.value());
                     dt.slaves.append(i);
                 }
+            }
         }
         qDebug() << data.table->name() <<"added";
         levels.append(data);
@@ -192,6 +199,15 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
         RelationModel *rel = d->relations[i];
         add_table(i, rel->masterTable);
         add_table(i, rel->slaveTable);
+    }
+
+    if (!importedTables.count()) {
+        LevelData data;
+        data.table = d->database->model().tableByName(d->tableName);
+        data.keyFiledname = d->tableName + "." + data.table->primaryKey();
+        data.lastKeyValue = QVariant();
+
+        levels.append(data);
     }
 
     QVector<bool> checked;
@@ -243,24 +259,31 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
                         = QMetaType::metaObjectForType(data.table->typeId());
                 table = qobject_cast<Table *>(childMetaObject->newInstance());
 
-                qDebug() << data.table->name() <<"created";
             }
+            qDebug() << "table created" << table;
 
             QStringList childFields = data.table->fieldsNames();
             foreach (QString field, childFields)
                 table->setProperty(field.toLatin1().data(),
                                    q.value(data.table->name() + "." + field));
 
-            foreach (int master, data.masters) {
+            for (int i = 0; i < data.masters.count(); ++i) {
+                int master = data.masters[i];
+                table->setProperty(data.masterFields[i].toLocal8Bit().data(),
+                                   QVariant::fromValue(levels[master].lastRow));
+
                 table->setParentTableSet(levels[master].lastRow->childTableSet(data.table->className()));
-                qDebug() << data.table->name() << "added to" << levels[master].table->name();
+                TableSetBase *ts = levels[master].lastRow->childTableSet(data.table->className());
+                qDebug() << table << "added to"
+                         << levels[master].lastRow
+                         << ts->childClassName()
+                         << data.masterFields[i];
             }
 
             table->setStatus(Table::FeatchedFromDB);
             table->setParent(this);
             table->clear();
 
-            qDebug() << "table created" << table;
             //set last created row
             data.lastRow = table;
 

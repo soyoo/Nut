@@ -67,6 +67,7 @@ struct FieldModel{
 struct RelationModel{
     //slave
     QString localColumn;
+    QString localProperty;
     TableModel *slaveTable;
     //master
     QString foregionColumn;

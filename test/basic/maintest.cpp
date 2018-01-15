@@ -118,20 +118,23 @@ void MainTest::selectPosts()
 
     PRINT(posts.length());
     PRINT(posts.at(0)->comments()->length());
-//    QTEST_ASSERT(posts.length() == 1);
-//    QTEST_ASSERT(posts.at(0)->comments()->length() == 3);
-//    QTEST_ASSERT(posts.at(0)->title() == "post title");
+    QTEST_ASSERT(posts.length() == 1);
+    QTEST_ASSERT(posts.at(0)->comments()->length() == 3);
+    QTEST_ASSERT(posts.at(0)->title() == "post title");
 
-//    QTEST_ASSERT(posts.at(0)->comments()->at(0)->message() == "comment #0");
-//    QTEST_ASSERT(posts.at(0)->comments()->at(1)->message() == "comment #1");
-//    QTEST_ASSERT(posts.at(0)->comments()->at(2)->message() == "comment #2");
+    QTEST_ASSERT(posts.at(0)->comments()->at(0)->message() == "comment #0");
+    QTEST_ASSERT(posts.at(0)->comments()->at(1)->message() == "comment #1");
+    QTEST_ASSERT(posts.at(0)->comments()->at(2)->message() == "comment #2");
     db.cleanUp();
 }
 
 void MainTest::selectFirst()
 {
-    auto posts = db.posts()->query()
-            ->first();
+    auto q = db.posts()->query();
+
+    auto posts = q->first();
+
+    qDebug() << q->sqlCommand();
     QTEST_ASSERT(posts != Q_NULLPTR);
 }
 
@@ -192,13 +195,6 @@ void MainTest::selectWithInvalidRelation()
     auto q = db.posts()->query();
     q->join("Invalid_Class_Name");
     q->toList();
-}
-
-void MainTest::select10NewstPosts()
-{
-    auto q = db.posts()->query();
-    q->orderBy(!Post::saveDateField());
-    q->toList(10);
 }
 
 void MainTest::modifyPost()
