@@ -495,6 +495,12 @@ SqlGeneratorBase *Database::sqlGenertor() const
     return d->sqlGenertor;
 }
 
+QSqlDatabase Database::database()
+{
+    Q_D(Database);
+    return d->db;
+}
+
 void Database::databaseUpdated(QString oldVersion, QString newVersion)
 {
     Q_UNUSED(oldVersion);

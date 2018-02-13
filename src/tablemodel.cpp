@@ -66,6 +66,14 @@ void TableModel::setTypeId(const int &typeId)
     _typeId = typeId;
 }
 
+FieldModel *TableModel::field(int n) const
+{
+    if (n < 0 || n >= _fields.count())
+        return 0;
+
+    return _fields.at(n);
+}
+
 FieldModel *TableModel::field(QString name) const
 {
     foreach (FieldModel *f, _fields)
@@ -195,7 +203,7 @@ TableModel::TableModel(int typeId, QString tableName)
 
         if(type == __nut_FIELD){
             FieldModel *f = new FieldModel;
-            f->name = name;
+            f->name = f->displayName = name;
             _fields.append(f);
         }
     }
@@ -255,8 +263,8 @@ TableModel::TableModel(int typeId, QString tableName)
             f->isAutoIncrement = true;
         else if(type == __nut_UNIQUE)
             f->isUnique = true;
-
-
+        else if(type == __nut_DISPLAY)
+            f->displayName = value;
     }
 
     if(!findByTypeId(typeId) && !tableName.isNull())

@@ -28,6 +28,7 @@
 #include <QtCore/QMetaObject>
 #include <QtSql/QSqlResult>
 #include <QtSql/QSqlError>
+#include <QtSql/QSqlQueryModel>
 
 #include "query_p.h"
 #include "database.h"
@@ -68,6 +69,7 @@ public:
     //    Query<T> *orderBy(QString fieldName, QString type);
     Query<T> *skip(int n);
     Query<T> *take(int n);
+    Query<T> *fields(WherePhrase phrase);
     Query<T> *orderBy(WherePhrase phrase);
     Query<T> *include(TableSetBase *t);
     Query<T> *include(Table *t);
@@ -85,6 +87,8 @@ public:
     //data mailpulation
     int update(WherePhrase phrase);
     int remove();
+
+    QSqlQueryModel *toModal();
 
     //debug purpose
     QString sqlCommand() const;
@@ -251,6 +255,9 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
                         = QMetaType::metaObjectForType(data.table->typeId());
                 table = qobject_cast<Table *>(childMetaObject->newInstance());
 
+                if (!table)
+                    qFatal("Could not create instance of %s",
+                           qPrintable(data.table->name()));
             }
 
             QStringList childFields = data.table->fieldsNames();
@@ -446,6 +453,14 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::take(int n)
     return this;
 }
 
+template<class T>
+Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::fields(WherePhrase phrase)
+{
+    Q_D(Query);
+    d->fields.append(phrase);
+    return this;
+}
+
 //template <class T>
 //Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::orderBy(QString fieldName,
 //                                                 QString type)
@@ -502,6 +517,37 @@ Q_OUTOFLINE_TEMPLATE int Query<T>::remove()
     if (m_autoDelete)
         deleteLater();
     return q.numRowsAffected();
+}
+
+template <class T>
+Q_OUTOFLINE_TEMPLATE QSqlQueryModel *Query<T>::toModal()
+{
+    Q_D(Query);
+
+
+    QString fff = "";
+
+    foreach (WherePhrase p, d->fields) {
+        if (fff != "")
+            fff.append(", ");
+        fff.append(d->database->sqlGenertor()->phraseOrder(p.data()));
+    }
+
+    d->sql = d->database->sqlGenertor()->selectCommand(
+                SqlGeneratorBase::SelectAll, "",
+                d->tableName,
+                d->wheres, d->orderPhrases, d->relations,
+                d->skip, d->take);
+    qDebug()<<"Model to" << fff;
+    QSqlQueryModel *model = new QSqlQueryModel;
+    TableModel *tableModel = d->database->model().tableByName(d->tableName);
+    model->setQuery(d->sql, d->database->database());
+
+    int fieldIndex = 0;
+    foreach (FieldModel *f, tableModel->fields()) {
+        model->setHeaderData(fieldIndex++, Qt::Horizontal, f->displayName);
+    }
+    return model;
 }
 
 template <class T>

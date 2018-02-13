@@ -63,7 +63,7 @@ public:
     TableSet<ChangeLogTable> *changeLogs;
 
     QT_DEPRECATED
-    QHash<QString, QString> tables;
+    QMap<QString, QString> tables;
     static QMap<QString, DatabaseModel> allTableMaps;
     static qulonglong lastId;
 

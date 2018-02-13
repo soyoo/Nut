@@ -100,11 +100,11 @@ public:
     virtual QString phraseUpdate(const PhraseData *d) const;
     virtual QString operatorString(const PhraseData::Condition &cond) const;
 
+    QString phraseOrder(const PhraseData *d) const;
 private:
     QString agregateText(const AgregateType &t, const QString &arg = QString::null) const;
     QString fromTableText(const QString &tableName, QString &joinClassName, QString &orderBy) const;
     QString createWhere(QList<WherePhrase> &wheres);
-    QString phraseOrder(const PhraseData *d) const;
     void replaceTableNames(QString &command);
     void removeTableNames(QString &command);
 };

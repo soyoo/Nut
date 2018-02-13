@@ -50,6 +50,7 @@ public:
     QList<RelationModel*> relations;
     QList<WherePhrase> wheres;
     QList<WherePhrase> orderPhrases;
+    QList<WherePhrase> fields;
     QHash<QString, QString> orders;
     int skip;
     int take;
