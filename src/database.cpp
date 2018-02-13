@@ -70,6 +70,13 @@ bool DatabasePrivate::open(bool update)
     db.setDatabaseName(databaseName);
     db.setUserName(userName);
     db.setPassword(password);
+
+    if (driver.toLower().startsWith("qsqlite")
+            && !QFile::exists(databaseName)) {
+        //Force to execute update database
+        isDatabaseNew = true;
+        update = true;
+    }
     bool ok = db.open();
 
     if (!ok) {
@@ -336,7 +343,6 @@ Database::Database(QObject *parent)
     : QObject(parent), d_ptr(new DatabasePrivate(this))
 {
     DatabasePrivate::lastId++;
-    qRegisterMetaType<ChangeLogTable*>();
 }
 
 Database::Database(const Database &other)
@@ -350,7 +356,6 @@ Database::Database(const Database &other)
     setDatabaseName(other.databaseName());
     setUserName(other.userName());
     setPassword(other.password());
-    qRegisterMetaType<ChangeLogTable*>();
 }
 
 Database::Database(const QSqlDatabase &other)

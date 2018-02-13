@@ -42,13 +42,13 @@
 #define NUT_DECLARE_TABLE(type, name)                                       \
     NUT_INFO(__nut_TABLE, type, name)                                          \
     Q_PROPERTY(type* name READ name)                                        \
-    Q_PROPERTY(NUT_WRAP_NAMESPACE(TableSet<type>) name##s READ name##s)                         \
+    Q_PROPERTY(NUT_WRAP_NAMESPACE(TableSet<type>) name##Table READ name##Table)                         \
     type* m_##name;                                                         \
-    NUT_WRAP_NAMESPACE(TableSet<type>) *m_##name##s;                                            \
+    NUT_WRAP_NAMESPACE(TableSet<type>) *m_##name##Table;                    \
 public:                                                                     \
     static const type _##name;                                              \
     type* name() const{ return m_##name; }                                  \
-    NUT_WRAP_NAMESPACE(TableSet<type>) *name##s() const { return m_##name##s; }
+    NUT_WRAP_NAMESPACE(TableSet<type>) *name##Table() const { return m_##name##Table; }
 
 //Table
 #define NUT_DECLARE_FIELD(type, name, read, write)                          \

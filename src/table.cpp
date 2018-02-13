@@ -39,7 +39,7 @@ NUT_BEGIN_NAMESPACE
  *  This should be fixed to v1.2
  */
 
-Table::Table(QObject *parent) : QObject(parent)
+Table::Table(QObject *parent) : QObject(parent), myModel(0)
 {
     setStatus(NewCreated);
 }
@@ -70,6 +70,9 @@ void Table::propertyChanged(QString propName)
 {
     if (!myModel)
          myModel = TableModel::findByClassName(metaObject()->className());
+
+    if (!myModel)
+        qFatal ("model for this class not found");
 
     if (propName == primaryKey())
         return;
