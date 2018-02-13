@@ -23,6 +23,7 @@ private slots:
 
     void cmd1();
     void cmd2();
+    void join();
 };
 
 #endif // MAINTEST_H

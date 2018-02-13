@@ -26,43 +26,34 @@
 #include "defines_p.h"
 #include "qglobal.h"
 
-
 #ifdef NUT_COMPILE_STATIC
 #   define NUT_EXPORT
 #else
 #   define NUT_EXPORT Q_DECL_EXPORT
 #endif
 
-
-#ifdef NUT_NAMESPACE
-//TODO: remove unused macro
-#   define __NUT_NAMESPACE_PERFIX NUT_NAMESPACE::
-#   define NUT_WRAP_NAMESPACE(x) NUT_NAMESPACE::x
-#else
-//TODO: remove unused macro
-#   define __NUT_NAMESPACE_PERFIX
-#   define NUT_WRAP_NAMESPACE(x) x
-#endif
+#define NUT_INFO(type, name, value) \
+    Q_CLASSINFO(__nut_NAME_PERFIX type #name #value, type "\n" #name "\n" #value)
 
 // Database
-//TODO: remove minor version
-#define NUT_DB_VERSION(major, minor) Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX __nut_DB_VERSION), QT_STRINGIFY(#major "." #minor))
+#define NUT_DB_VERSION(version)  \
+    NUT_INFO(__nut_DB_VERSION, version, 0)
 
 #define NUT_DECLARE_TABLE(type, name)                                       \
-    Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX __nut_TABLE " "  #type), #name)                              \
+    NUT_INFO(__nut_TABLE, type, name)                                          \
     Q_PROPERTY(type* name READ name)                                        \
-    Q_PROPERTY(NUT_WRAP_NAMESPACE(TableSet<type>) name##s READ name##s)                         \
+    Q_PROPERTY(NUT_WRAP_NAMESPACE(TableSet<type>) name##Table READ name##Table)                         \
     type* m_##name;                                                         \
-    NUT_WRAP_NAMESPACE(TableSet<type>) *m_##name##s;                                            \
+    NUT_WRAP_NAMESPACE(TableSet<type>) *m_##name##Table;                    \
 public:                                                                     \
     static const type _##name;                                              \
     type* name() const{ return m_##name; }                                  \
-    NUT_WRAP_NAMESPACE(TableSet<type>) *name##s() const { return m_##name##s; }
+    NUT_WRAP_NAMESPACE(TableSet<type>) *name##Table() const { return m_##name##Table; }
 
 //Table
 #define NUT_DECLARE_FIELD(type, name, read, write)                          \
     Q_PROPERTY(type name READ read WRITE write)                             \
-    Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #name " " __nut_FIELD), #name)             \
+    NUT_INFO(__nut_FIELD, name, 0)                                           \
     type m_##name;                                                          \
 public:                                                                     \
     static NUT_WRAP_NAMESPACE(FieldPhrase<type>) name ## Field(){                                       \
@@ -80,7 +71,7 @@ public:                                                                     \
 #define NUT_FOREGION_KEY(type, keytype, name, read, write)                  \
     Q_PROPERTY(type* name READ read WRITE write)                            \
     NUT_DECLARE_FIELD(keytype, name##Id, read##Id, write##Id)               \
-    Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #name "Id " __nut_FOREGION_KEY), #type)    \
+    NUT_INFO(__nut_FOREGION_KEY, name, type)                                   \
     type *m_##name;                                                         \
 public:                                                                     \
     type *read() const { return m_##name ; }                                \
@@ -92,38 +83,27 @@ public:                                                                     \
     private:                                                                \
         NUT_WRAP_NAMESPACE(TableSet)<type> *m_##n;                                              \
     public:                                                                 \
-        static type *n##Table(){                                            \
-            static type *f = new type();                                    \
-            return f;                                                       \
-        }                                                                   \
-        NUT_WRAP_NAMESPACE(TableSet)<type> *n(){                                                \
-            return m_##n;                                                   \
-        }
+        static type *n##Table();                                            \
+        NUT_WRAP_NAMESPACE(TableSet)<type> *n();
+
+#define NUT_IMPLEMENT_CHILD_TABLE(class, type, n)                           \
+    type *class::n##Table(){                                            \
+        static type *f = new type();                                    \
+        return f;                                                       \
+    }                                                                   \
+    NUT_WRAP_NAMESPACE(TableSet)<type> *class::n(){                     \
+        return m_##n;                                                   \
+    }
 
 
+#define NUT_PRIMARY_KEY(x)                  NUT_INFO(__nut_PRIMARY_KEY,  x, 0)
+#define NUT_AUTO_INCREMENT(x)               NUT_INFO(__nut_AUTO_INCREMENT, x, 0)
+#define NUT_PRIMARY_AUTO_INCREMENT(x)           NUT_PRIMARY_KEY(x)          \
+                                                NUT_AUTO_INCREMENT(x)
+#define NUT_UNIQUE(x)                       NUT_INFO(__nut_UNIQUE, x, 0)
+#define NUT_LEN(field, len)                 NUT_INFO(__nut_LEN, field, len)
+#define NUT_DEFAULT_VALUE(x, n)             NUT_INFO(__nut_DEFAULT_VALUE, x, n)
+#define NUT_NOT_NULL(x)                     NUT_INFO(__nut_NOT_NULL, x, 1)
 #define NUT_INDEX(name, field, order)
-#define NUT_PRIMARY_KEY(x)                  Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #x " " __nut_PRIMARY_KEY),  #x)
-#define NUT_AUTO_INCREMENT(x)               Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #x " " __nut_AUTO_INCREMENT),  #x)
-#define NUT_PRIMARY_AUTO_INCREMENT(x)       NUT_PRIMARY_KEY(x)          \
-                                            NUT_AUTO_INCREMENT(x)
-#define NUT_UNIQUE(x)                       Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #x " " __nut_UNIQUE),  #x)
-#define NUT_LEN(field, len)                 Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #field " " __nut_LEN),    #len)
-#define NUT_DEFAULT_VALUE(x, n)             Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #x " " __nut_DEFAULT_VALUE),    #n)
-#define NUT_NOT_NULL(x)                     Q_CLASSINFO(QT_STRINGIFY(__nut_NAME_PERFIX #x " " __nut_NOT_NULL), "1")
-
-#ifndef NUT_NO_KEYWORDS
-#   define FROM(x)          (x->query())
-#   define WHERE(x)         ->setWhere(x)
-#   define JOIN(x)          ->join(#x)
-#   define ORDERBY(x)       ->orderBy(#x);
-#   define ORDERBY_DESC(x)  ->orderBy(!#x);
-
-#   define SELECT()         ->toList()
-#   define COUNT()          ->count()
-#   define DELETE()         ->remove()
-#   define FIRST()          ->first()
-#endif // NUT_NO_KEYWORDS
-
-
 
 #endif // SYNTAX_DEFINES_H

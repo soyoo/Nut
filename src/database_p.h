@@ -23,12 +23,12 @@
 
 #include "database.h"
 #include "databasemodel.h"
-#include "changelogtable.h"
 
 #include <QDebug>
 
 NUT_BEGIN_NAMESPACE
 
+class ChangeLogTable;
 class DatabasePrivate
 {
     Database *q_ptr;
@@ -41,10 +41,12 @@ public:
 
     bool updateDatabase();
     void createChangeLogs();
-    bool storeScheemaInDB();
+    bool putModelToDatabase();
     DatabaseModel getLastScheema();
     bool getCurrectScheema();
 
+    bool checkClassInfo(const QMetaClassInfo &classInfo,
+                                    QString &type, QString &name, QString &value);
     QSqlDatabase db;
 
     QString hostName;
@@ -63,9 +65,11 @@ public:
     QT_DEPRECATED
     QHash<QString, QString> tables;
     static QMap<QString, DatabaseModel> allTableMaps;
-    static int lastId;
+    static qulonglong lastId;
 
     QSet<TableSetBase *> tableSets;
+
+    bool isDatabaseNew;
 };
 
 NUT_END_NAMESPACE

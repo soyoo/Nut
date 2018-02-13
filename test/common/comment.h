@@ -10,6 +10,7 @@ using namespace NUT_NAMESPACE;
 #endif
 
 class Post;
+class User;
 class Comment : public Table
 {
     Q_OBJECT
@@ -21,9 +22,12 @@ class Comment : public Table
     NUT_DECLARE_FIELD(qreal, point, point, setPoint)
 
     NUT_FOREGION_KEY(Post, int, post, post, setPost)
+    NUT_FOREGION_KEY(User, int, author, author, setAuthor)
 
 public:
-    Q_INVOKABLE explicit Comment(QObject *tableSet = 0);
+    Q_INVOKABLE explicit Comment(QObject *parentTableSet = 0);
 };
+
+Q_DECLARE_METATYPE(Comment*)
 
 #endif // COMMENT_H

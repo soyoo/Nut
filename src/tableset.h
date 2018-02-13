@@ -24,6 +24,7 @@
 #include <QtCore/qglobal.h>
 #include <QtCore/QVariant>
 #include <QtCore/QMetaMethod>
+#include <QtCore/QMetaType>
 #include <QtSql/QSqlQuery>
 
 #include "tablesetbase_p.h"
@@ -43,11 +44,11 @@ public:
     TableSet(Table *parent);
 
     void append(T *t);
-    void append(QList<T*> t);
+    void append(QList<T *> t);
     void remove(T *t);
-    void remove(QList<T*> t);
+    void remove(QList<T *> t);
 
-    inline T type() const {}
+    inline T *type() const {}
 
     int length() const;
     T *at(int i) const;
@@ -91,7 +92,7 @@ Q_OUTOFLINE_TEMPLATE int TableSet<T>::length() const
 }
 
 template<class T>
-Q_OUTOFLINE_TEMPLATE T *TableSet<T>::at(int i) const
+Q_OUTOFLINE_TEMPLATE T *TableSet<T >::at(int i) const
 {
     return (T*)_tablesList.at(i);
 }
@@ -108,7 +109,7 @@ Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(T *t)
     _tables.insert(t);
     _tablesList.append(t);
 //    rows.append(t);
-    t->setTableSet(this);
+    t->setParentTableSet(this);
     if(t->status() != Table::FeatchedFromDB)
         t->setStatus(Table::Added);
 }

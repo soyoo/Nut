@@ -30,9 +30,11 @@
 #include <QPoint>
 #include <QSharedPointer>
 #include "defines.h"
-#include "dbgeography.h"
+#include "types/dbgeography.h"
 
+#if __cplusplus >= 201103L
 #include <initializer_list>
+#endif
 
 NUT_BEGIN_NAMESPACE
 
@@ -143,6 +145,8 @@ class FieldPhrase : public WherePhrase
 public:
     FieldPhrase(const char *className, const char *s);
 
+    WherePhrase operator=(const FieldPhrase<T> &other);
+
     WherePhrase operator=(const WherePhrase &other);
     WherePhrase operator=(const QVariant &other);
     WherePhrase operator+(const QVariant &other);
@@ -175,6 +179,13 @@ Q_OUTOFLINE_TEMPLATE WherePhrase FieldPhrase<T>::
 operator=(const QVariant &other)
 {
     return WherePhrase(this, PhraseData::Set, other);
+}
+
+template <typename T>
+Q_OUTOFLINE_TEMPLATE WherePhrase
+FieldPhrase<T>::operator=(const FieldPhrase<T> &other)
+{
+    return WherePhrase(this, PhraseData::Equal, &other);
 }
 
 template <typename T>
@@ -448,11 +459,13 @@ public:
         return WherePhrase(this, PhraseData::In, vlist);
     }
 
+#if __cplusplus >= 201103L
     template<typename T>
     WherePhrase in(std::initializer_list<T> list)
     {
         return in(QList<T>(list));
     }
+#endif
 
     WherePhrase in(int count, ...)
     {

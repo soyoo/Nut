@@ -1,6 +1,7 @@
 #include <QtTest>
 #include <QJsonDocument>
 #include <QSqlError>
+#include <QElapsedTimer>
 
 #include "consts.h"
 
@@ -10,17 +11,26 @@
 #include "tablemodel.h"
 #include "databasemodel.h"
 
+#include "user.h"
 #include "post.h"
 #include "comment.h"
+#include "score.h"
+
+#define PRINT(x) qDebug() << #x "=" << x;
+#define TIC()  QElapsedTimer timer; timer.start()
+#define TOC()  qDebug() << QString("Elapsed time: %1ms for %2") \
+    .arg(timer.elapsed() / 1000.) \
+    .arg(__func__)
 
 MainTest::MainTest(QObject *parent) : QObject(parent)
 {
-
 }
 
 void MainTest::initTestCase()
 {
-    qDebug() << "User type id:" << qRegisterMetaType<Post*>();
+    qDebug() << "User type id:" << qRegisterMetaType<User*>();
+    qDebug() << "Post type id:" << qRegisterMetaType<Post*>();
+    qDebug() << "Score type id:" << qRegisterMetaType<Score*>();
     qDebug() << "Comment type id:" << qRegisterMetaType<Comment*>();
     qDebug() << "DB type id:" << qRegisterMetaType<WeblogDatabase*>();
 
@@ -40,12 +50,21 @@ void MainTest::initTestCase()
 
 void MainTest::dataScheema()
 {
-    auto json = db.model().toJson();
-    auto model = DatabaseModel::fromJson(json);
+//    auto json = db.model().toJson();
+//    auto model = DatabaseModel::fromJson(json);
 
     //    qDebug() << model.toJson();
     //    qDebug() << db.model().toJson();
-    QTEST_ASSERT(model == db.model());
+    //    QTEST_ASSERT(model == db.model());
+}
+
+void MainTest::createUser()
+{
+    user = new User;
+    user->setUsername("admin");
+    user->setPassword("123456");
+    db.users()->append(user);
+    db.saveChanges();
 }
 
 void MainTest::createPost()
@@ -60,8 +79,15 @@ void MainTest::createPost()
         Comment *comment = new Comment;
         comment->setMessage("comment #" + QString::number(i));
         comment->setSaveDate(QDateTime::currentDateTime());
+        comment->setAuthorId(user->id());
         newPost->comments()->append(comment);
     }
+    for (int i = 0; i < 10; ++i) {
+        Score *score = new Score;
+        score->setScore(i % 5);
+        newPost->scores()->append(score);
+    }
+
     db.saveChanges();
 
     postId = newPost->id();
@@ -81,8 +107,9 @@ void MainTest::createPost2()
 
     for(int i = 0 ; i < 3; i++){
         Comment *comment = new Comment;
-        comment->setMessage("comment #" + QString::number(i));
+        comment->setMessage("comment #" + QString::number(i + 2));
         comment->setSaveDate(QDateTime::currentDateTime());
+        comment->setAuthor(user);
         comment->setPostId(newPost->id());
         db.comments()->append(comment);
     }
@@ -94,16 +121,17 @@ void MainTest::createPost2()
 
 void MainTest::selectPosts()
 {
-    auto q = db.posts()->query();
-    q->join(Post::commentsTable());
-    q->orderBy(!Post::saveDateField() & Post::bodyField());
-    q->setWhere(Post::idField() == postId);
+    auto q = db.posts()->query()
+        ->join<Comment>()//Comment::authorIdField() == Post::idField())
+        ->orderBy(!Post::saveDateField() & Post::bodyField())
+        ->setWhere(Post::idField() == postId);
 
     auto posts = q->toList();
-
     post = posts.at(0);
     post->setBody("");
 
+    PRINT(posts.length());
+    PRINT(posts.at(0)->comments()->length());
     QTEST_ASSERT(posts.length() == 1);
     QTEST_ASSERT(posts.at(0)->comments()->length() == 3);
     QTEST_ASSERT(posts.at(0)->title() == "post title");
@@ -114,12 +142,28 @@ void MainTest::selectPosts()
     db.cleanUp();
 }
 
+void MainTest::selectScoreAverage()
+{
+    auto a = db.scores()->query()
+            ->join<Post>()
+            ->setWhere(Post::idField() == 1)
+            ->average(Score::scoreField());
+    qDebug() << a;
+}
+
+void MainTest::selectFirst()
+{
+    auto posts = db.posts()->query()
+        ->first();
+
+    QTEST_ASSERT(posts != Q_NULLPTR);
+}
+
 void MainTest::selectPostsWithoutTitle()
 {
     auto q = db.posts()->query();
     q->setWhere(Post::titleField().isNull());
     auto count = q->count();
-    qDebug() << q->sqlCommand();
     QTEST_ASSERT(count == 0);
 }
 
@@ -151,19 +195,27 @@ void MainTest::testDate()
     QTEST_ASSERT(q->saveDate() == d);
 }
 
+void MainTest::join()
+{
+    TIC();
+    auto q = db.comments()->query()
+            ->join<User>()
+            ->join<Post>();
+
+    auto comments = q->toList();
+
+    TOC();
+    QTEST_ASSERT(comments.length());
+    QTEST_ASSERT(comments[0]->author());
+    QTEST_ASSERT(comments[0]->author()->username() == "admin");
+}
+
 
 void MainTest::selectWithInvalidRelation()
 {
     auto q = db.posts()->query();
     q->join("Invalid_Class_Name");
     q->toList();
-}
-
-void MainTest::select10NewstPosts()
-{
-    auto q = db.posts()->query();
-    q->orderBy(!Post::saveDateField());
-    q->toList(10);
 }
 
 void MainTest::modifyPost()
@@ -182,6 +234,7 @@ void MainTest::modifyPost()
             ->setWhere(Post::idField() == postId);
 
     post = q->first();
+    PRINT(post->title());
     QTEST_ASSERT(post->title() == "new name");
 }
 
@@ -189,7 +242,6 @@ void MainTest::emptyDatabase()
 {
     auto commentsCount = db.comments()->query()->remove();
     auto postsCount = db.posts()->query()->remove();
-
     QTEST_ASSERT(postsCount == 3);
     QTEST_ASSERT(commentsCount == 6);
 }

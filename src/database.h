@@ -44,7 +44,8 @@ class NUT_EXPORT Database : public QObject
 
 public:
     Database(QObject *parent = 0);
-    Database(const Database &other, QObject *parent = 0);
+    Database(const Database &other);
+    Database(const QSqlDatabase &other);
     ~Database();
 
     bool open();
@@ -71,8 +72,7 @@ public:
 
 protected:
     //remove minor version
-    virtual void databaseUpdated(int oldMajor, int oldMinor, int newMajor,
-                                 int newMinor);
+    virtual void databaseUpdated(QString oldVersion, QString newVersion);
 
 public slots:
     void setDatabaseName(QString databaseName);

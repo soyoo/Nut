@@ -44,11 +44,13 @@
 #define __nut_CHANGE            "change"
 
 #ifdef NUT_NAMESPACE
-#   define NUT_BEGIN_NAMESPACE     namespace NUT_NAMESPACE{
-#   define NUT_END_NAMESPACE       }
+#   define NUT_BEGIN_NAMESPACE      namespace NUT_NAMESPACE{
+#   define NUT_END_NAMESPACE        }
+#   define NUT_WRAP_NAMESPACE(x)    NUT_NAMESPACE::x
 #else
 #   define NUT_BEGIN_NAMESPACE
 #   define NUT_END_NAMESPACE
+#   define NUT_WRAP_NAMESPACE(x)    x
 #endif
 
 #endif // DEFINES_P_H

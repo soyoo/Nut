@@ -21,20 +21,40 @@
 #include "databasemodel.h"
 #include "tablemodel.h"
 
+#include <QJsonArray>
 #include <QJsonObject>
 
 NUT_BEGIN_NAMESPACE
 
 QMap<QString, DatabaseModel*> DatabaseModel::_models;
 
-DatabaseModel::DatabaseModel(const QString &name) : QList<TableModel*>(), _databaseClassName(name), _versionMajor(0), _versionMinor(0)
+#define NODE_VERSION "version"
+#define NODE_TABLES  "tables"
+DatabaseModel::DatabaseModel(const QString &name) :
+    QList<TableModel*>(), _databaseClassName(name), _version(QString::null)
 {
     _models.insert(name, this);
 }
 
-DatabaseModel::DatabaseModel(const DatabaseModel &other) : QList<TableModel*>(other), _versionMajor(0), _versionMinor(0)
+DatabaseModel::DatabaseModel(const DatabaseModel &other) :
+    QList<TableModel*>(other), _version(QString::null)
 {
 
+}
+
+DatabaseModel::DatabaseModel(const QJsonObject &json) :
+    QList<TableModel*>()
+{
+    setVersion(json.value(NODE_VERSION).toString());
+
+    QJsonObject tables = json.value(NODE_TABLES).toObject();
+    foreach (QString key, tables.keys()) {
+        if(!tables.value(key).isObject())
+            continue;
+
+        TableModel *sch = new TableModel(tables.value(key).toObject(), key);
+        append(sch);
+    }
 }
 
 TableModel *DatabaseModel::tableByName(QString tableName) const
@@ -46,23 +66,22 @@ TableModel *DatabaseModel::tableByName(QString tableName) const
             return s;
     }
 
-    qWarning("Table with name '%s' not found in model",
-             qUtf8Printable(tableName));
+//    qWarning("Table with name '%s' not found in model",
+//             qUtf8Printable(tableName));
     return 0;
 }
 
 TableModel *DatabaseModel::tableByClassName(QString className) const
 {
+    QStringList l;
     for(int i = 0; i < size(); i++){
         TableModel *s = at(i);
 
+        l.append(s->className());
         if(s->className() == className)
             return s;
     }
 
-    qWarning("Table with class name '%s' not found in model",
-             qUtf8Printable(className));
-//    Q_UNREACHABLE();
     return 0;
 }
 
@@ -85,19 +104,39 @@ bool DatabaseModel::operator ==(const DatabaseModel &other) const
     return true;
 }
 
+DatabaseModel DatabaseModel::operator +(const DatabaseModel &other)
+{
+    DatabaseModel model;
+    DatabaseModel::const_iterator i;
+
+    for (i = constBegin(); i != constEnd(); ++i)
+        model.append(*i);
+
+    for (i = other.constBegin(); i != other.constEnd(); ++i)
+        model.append(*i);
+
+    return model;
+}
+
 QJsonObject DatabaseModel::toJson() const
 {
     QJsonObject obj;
 
-//    obj.insert(QT_STRINGIFY(versionMajor), QJsonValue(_versionMajor));
-//    obj.insert(QT_STRINGIFY(versionMinor), QJsonValue(_versionMinor));
-
+    obj.insert(NODE_VERSION, QJsonValue(_version));
+    QJsonObject tables;
     for(int i = 0; i < size(); i++){
         TableModel *s = at(i);
-        obj.insert(s->name(), s->toJson());
+        tables.insert(s->name(), s->toJson());
     }
 
+    obj.insert(NODE_TABLES, tables);
+
     return obj;
+}
+
+DatabaseModel::operator QJsonObject()
+{
+    return toJson();
 }
 
 RelationModel *DatabaseModel::relationByClassNames(const QString &masterClassName, const QString &childClassName)
@@ -108,7 +147,7 @@ RelationModel *DatabaseModel::relationByClassNames(const QString &masterClassNam
         return 0;
 
     foreach (RelationModel *rel, childTable->foregionKeys())
-        if(rel->className == masterClassName)
+        if(rel->masterClassName == masterClassName)
             return rel;
 
     return 0;
@@ -122,7 +161,7 @@ RelationModel *DatabaseModel::relationByTableNames(const QString &masterTableNam
         return 0;
 
     foreach (RelationModel *rel, childTable->foregionKeys())
-        if(rel->table->name() == masterTableName)
+        if(rel->masterTable->name() == masterTableName)
             return rel;
 
     return 0;
@@ -132,10 +171,10 @@ DatabaseModel DatabaseModel::fromJson(QJsonObject &json)
 {
     DatabaseModel model(QString::null);
 
-//    model.setVersionMajor(json.value(QT_STRINGIFY(versionMajor)).toInt());
-//    model.setVersionMinor(json.value(QT_STRINGIFY(versionMinor)).toInt());
+    model.setVersion(json.value(NODE_VERSION).toString());
 
-    foreach (QString key, json.keys()) {
+    QJsonObject tables = json.value(NODE_TABLES).toObject();
+    foreach (QString key, tables.keys()) {
         if(!json.value(key).isObject())
             continue;
 
@@ -145,24 +184,14 @@ DatabaseModel DatabaseModel::fromJson(QJsonObject &json)
     return model;
 }
 
-int DatabaseModel::versionMajor() const
+QString DatabaseModel::version() const
 {
-    return _versionMajor;
+    return _version;
 }
 
-void DatabaseModel::setVersionMajor(int versionMajor)
+void DatabaseModel::setVersion(QString version)
 {
-    _versionMajor = versionMajor;
-}
-
-int DatabaseModel::versionMinor() const
-{
-    return _versionMinor;
-}
-
-void DatabaseModel::setVersionMinor(int versionMinor)
-{
-    _versionMinor = versionMinor;
+    _version = version;
 }
 
 bool DatabaseModel::remove(const QString &tableName)
@@ -175,6 +204,15 @@ bool DatabaseModel::remove(const QString &tableName)
         }
     }
     return false;
+}
+
+void DatabaseModel::fixRelations()
+{
+    /*TODO: fixme
+    foreach (TableModel *table, currentModel)
+        foreach (RelationModel *fk, table->foregionKeys())
+            fk->masterTable = currentModel.tableByClassName(fk->masterClassName);
+            */
 }
 
 DatabaseModel *DatabaseModel::modelByName(const QString &name)

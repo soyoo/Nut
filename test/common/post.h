@@ -1,16 +1,17 @@
-#ifndef USER_H
-#define USER_H
+#ifndef POST_H
+#define POST_H
 
 #include <QtCore/qglobal.h>
 #include "table.h"
 #include "database.h"
-#include "comment.h"
 #include "databasemodel.h"
 
 #ifdef NUT_NAMESPACE
 using namespace NUT_NAMESPACE;
 #endif
 
+class Comment;
+class Score;
 class Post : public Table
 {
     Q_OBJECT
@@ -27,14 +28,16 @@ class Post : public Table
     NUT_DECLARE_FIELD(QString, body, body, setBody)
 
     NUT_DECLARE_CHILD_TABLE(Comment, comments)
+    NUT_DECLARE_CHILD_TABLE(Score, scores)
 
 public:
-    explicit Post(QObject *tableSet = 0);
+    Q_INVOKABLE Post(QObject *parentTableSet = 0);
 
 signals:
 
 public slots:
 };
 
-//Q_DECLARE_METATYPE(User*)
-#endif // USER_H
+Q_DECLARE_METATYPE(Post*)
+
+#endif // POST_H

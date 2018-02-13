@@ -22,6 +22,9 @@
 #define DATABASEMODEL_H
 
 #include <QtCore/QList>
+#include <QtCore/QMap>
+#include <QtCore/QString>
+
 #include "defines.h"
 
 class QJsonObject;
@@ -33,12 +36,13 @@ struct RelationModel;
 class DatabaseModel : public QList<TableModel *>
 {
     QString _databaseClassName;
-    int _versionMajor, _versionMinor;
+    QString _version;
     static QMap<QString, DatabaseModel *> _models;
 
 public:
     DatabaseModel(const QString &name = QString::null);
     DatabaseModel(const DatabaseModel &other);
+    DatabaseModel(const QJsonObject &json);
 
     TableModel *tableByName(QString tableName) const;
     TableModel *tableByClassName(QString className) const;
@@ -49,17 +53,20 @@ public:
                                         const QString &childClassName);
 
     bool operator==(const DatabaseModel &other) const;
+    DatabaseModel operator +(const DatabaseModel &other);
 
+    Q_DECL_DEPRECATED
     static DatabaseModel fromJson(QJsonObject &json);
     QJsonObject toJson() const;
+    operator QJsonObject();
 
-    int versionMajor() const;
-    void setVersionMajor(int versionMajor);
-
-    int versionMinor() const;
-    void setVersionMinor(int versionMinor);
+    QString version() const;
+    void setVersion(QString version);
 
     bool remove(const QString &tableName);
+
+    //TODO: may be private (called from DatabasePrivate::getCurrectScheema only)
+    void fixRelations();
 
     static DatabaseModel *modelByName(const QString &name);
 };

@@ -12,10 +12,12 @@ SOURCES += \
     maintest.cpp \
     ../common/comment.cpp \
     ../common/post.cpp \
-    ../common/weblogdatabase.cpp
+    ../common/weblogdatabase.cpp \
+    ../common/user.cpp
 
 HEADERS += \
     maintest.h \
     ../common/comment.h \
     ../common/post.h \
-    ../common/weblogdatabase.h
+    ../common/weblogdatabase.h \
+    ../common/user.h

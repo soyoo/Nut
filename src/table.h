@@ -33,12 +33,13 @@ NUT_BEGIN_NAMESPACE
 
 class Database;
 class TableSetBase;
+class TableModel;
 class NUT_EXPORT Table : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit Table(QObject *tableSet = 0);
+    explicit Table(QObject *parentTableSet = 0);
 
     enum Status{
         NewCreated,
@@ -56,8 +57,10 @@ public:
     Status status() const;
     void setStatus(const Status &status);
 
-    TableSetBase *tableSet() const;
-    void setTableSet(TableSetBase *tableSet);
+    TableSetBase *parentTableSet() const;
+    void setParentTableSet(TableSetBase *parentTableSet);
+
+    TableSetBase *childTableSet(const QString &name) const;
 
     QSet<QString> changedProperties() const;
 
@@ -70,11 +73,13 @@ protected:
     void propertyChanged(QString propName);
 
 private:
+    TableModel *myModel;
     Status _status;
     QSet<QString> _changedProperties;
-    TableSetBase *_tableSet;
+    //TODO: is this removable?
+    TableSetBase *_parentTableSet;
 
-    QSet<TableSetBase*> tableSets;
+    QSet<TableSetBase*> childTableSets;
     void clear();
     void add(TableSetBase *);
 

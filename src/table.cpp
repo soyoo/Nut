@@ -22,52 +22,42 @@
 #include <QVariant>
 #include "table.h"
 #include "database.h"
-#include "sqlgeneratorbase_p.h"
+#include "databasemodel.h"
+#include "generators/sqlgeneratorbase_p.h"
 
 NUT_BEGIN_NAMESPACE
 
-Table::Table(QObject *parent) : QObject(parent)
+/*
+ * FIXME:
+ *  Qt can not access metaObject inside of constructor
+ *  so, if we can't initalize myModel inside of ctor. in
+ *  other side myModel inited in propertyChanged signal, so
+ *  any method that uses myModel (like: primaryKey, ...) can't
+ *  be accessed before any property set. So ugly, but there are
+ *  no other way for now.
+ *
+ *  This should be fixed to v1.2
+ */
+
+Table::Table(QObject *parent) : QObject(parent), myModel(0)
 {
     setStatus(NewCreated);
 }
 
 void Table::add(TableSetBase *t)
 {
-    this->tableSets.insert(t);
+    this->childTableSets.insert(t);
 }
 
 
 QString Table::primaryKey() const
 {
-//    static QString ret = QString::null;
-
-//    if(ret == QString::null){
-//        for(int i = 0; i < metaObject()->classInfoCount(); i++){
-//            QMetaClassInfo ci = metaObject()->classInfo(i);
-//            QString ciName = ci.name();
-
-//            if(ciName.startsWith(__nut_NAME_PERFIX))
-//                ciName.remove(__nut_NAME_PERFIX);
-
-//            if(ciName.contains(" ")){
-//                QStringList parts = ciName.split(" ");
-//                QString propName = parts.at(1);
-//                if(propName == __nut_PRIMARY_KEY)
-//                    ret = parts.at(0);
-//            }
-//        }
-
-//        if(ret == QString::null)
-//            ret = "";
-//    }
-
-//    return ret;
-    return TableModel::findByClassName(metaObject()->className())->primaryKey();
+    return myModel->primaryKey();
 }
 
 bool Table::isPrimaryKeyAutoIncrement() const
 {
-    return TableModel::findByClassName(metaObject()->className())->field(primaryKey())->isAutoIncrement;
+    return myModel->field(myModel->primaryKey())->isAutoIncrement;
 }
 
 
@@ -78,14 +68,20 @@ QVariant Table::primaryValue() const
 
 void Table::propertyChanged(QString propName)
 {
-    if(propName == primaryKey())
+    if (!myModel)
+         myModel = TableModel::findByClassName(metaObject()->className());
+
+    if (!myModel)
+        qFatal ("model for this class not found");
+
+    if (propName == primaryKey())
         return;
 
     _changedProperties.insert(propName);
-    if(_status == FeatchedFromDB)
+    if (_status == FeatchedFromDB)
         _status = Modified;
 
-    if(_status == NewCreated)
+    if (_status == NewCreated)
         _status = Added;
 }
 
@@ -102,12 +98,12 @@ QSet<QString> Table::changedProperties() const
 bool Table::setParentTable(Table *master)
 {
     QString masterClassName = master->metaObject()->className();
-    TableModel *myModel = TableModel::findByClassName(metaObject()->className());
 
     foreach (RelationModel *r, myModel->foregionKeys())
-        if(r->className == masterClassName)
+        if(r->masterClassName == masterClassName)
         {
-            setProperty(QString(r->localColumn).toLatin1().data(), master->primaryValue());
+            setProperty(QString(r->localColumn).toLatin1().data(),
+                        master->primaryValue());
             _changedProperties.insert(r->localColumn);
             return true;
         }
@@ -115,15 +111,23 @@ bool Table::setParentTable(Table *master)
     return false;
 }
 
-TableSetBase *Table::tableSet() const
+TableSetBase *Table::parentTableSet() const
 {
-    return _tableSet;
+    return _parentTableSet;
 }
 
-void Table::setTableSet(TableSetBase *parent)
+void Table::setParentTableSet(TableSetBase *parent)
 {
-    _tableSet = parent;
-    _tableSet->add(this);
+    _parentTableSet = parent;
+    _parentTableSet->add(this);
+}
+
+TableSetBase *Table::childTableSet(const QString &name) const
+{
+    foreach (TableSetBase *t, childTableSets)
+        if (t->childClassName() == name)
+            return t;
+    return Q_NULLPTR;
 }
 
 int Table::save(Database *db)
@@ -133,7 +137,7 @@ int Table::save(Database *db)
     if(status() == Added && isPrimaryKeyAutoIncrement())
         setProperty(primaryKey().toLatin1().data(), q.lastInsertId());
 
-    foreach(TableSetBase *ts, tableSets)
+    foreach(TableSetBase *ts, childTableSets)
         ts->save(db);
     setStatus(FeatchedFromDB);
 
