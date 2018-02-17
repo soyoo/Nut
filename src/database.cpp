@@ -20,6 +20,7 @@
 
 #include <QtCore/QMetaProperty>
 #include <QtCore/QDebug>
+#include <QtCore/QFile>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 

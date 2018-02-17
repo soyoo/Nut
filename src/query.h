@@ -36,7 +36,7 @@
 #include "tablesetbase_p.h"
 #include "generators/sqlgeneratorbase_p.h"
 #include "querybase_p.h"
-#include "wherephrase.h"
+#include "phrase.h"
 #include "tablemodel.h"
 
 NUT_BEGIN_NAMESPACE
@@ -54,7 +54,6 @@ public:
     ~Query();
 
     //ddl
-    Query<T> *setWhere(WherePhrase where);
 
     Query<T> *join(const QString &className);
     Query<T> *join(Table *c);
@@ -69,8 +68,11 @@ public:
     //    Query<T> *orderBy(QString fieldName, QString type);
     Query<T> *skip(int n);
     Query<T> *take(int n);
-    Query<T> *fields(WherePhrase phrase);
-    Query<T> *orderBy(WherePhrase phrase);
+    Query<T> *fields(const PhraseList &ph);
+    Query<T> *orderBy(const PhraseList &ph);
+    Query<T> *where(const ConditionalPhrase &ph);
+    Query<T> *setWhere(const ConditionalPhrase &ph);
+
     Query<T> *include(TableSetBase *t);
     Query<T> *include(Table *t);
 
@@ -85,7 +87,8 @@ public:
     QVariant average(const FieldPhrase<int> &f);
 
     //data mailpulation
-    int update(WherePhrase phrase);
+    int update(const AssignmentPhraseList &ph);
+//    int insert(const AssignmentPhraseList &ph);
     int remove();
 
     QSqlQueryModel *toModal();
@@ -122,6 +125,7 @@ Q_OUTOFLINE_TEMPLATE Query<T>::~Query()
 {
     Q_D(Query);
     delete d;
+    qDebug() << "~Query";
 }
 
 template <class T>
@@ -133,10 +137,9 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
     d->select = "*";
 
     d->sql = d->database->sqlGenertor()->selectCommand(
-                SqlGeneratorBase::SelectAll, "",
-                d->tableName,
-                d->wheres, d->orderPhrases, d->relations,
-                d->skip, d->take);
+                d->tableName, d->fieldPhrase, d->wherePhrase, d->orderPhrase,
+                d->relations, d->skip, d->take);
+
     QSqlQuery q = d->database->exec(d->sql);
     if (q.lastError().isValid()) {
         qDebug() << q.lastError().text();
@@ -300,9 +303,11 @@ Q_OUTOFLINE_TEMPLATE QList<F> Query<T>::select(const FieldPhrase<F> f)
 
     d->joins.prepend(d->tableName);
     d->sql = d->database->sqlGenertor()->selectCommand(
-                SqlGeneratorBase::SignleField, f.data()->text,
-                d->tableName, d->wheres,
-                d->orderPhrases, d->relations, d->skip, d->take);
+                d->tableName,
+                SqlGeneratorBase::SignleField, f.data->toString(),
+                d->wherePhrase,
+                d->relations,
+                d->skip, d->take);
 
     QSqlQuery q = d->database->exec(d->sql);
 
@@ -336,12 +341,12 @@ Q_OUTOFLINE_TEMPLATE int Query<T>::count()
 
     d->joins.prepend(d->tableName);
     d->select = "COUNT(*)";
-    d->sql = d->database->sqlGenertor()->selectCommand(SqlGeneratorBase::Count,
-                                                       QStringLiteral("*"),
-                                                       d->tableName,
-                                                       d->wheres,
-                                                       d->orderPhrases,
-                                                       d->relations);
+    d->sql = d->database->sqlGenertor()->selectCommand(
+                d->tableName,
+                SqlGeneratorBase::Count,
+                QStringLiteral("*"),
+                d->wherePhrase,
+                d->relations);
     QSqlQuery q = d->database->exec(d->sql);
 
     if (q.next())
@@ -356,8 +361,9 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::max(const FieldPhrase<int> &f)
 
     d->joins.prepend(d->tableName);
     d->sql = d->database->sqlGenertor()->selectCommand(
-                SqlGeneratorBase::Max, f.data()->text, d->tableName,
-                d->wheres, d->orderPhrases,
+                d->tableName,
+                SqlGeneratorBase::Max, f.data->toString(),
+                d->wherePhrase,
                 d->relations);
     QSqlQuery q = d->database->exec(d->sql);
 
@@ -373,8 +379,9 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::min(const FieldPhrase<int> &f)
 
     d->joins.prepend(d->tableName);
     d->sql = d->database->sqlGenertor()->selectCommand(
-                SqlGeneratorBase::Min, f.data()->text, d->tableName,
-                d->wheres, d->orderPhrases,
+                d->tableName,
+                SqlGeneratorBase::Min, f.data->toString(),
+                d->wherePhrase,
                 d->relations);
     QSqlQuery q = d->database->exec(d->sql);
 
@@ -390,8 +397,9 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::average(const FieldPhrase<int> &f)
 
     d->joins.prepend(d->tableName);
     d->sql = d->database->sqlGenertor()->selectCommand(
-                SqlGeneratorBase::Average, f.data()->text, d->tableName,
-                d->wheres, d->orderPhrases,
+                d->tableName,
+                SqlGeneratorBase::Average, f.data->toString(),
+                d->wherePhrase,
                 d->relations);
     QSqlQuery q = d->database->exec(d->sql);
 
@@ -430,10 +438,18 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::join(Table *c)
 }
 
 template <class T>
-Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::setWhere(WherePhrase where)
+Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::where(const ConditionalPhrase &ph)
 {
     Q_D(Query);
-    d->wheres.append(where);
+    d->wherePhrase = d->wherePhrase && ph;
+    return this;
+}
+
+template <class T>
+Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::setWhere(const ConditionalPhrase &ph)
+{
+    Q_D(Query);
+    d->wherePhrase = ph;
     return this;
 }
 
@@ -454,10 +470,10 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::take(int n)
 }
 
 template<class T>
-Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::fields(WherePhrase phrase)
+Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::fields(const PhraseList &ph)
 {
     Q_D(Query);
-    d->fields.append(phrase);
+    d->fieldPhrase = ph;
     return this;
 }
 
@@ -471,10 +487,10 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::fields(WherePhrase phrase)
 //}
 
 template <class T>
-Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::orderBy(WherePhrase phrase)
+Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::orderBy(const PhraseList &ph)
 {
     Q_D(Query);
-    d->orderPhrases.append(phrase);
+    d->orderPhrase = ph;
     return this;
 }
 
@@ -493,12 +509,14 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::include(Table *t)
 }
 
 template <class T>
-Q_OUTOFLINE_TEMPLATE int Query<T>::update(WherePhrase phrase)
+Q_OUTOFLINE_TEMPLATE int Query<T>::update(const AssignmentPhraseList &ph)
 {
     Q_D(Query);
 
-    d->sql = d->database->sqlGenertor()->updateCommand(phrase, d->wheres,
-                                                       d->tableName);
+    d->sql = d->database->sqlGenertor()->updateCommand(
+                d->tableName,
+                ph,
+                d->wherePhrase);
     QSqlQuery q = d->database->exec(d->sql);
 
     if (m_autoDelete)
@@ -511,7 +529,8 @@ Q_OUTOFLINE_TEMPLATE int Query<T>::remove()
 {
     Q_D(Query);
 
-    d->sql = d->database->sqlGenertor()->deleteCommand(d->wheres, d->tableName);
+    d->sql = d->database->sqlGenertor()->deleteCommand(
+                d->tableName, d->wherePhrase);
     QSqlQuery q = d->database->exec(d->sql);
 
     if (m_autoDelete)
@@ -522,32 +541,32 @@ Q_OUTOFLINE_TEMPLATE int Query<T>::remove()
 template <class T>
 Q_OUTOFLINE_TEMPLATE QSqlQueryModel *Query<T>::toModal()
 {
-    Q_D(Query);
+//    Q_D(Query);
 
 
-    QString fff = "";
+//    QString fff = "";
 
-    foreach (WherePhrase p, d->fields) {
-        if (fff != "")
-            fff.append(", ");
-        fff.append(d->database->sqlGenertor()->phraseOrder(p.data()));
-    }
+//    foreach (WherePhrase p, d->fields) {
+//        if (fff != "")
+//            fff.append(", ");
+//        fff.append(d->database->sqlGenertor()->phraseOrder(p.data()));
+//    }
 
-    d->sql = d->database->sqlGenertor()->selectCommand(
-                SqlGeneratorBase::SelectAll, "",
-                d->tableName,
-                d->wheres, d->orderPhrases, d->relations,
-                d->skip, d->take);
-    qDebug()<<"Model to" << fff;
-    QSqlQueryModel *model = new QSqlQueryModel;
-    TableModel *tableModel = d->database->model().tableByName(d->tableName);
-    model->setQuery(d->sql, d->database->database());
+//    d->sql = d->database->sqlGenertor()->selectCommand(
+//                SqlGeneratorBase::SelectAll, "",
+//                d->tableName,
+//                d->wheres, d->orderPhrases, d->relations,
+//                d->skip, d->take);
+//    qDebug()<<"Model to" << fff;
+//    QSqlQueryModel *model = new QSqlQueryModel;
+//    TableModel *tableModel = d->database->model().tableByName(d->tableName);
+//    model->setQuery(d->sql, d->database->database());
 
-    int fieldIndex = 0;
-    foreach (FieldModel *f, tableModel->fields()) {
-        model->setHeaderData(fieldIndex++, Qt::Horizontal, f->displayName);
-    }
-    return model;
+//    int fieldIndex = 0;
+//    foreach (FieldModel *f, tableModel->fields()) {
+//        model->setHeaderData(fieldIndex++, Qt::Horizontal, f->displayName);
+//    }
+//    return model;
 }
 
 template <class T>
