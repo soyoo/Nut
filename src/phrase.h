@@ -160,7 +160,9 @@ public:
     QSharedPointer<PhraseData> rightDataPointer;
     ConditionalPhrase();
     ConditionalPhrase(const ConditionalPhrase &other);
+#if __cplusplus >= 201103L
     ConditionalPhrase(const ConditionalPhrase &&other);
+#endif
     ConditionalPhrase(const PhraseData *data);
     ConditionalPhrase(AbstractFieldPhrase *, PhraseData::Condition);
     ConditionalPhrase(AbstractFieldPhrase *, PhraseData::Condition, const QVariant &v);

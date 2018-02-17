@@ -258,11 +258,12 @@ ConditionalPhrase::ConditionalPhrase(const ConditionalPhrase &other)
     this->data = new PhraseData(other.data);
 }
 
+#if __cplusplus >= 201103L
 ConditionalPhrase::ConditionalPhrase(const ConditionalPhrase &&other)
 {
-    qDebug() << "************* ctor called:";
-    this->data = new PhraseData(other.data);
+    this->data = std::move(other.data);
 }
+#endif
 
 ConditionalPhrase::ConditionalPhrase(const PhraseData *data)
 {
