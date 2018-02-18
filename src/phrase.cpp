@@ -34,18 +34,18 @@ PhraseData::PhraseData(const char *className, const char *fieldName) :
 
 PhraseData::PhraseData(PhraseData *l, PhraseData::Condition o)
     : className(0), fieldName(0),
-      type(WithoutOperand), operatorCond(o), left(l), right(0), isNot(false)
+      type(WithoutOperand), operatorCond(o), left(new PhraseData(l)), right(0), isNot(false)
 { }
 
 PhraseData::PhraseData(PhraseData *l, PhraseData::Condition o,
                        const PhraseData *r)
     : className(0), fieldName(0),
-      type(WithOther), operatorCond(o), left(l), right(r), isNot(false)
+      type(WithOther), operatorCond(o), left(new PhraseData(l)), right(new PhraseData(r)), isNot(false)
 { }
 
 PhraseData::PhraseData(PhraseData *l, PhraseData::Condition o, QVariant r)
     : className(0), fieldName(0),
-      type(WithVariant), operatorCond(o), left(l), operand(r), isNot(false)
+      type(WithVariant), operatorCond(o), left(new PhraseData(l)), operand(r), isNot(false)
 { }
 
 PhraseData::PhraseData(const PhraseData *other)
@@ -57,6 +57,10 @@ PhraseData::PhraseData(const PhraseData *other)
     className = other->className;
     fieldName = other->fieldName;
     type = other->type;
+    isNot = other->isNot;
+    if (type != Field) {
+        qDebug() << "Bug";
+    }
 }
 
 QString PhraseData::toString() const
@@ -103,8 +107,9 @@ AbstractFieldPhrase::~AbstractFieldPhrase()
     }
 }
 
-PhraseList AbstractFieldPhrase::operator |(const AbstractFieldPhrase &other) {
-    return PhraseList(this, &other);
+PhraseList AbstractFieldPhrase::operator |(const AbstractFieldPhrase &other)
+{
+    return PhraseList(this, other);
 }
 
 ConditionalPhrase AbstractFieldPhrase::isNull()
@@ -164,34 +169,38 @@ PhraseList::PhraseList() : isValid(false)
 
 }
 
-PhraseList::PhraseList(const AbstractFieldPhrase &other) : isValid(true)
+PhraseList::PhraseList(const PhraseList &other)
 {
-    data.append(other.data);
+    data = qMove(other.data);
 }
 
-PhraseList::PhraseList(AbstractFieldPhrase *left, const AbstractFieldPhrase *right)
+PhraseList::PhraseList(const AbstractFieldPhrase &other) : isValid(true)
+{
+    data.append(new PhraseData(other.data));
+}
+
+PhraseList::PhraseList(const AbstractFieldPhrase *left, const AbstractFieldPhrase &right)
     : isValid(true)
 {
-    data.append(left->data);
-    data.append(right->data);
+    data.append(new PhraseData(left->data));
+    data.append(new PhraseData(right.data));
 }
 
 PhraseList::PhraseList(PhraseList *left, PhraseList *right) : isValid(true)
 {
-    data = left->data;
-    data.append(right->data);
+    data = qMove(left->data + right->data);
 }
 
 PhraseList::PhraseList(PhraseList *left, const AbstractFieldPhrase *right)
     : isValid(true)
 {
     data = left->data;
-    data.append(right->data);
+    data.append(new PhraseData(right->data));
 }
 
 PhraseList::~PhraseList()
 {
-    data.clear();
+//    data.clear();
 }
 
 PhraseList PhraseList::operator |(const AbstractFieldPhrase &other) {
@@ -247,23 +256,21 @@ AssignmentPhraseList AssignmentPhraseList::operator &(const AssignmentPhrase &ph
     return AssignmentPhraseList(this, &ph);
 }
 
-ConditionalPhrase::ConditionalPhrase()
-{
-    this->data = 0;
-}
+ConditionalPhrase::ConditionalPhrase() : data(0)
+{ }
 
 ConditionalPhrase::ConditionalPhrase(const ConditionalPhrase &other)
 {
     qDebug() << "************* ctor called:";
     this->data = new PhraseData(other.data);
+//    const_cast<ConditionalPhrase&>(other).data = 0;
 }
 
-#if __cplusplus >= 201103L
 ConditionalPhrase::ConditionalPhrase(const ConditionalPhrase &&other)
 {
-    this->data = std::move(other.data);
+    qDebug() << "************* ctor called:";
+    this->data = qMove(other.data);
 }
-#endif
 
 ConditionalPhrase::ConditionalPhrase(const PhraseData *data)
 {
@@ -332,8 +339,8 @@ ConditionalPhrase::~ConditionalPhrase()
 
 ConditionalPhrase ConditionalPhrase::operator =(const ConditionalPhrase &other)
 {
-    return ConditionalPhrase(other.data);
-    const_cast<ConditionalPhrase&>(other).data = 0;
+    this->data = new PhraseData(other.data);
+    return *this;
 }
 
 ConditionalPhrase ConditionalPhrase::operator ==(const QVariant &other)

@@ -142,8 +142,9 @@ public:
     bool isValid;
     QList<const PhraseData*> data;
     PhraseList();
+    PhraseList(const PhraseList &other);
     PhraseList(const AbstractFieldPhrase &other);
-    PhraseList(AbstractFieldPhrase *left, const AbstractFieldPhrase *right);
+    PhraseList(const AbstractFieldPhrase *left, const AbstractFieldPhrase &right);
     PhraseList(PhraseList *left, PhraseList *right);
     PhraseList(PhraseList *left, const AbstractFieldPhrase *right);
     virtual ~PhraseList();
@@ -160,9 +161,7 @@ public:
     QSharedPointer<PhraseData> rightDataPointer;
     ConditionalPhrase();
     ConditionalPhrase(const ConditionalPhrase &other);
-#if __cplusplus >= 201103L
     ConditionalPhrase(const ConditionalPhrase &&other);
-#endif
     ConditionalPhrase(const PhraseData *data);
     ConditionalPhrase(AbstractFieldPhrase *, PhraseData::Condition);
     ConditionalPhrase(AbstractFieldPhrase *, PhraseData::Condition, const QVariant &v);

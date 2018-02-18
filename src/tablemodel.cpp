@@ -264,7 +264,7 @@ TableModel::TableModel(int typeId, QString tableName)
         else if(type == __nut_UNIQUE)
             f->isUnique = true;
         else if(type == __nut_DISPLAY)
-            f->displayName = value;
+            f->displayName = value.mid(1, value.length() - 2);
     }
 
     if(!findByTypeId(typeId) && !tableName.isNull())
