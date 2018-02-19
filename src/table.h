@@ -27,7 +27,7 @@
 
 #include "tablemodel.h"
 #include "defines.h"
-#include "wherephrase.h"
+#include "phrase.h"
 
 NUT_BEGIN_NAMESPACE
 

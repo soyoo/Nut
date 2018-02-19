@@ -21,7 +21,7 @@
 #include <QDataStream>
 #include <QDebug>
 
-#include "wherephrase.h"
+#include "phrase.h"
 
 NUT_BEGIN_NAMESPACE
 

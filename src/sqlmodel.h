@@ -18,5 +18,35 @@
 **
 **************************************************************************/
 
-#include "tableset.h"
+#ifndef SQLMODEL_H
+#define SQLMODEL_H
 
+#include <QtCore/QAbstractTableModel>
+#include "defines.h"
+
+NUT_BEGIN_NAMESPACE
+
+class Database;
+class TableSetBase;
+class SqlModelPrivate;
+class Table;
+class TableModel;
+class SqlModel : public QAbstractTableModel
+{
+    Q_OBJECT
+
+public:
+    SqlModel(Database *database, TableSetBase *tableSet, QObject *parent = Q_NULLPTR);
+
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
+    QVariant data(const QModelIndex &index, int role) const;
+
+private:
+    SqlModelPrivate *d_ptr;
+    Q_DECLARE_PRIVATE(SqlModel)
+};
+
+NUT_END_NAMESPACE
+
+#endif // SQLMODEL_H

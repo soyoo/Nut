@@ -34,6 +34,7 @@
 #define __nut_TABLE             "table"
 #define __nut_TABLE_NAME        "table_name"
 
+#define __nut_DISPLAY           "display"
 #define __nut_LEN               "len"
 #define __nut_DEFAULT_VALUE     "def"
 #define __nut_NOT_NULL          "notnull"

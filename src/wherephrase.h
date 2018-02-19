@@ -18,8 +18,8 @@
 **
 **************************************************************************/
 
-#ifndef PHRASE_H
-#define PHRASE_H
+#ifndef WHEREPHRASE_H
+#define WHEREPHRASE_H
 
 #include <QtCore/qglobal.h>
 
@@ -39,58 +39,58 @@
 NUT_BEGIN_NAMESPACE
 
 class SqlGeneratorBase;
-class PhraseData
-{
-public:
-    enum Condition {
-        NotAssign = 0,
-        Equal,
-        Less,
-        LessEqual,
-        Null,
-        In,
-        Like,
+//class PhraseData
+//{
+//public:
+//    enum Condition {
+//        NotAssign = 0,
+//        Equal,
+//        Less,
+//        LessEqual,
+//        Null,
+//        In,
+//        Like,
 
-        Not = 10,
-        NotEqual,
-        GreaterEqual,
-        Greater,
-        NotNull,
-        NotIn,
-        NotLike,
+//        Not = 10,
+//        NotEqual,
+//        GreaterEqual,
+//        Greater,
+//        NotNull,
+//        NotIn,
+//        NotLike,
 
-        And = 20,
-        Or,
+//        And = 20,
+//        Or,
 
-        Append,
-        Set,
+//        Append,
+//        Set,
 
-        Add,
-        Minus,
-        Multiple,
-        Divide,
+//        Add,
+//        Minus,
+//        Multiple,
+//        Divide,
 
-        // special types
-        Distance
-    };
+//        // special types
+//        Distance
+//    };
 
-    enum Type { Field, WithVariant, WithOther, WithoutOperand };
-    Type type;
+//    enum Type { Field, WithVariant, WithOther, WithoutOperand };
+//    Type type;
 
-    Condition operatorCond;
+//    Condition operatorCond;
 
-    QString text;
-    const PhraseData *left;
-    const PhraseData *right;
-    QVariant operand;
+//    QString text;
+//    const PhraseData *left;
+//    const PhraseData *right;
+//    QVariant operand;
 
-    PhraseData(const char *className, const char *s);
-    PhraseData(PhraseData *l, Condition o);
-    PhraseData(PhraseData *l, Condition o, const PhraseData *r);
-    PhraseData(PhraseData *l, Condition o, QVariant r);
+//    PhraseData(const char *className, const char *s);
+//    PhraseData(PhraseData *l, Condition o);
+//    PhraseData(PhraseData *l, Condition o, const PhraseData *r);
+//    PhraseData(PhraseData *l, Condition o, QVariant r);
 
-    ~PhraseData();
-};
+//    ~PhraseData();
+//};
 
 class WherePhrase
 {

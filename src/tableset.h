@@ -28,7 +28,6 @@
 #include <QtSql/QSqlQuery>
 
 #include "tablesetbase_p.h"
-//#include "database.h"
 #include "table.h"
 
 NUT_BEGIN_NAMESPACE

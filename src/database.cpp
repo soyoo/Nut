@@ -20,6 +20,7 @@
 
 #include <QtCore/QMetaProperty>
 #include <QtCore/QDebug>
+#include <QtCore/QFile>
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonObject>
 
@@ -493,6 +494,12 @@ SqlGeneratorBase *Database::sqlGenertor() const
 {
     Q_D(const Database);
     return d->sqlGenertor;
+}
+
+QSqlDatabase Database::database()
+{
+    Q_D(Database);
+    return d->db;
 }
 
 void Database::databaseUpdated(QString oldVersion, QString newVersion)

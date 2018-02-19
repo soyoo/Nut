@@ -21,7 +21,7 @@
 #ifndef QUERY_P_H
 #define QUERY_P_H
 
-#include "wherephrase.h"
+#include "phrase.h"
 
 #include <QList>
 #include <QString>
@@ -48,11 +48,15 @@ public:
     TableSetBase *tableSet;
     QStringList joins;
     QList<RelationModel*> relations;
-    QList<WherePhrase> wheres;
-    QList<WherePhrase> orderPhrases;
-    QHash<QString, QString> orders;
     int skip;
     int take;
+    PhraseList orderPhrase, fieldPhrase;
+    ConditionalPhrase wherePhrase;
+
+//    QList<WherePhrase> wheres;
+//    QList<WherePhrase> orderPhrases;
+//    QList<WherePhrase> fields;
+//    QHash<QString, QString> orders;
 };
 
 NUT_END_NAMESPACE

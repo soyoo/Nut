@@ -69,6 +69,7 @@ public:
     QString tableName(QString className);
 
     SqlGeneratorBase *sqlGenertor() const;
+    QSqlDatabase database();
 
 protected:
     //remove minor version

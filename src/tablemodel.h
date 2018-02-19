@@ -47,6 +47,7 @@ struct FieldModel{
     bool isPrimaryKey;
     bool isAutoIncrement;
     bool isUnique;
+    QString displayName;
 
     bool operator ==(const FieldModel &f) const{
 
@@ -88,6 +89,7 @@ public:
 //    static void createForegionKeys();
 //    static TableModel* model(QString className);
 
+    FieldModel *field(int n) const;
     FieldModel *field(QString name) const;
     RelationModel *foregionKey(QString otherTable) const;
 

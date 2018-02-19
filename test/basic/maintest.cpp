@@ -42,8 +42,8 @@ void MainTest::initTestCase()
 
     bool ok = db.open();
 
-    db.comments()->query()->remove();
-    db.posts()->query()->remove();
+    db.commentTable()->query()->remove();
+    db.postTable()->query()->remove();
 
     QTEST_ASSERT(ok);
 }
@@ -63,7 +63,7 @@ void MainTest::createUser()
     user = new User;
     user->setUsername("admin");
     user->setPassword("123456");
-    db.users()->append(user);
+    db.userTable()->append(user);
     db.saveChanges();
 }
 
@@ -73,7 +73,7 @@ void MainTest::createPost()
     newPost->setTitle("post title");
     newPost->setSaveDate(QDateTime::currentDateTime());
 
-    db.posts()->append(newPost);
+    db.postTable()->append(newPost);
 
     for(int i = 0 ; i < 3; i++){
         Comment *comment = new Comment;
@@ -102,7 +102,7 @@ void MainTest::createPost2()
     newPost->setTitle("post title");
     newPost->setSaveDate(QDateTime::currentDateTime());
 
-    db.posts()->append(newPost);
+    db.postTable()->append(newPost);
     db.saveChanges();
 
     for(int i = 0 ; i < 3; i++){
@@ -111,7 +111,7 @@ void MainTest::createPost2()
         comment->setSaveDate(QDateTime::currentDateTime());
         comment->setAuthor(user);
         comment->setPostId(newPost->id());
-        db.comments()->append(comment);
+        db.commentTable()->append(comment);
     }
     db.saveChanges();
 
@@ -121,9 +121,9 @@ void MainTest::createPost2()
 
 void MainTest::selectPosts()
 {
-    auto q = db.posts()->query()
+    auto q = db.postTable()->query()
         ->join<Comment>()//Comment::authorIdField() == Post::idField())
-        ->orderBy(!Post::saveDateField() & Post::bodyField())
+        ->orderBy(!Post::saveDateField() | Post::bodyField())
         ->setWhere(Post::idField() == postId);
 
     auto posts = q->toList();
@@ -144,7 +144,7 @@ void MainTest::selectPosts()
 
 void MainTest::selectScoreAverage()
 {
-    auto a = db.scores()->query()
+    auto a = db.scoreTable()->query()
             ->join<Post>()
             ->setWhere(Post::idField() == 1)
             ->average(Score::scoreField());
@@ -153,7 +153,7 @@ void MainTest::selectScoreAverage()
 
 void MainTest::selectFirst()
 {
-    auto posts = db.posts()->query()
+    auto posts = db.postTable()->query()
         ->first();
 
     QTEST_ASSERT(posts != Q_NULLPTR);
@@ -161,7 +161,7 @@ void MainTest::selectFirst()
 
 void MainTest::selectPostsWithoutTitle()
 {
-    auto q = db.posts()->query();
+    auto q = db.postTable()->query();
     q->setWhere(Post::titleField().isNull());
     auto count = q->count();
     QTEST_ASSERT(count == 0);
@@ -169,8 +169,9 @@ void MainTest::selectPostsWithoutTitle()
 
 void MainTest::selectPostIds()
 {
-    auto ids = db.posts()->query()->select(Post::idField());
-
+    auto q = db.postTable()->query();
+    auto ids = q->select(Post::idField());
+qDebug() << q->sqlCommand();
     QTEST_ASSERT(ids.count() == 2);
 }
 
@@ -184,11 +185,11 @@ void MainTest::testDate()
     newPost->setTitle("post title");
     newPost->setSaveDate(d);
 
-    db.posts()->append(newPost);
+    db.postTable()->append(newPost);
 
     db.saveChanges();
 
-    auto q = db.posts()->query()
+    auto q = db.postTable()->query()
             ->setWhere(Post::idField() == newPost->id())
             ->first();
 
@@ -198,7 +199,7 @@ void MainTest::testDate()
 void MainTest::join()
 {
     TIC();
-    auto q = db.comments()->query()
+    auto q = db.commentTable()->query()
             ->join<User>()
             ->join<Post>();
 
@@ -213,14 +214,14 @@ void MainTest::join()
 
 void MainTest::selectWithInvalidRelation()
 {
-    auto q = db.posts()->query();
+    auto q = db.postTable()->query();
     q->join("Invalid_Class_Name");
     q->toList();
 }
 
 void MainTest::modifyPost()
 {
-    auto q = db.posts()->query();
+    auto q = db.postTable()->query();
     q->setWhere(Post::idField() == postId);
 
     Post *post = q->first();
@@ -230,7 +231,7 @@ void MainTest::modifyPost()
     post->setTitle("new name");
     db.saveChanges();
 
-    q = db.posts()->query()
+    q = db.postTable()->query()
             ->setWhere(Post::idField() == postId);
 
     post = q->first();
@@ -240,8 +241,8 @@ void MainTest::modifyPost()
 
 void MainTest::emptyDatabase()
 {
-    auto commentsCount = db.comments()->query()->remove();
-    auto postsCount = db.posts()->query()->remove();
+    auto commentsCount = db.commentTable()->query()->remove();
+    auto postsCount = db.postTable()->query()->remove();
     QTEST_ASSERT(postsCount == 3);
     QTEST_ASSERT(commentsCount == 6);
 }

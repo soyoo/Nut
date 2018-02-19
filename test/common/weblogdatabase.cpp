@@ -8,9 +8,9 @@
 #include "weblogdatabase.h"
 
 WeblogDatabase::WeblogDatabase() : Database(),
-    m_posts(new TableSet<Post>(this)),
-    m_comments(new TableSet<Comment>(this)),
-    m_users(new TableSet<User>(this)),
-    m_scores(new TableSet<Score>(this))
+    m_postTable(new TableSet<Post>(this)),
+    m_commentTable(new TableSet<Comment>(this)),
+    m_userTable(new TableSet<User>(this)),
+    m_scoreTable(new TableSet<Score>(this))
 {
 }

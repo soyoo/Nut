@@ -24,7 +24,8 @@
 #include <QtCore/qglobal.h>
 #include <QtCore/QObject>
 #include <QtCore/QStringList>
-#include "../wherephrase.h"
+#include "../phrase.h"
+//#include "../wherephrase.h"
 
 NUT_BEGIN_NAMESPACE
 
@@ -47,7 +48,7 @@ public:
         Delete
     };
     enum AgregateType{
-        SelectAll,
+//        SelectAll,
         Count,
         Min,
         Max,
@@ -83,28 +84,51 @@ public:
     virtual QString deleteRecord(Table *t, QString tableName);
     virtual QString deleteRecords(QString tableName, QString where);
 
-    virtual QString selectCommand(AgregateType t,
-                                  QString agregateArg, QString tableName,
-                                  QList<WherePhrase> &wheres,
-                                  QList<WherePhrase> &orders,
-                                  QList<RelationModel*> joins,
-                                  int skip = -1, int take = -1);
+    virtual QString selectCommand(const QString &tableName,
+                                  const PhraseList &fields,
+                                  const ConditionalPhrase &where,
+                                  const PhraseList &order,
+                                  const QList<RelationModel*> joins,
+                                  const int skip = -1,
+                                  const int take = -1);
 
-    virtual QString deleteCommand(QList<WherePhrase> &wheres, QString tableName);
+    virtual QString selectCommand(const QString &tableName,
+                                  const AgregateType &t, const QString &agregateArg,
+                                  const ConditionalPhrase &where,
+                                  const QList<RelationModel *> &joins,
+                                  const int skip = -1,
+                                  const int take = -1);
 
-    virtual QString updateCommand(WherePhrase &phrase, QList<WherePhrase> &wheres, QString tableName);
+    virtual QString deleteCommand(const QString &tableName,
+                                  const ConditionalPhrase &where);
+    virtual QString updateCommand(const QString &tableName,
+                                  const AssignmentPhraseList &assigments,
+                                  const ConditionalPhrase &where);
+//    virtual QString selectCommand(AgregateType t,
+//                                  QString agregateArg, QString tableName,
+//                                  QList<WherePhrase> &wheres,
+//                                  QList<WherePhrase> &orders,
+//                                  QList<RelationModel*> joins,
+//                                  int skip = -1, int take = -1);
+
+//    virtual QString deleteCommand(QList<WherePhrase> &wheres, QString tableName);
+
+//    virtual QString updateCommand(WherePhrase &phrase, QList<WherePhrase> &wheres, QString tableName);
 
     virtual QString escapeValue(const QVariant &v) const;
     virtual QVariant readValue(const QVariant::Type &type, const QVariant &dbValue);
     virtual QString phrase(const PhraseData *d) const;
-    virtual QString phraseUpdate(const PhraseData *d) const;
     virtual QString operatorString(const PhraseData::Condition &cond) const;
 
 private:
+    QString createConditionalPhrase(const PhraseData *d) const;
+    QString createFieldPhrase(const PhraseList &ph);
+    QString createOrderPhrase(const PhraseList &ph);
+    void createInsertPhrase(const AssignmentPhraseList &ph, QString &fields, QString &values);
+
     QString agregateText(const AgregateType &t, const QString &arg = QString::null) const;
     QString fromTableText(const QString &tableName, QString &joinClassName, QString &orderBy) const;
-    QString createWhere(QList<WherePhrase> &wheres);
-    QString phraseOrder(const PhraseData *d) const;
+//    QString createWhere(QList<WherePhrase> &wheres);
     void replaceTableNames(QString &command);
     void removeTableNames(QString &command);
 };

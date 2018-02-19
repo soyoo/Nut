@@ -2,6 +2,7 @@
 #define POST_H
 
 #include <QtCore/qglobal.h>
+#include <QtCore/QDateTime>
 #include "table.h"
 #include "database.h"
 #include "databasemodel.h"
