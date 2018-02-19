@@ -66,9 +66,6 @@ public:
         And = 20,
         Or,
 
-//        Append,
-//        Set,
-
         Add,
         Minus,
         Multiple,
@@ -161,7 +158,9 @@ public:
     QSharedPointer<PhraseData> rightDataPointer;
     ConditionalPhrase();
     ConditionalPhrase(const ConditionalPhrase &other);
+#ifdef Q_COMPILER_RVALUE_REFS
     ConditionalPhrase(const ConditionalPhrase &&other);
+#endif
     ConditionalPhrase(const PhraseData *data);
     ConditionalPhrase(AbstractFieldPhrase *, PhraseData::Condition);
     ConditionalPhrase(AbstractFieldPhrase *, PhraseData::Condition, const QVariant &v);
@@ -205,7 +204,7 @@ public:
 
         return ConditionalPhrase(this, PhraseData::In, vlist);
     }
-#if __cplusplus >= 201103L
+#ifdef Q_COMPILER_INITIALIZER_LISTS
     ConditionalPhrase in(std::initializer_list<int> list) {
         QVariantList vlist;
         std::initializer_list<int>::iterator it;

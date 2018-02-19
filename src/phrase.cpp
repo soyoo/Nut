@@ -266,11 +266,13 @@ ConditionalPhrase::ConditionalPhrase(const ConditionalPhrase &other)
 //    const_cast<ConditionalPhrase&>(other).data = 0;
 }
 
+#ifdef Q_COMPILER_RVALUE_REFS
 ConditionalPhrase::ConditionalPhrase(const ConditionalPhrase &&other)
 {
     qDebug() << "************* ctor called:";
     this->data = qMove(other.data);
 }
+#endif
 
 ConditionalPhrase::ConditionalPhrase(const PhraseData *data)
 {
