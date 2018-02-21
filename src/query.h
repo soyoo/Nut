@@ -307,7 +307,7 @@ Q_OUTOFLINE_TEMPLATE QList<F> Query<T>::select(const FieldPhrase<F> f)
                 d->wherePhrase,
                 d->relations,
                 d->skip, d->take);
-
+qDebug() << d->sql;
     QSqlQuery q = d->database->exec(d->sql);
 
     while (q.next()) {

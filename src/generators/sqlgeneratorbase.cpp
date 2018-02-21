@@ -466,6 +466,7 @@ QString SqlGeneratorBase::selectCommand(const QString &tableName,
         sql = sql.replace(_database->model().at(i)->className() + ".",
                           _database->model().at(i)->name() + ".");
 
+    appendSkipTake(sql, skip, take);
     replaceTableNames(sql);
 
     return sql + " ";
@@ -495,6 +496,7 @@ QString SqlGeneratorBase::selectCommand(const QString &tableName,
         sql = sql.replace(_database->model().at(i)->className() + ".",
                           _database->model().at(i)->name() + ".");
 
+    appendSkipTake(sql, skip, take);
     replaceTableNames(sql);
 
     return sql + " ";
@@ -826,6 +828,10 @@ SqlGeneratorBase::operatorString(const PhraseData::Condition &cond) const
     }
 }
 
+void SqlGeneratorBase::appendSkipTake(QString &sql, int skip, int take)
+{
+
+}
 
 QString SqlGeneratorBase::createConditionalPhrase(const PhraseData *d) const
 {
