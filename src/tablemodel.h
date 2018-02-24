@@ -37,6 +37,8 @@ struct FieldModel{
 
     }
 
+    FieldModel(const QJsonObject &json);
+
     QString name;
     //TODO: QMetaType::Type??
     QVariant::Type type;
@@ -63,19 +65,30 @@ struct FieldModel{
     bool operator !=(const FieldModel &f) const{
         return !(*this == f);
     }
+
+    QJsonObject toJson() const;
 };
 
 struct RelationModel{
+    RelationModel() : localColumn(""), localProperty(""), slaveTable(0),
+        foreignColumn(""), masterTable(0), masterClassName("")
+    {}
+    RelationModel(const QJsonObject &obj);
+
     //slave
     QString localColumn;
     QString localProperty;
     TableModel *slaveTable;
     //master
-    QString foregionColumn;
+    QString foreignColumn;
     TableModel *masterTable;
 
     QString masterClassName;
+
+    QJsonObject toJson() const;
 };
+bool operator ==(const RelationModel &l, const RelationModel &r);
+bool operator !=(const RelationModel &l, const RelationModel &r);
 class TableModel
 {
 public:
@@ -91,7 +104,8 @@ public:
 
     FieldModel *field(int n) const;
     FieldModel *field(QString name) const;
-    RelationModel *foregionKey(QString otherTable) const;
+    RelationModel *foregionKey(const QString &otherTable) const;
+    RelationModel *foregionKeyByField(const QString &fieldName) const;
 
     QString toString() const;
 
@@ -122,7 +136,7 @@ private:
     QString _className;
     int _typeId;
     QList<FieldModel*> _fields;
-    QList<RelationModel*> _foregionKeys;
+    QList<RelationModel*> _foreignKeys;
     static QSet<TableModel*>_allModels;
     bool checkClassInfo(const QMetaClassInfo &classInfo,
                         QString &type, QString &name, QString &value);

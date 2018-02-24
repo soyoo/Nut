@@ -141,7 +141,7 @@ bool DatabasePrivate::updateDatabase()
         qDebug("Databse is changed");
 
     QStringList sql = sqlGenertor->diff(last, current);
-
+qDebug()<<"database Sql =\n"<<sql;
     db.transaction();
     foreach (QString s, sql) {
         db.exec(s);

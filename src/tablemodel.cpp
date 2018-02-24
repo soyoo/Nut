@@ -90,7 +90,7 @@ QList<FieldModel *> TableModel::fields() const
 
 QList<RelationModel *> TableModel::foregionKeys() const
 {
-    return _foregionKeys;
+    return _foreignKeys;
 }
 
 QStringList TableModel::fieldsNames() const
@@ -237,9 +237,9 @@ TableModel::TableModel(int typeId, QString tableName)
             fk->slaveTable = this;
             fk->localColumn = name + "Id";
             fk->localProperty = name;
-            fk->foregionColumn = value;
+            fk->foreignColumn = value;
             fk->masterClassName = value;
-            _foregionKeys.append(fk);
+            _foreignKeys.append(fk);
         }
 
         if(type == __nut_FIELD){
@@ -292,6 +292,7 @@ TableModel::TableModel(QJsonObject json, QString tableName)
     _name = tableName;
 
     QJsonObject fields = json.value(__FIELDS).toObject();
+    QJsonObject relations = json.value(__FOREIGN_KEYS).toObject();
     foreach (QString key, fields.keys()) {
         QJsonObject fieldObject = fields.value(key).toObject();
         FieldModel *f = new FieldModel;
@@ -309,11 +310,16 @@ TableModel::TableModel(QJsonObject json, QString tableName)
         _fields.append(f);
     }
 
-    if(json.keys().contains(__nut_AUTO_INCREMENT))
-        field(json.value(__nut_AUTO_INCREMENT).toString())->isAutoIncrement = true;
+    foreach (QString key, relations.keys()) {
+        QJsonObject relObject = fields.value(key).toObject();
+        _foreignKeys.append(new RelationModel(relObject));
+    }
 
-    if(json.keys().contains(__nut_PRIMARY_KEY))
-        field(json.value(__nut_PRIMARY_KEY).toString())->isAutoIncrement = true;
+//    if(json.keys().contains(__nut_AUTO_INCREMENT))
+//        field(json.value(__nut_AUTO_INCREMENT).toString())->isAutoIncrement = true;
+
+//    if(json.keys().contains(__nut_PRIMARY_KEY))
+//        field(json.value(__nut_PRIMARY_KEY).toString())->isAutoIncrement = true;
 
     _allModels.insert(this);
 }
@@ -322,6 +328,7 @@ QJsonObject TableModel::toJson() const
 {
     QJsonObject obj;
     QJsonObject fieldsObj;
+    QJsonObject foreignKeysObj;
 
     foreach (FieldModel *f, _fields) {
         QJsonObject fieldObj;
@@ -337,23 +344,36 @@ QJsonObject TableModel::toJson() const
         if(!f->defaultValue.isNull())
             fieldObj.insert(__nut_DEFAULT_VALUE, f->defaultValue);
 
-        fieldsObj.insert(f->name, fieldObj);
-
         if(f->isAutoIncrement)
-            obj.insert(__nut_PRIMARY_KEY, f->name);
+            obj.insert(__nut_AUTO_INCREMENT, f->name);
 
         if(f->isPrimaryKey)
-            obj.insert(__nut_AUTO_INCREMENT, f->name);
+            obj.insert(__nut_PRIMARY_KEY, f->name);
+
+        fieldsObj.insert(f->name, fieldObj);
     }
+    foreach (RelationModel *rel, _foreignKeys)
+        foreignKeysObj.insert(rel->localColumn, rel->toJson());
+
     obj.insert(__FIELDS, fieldsObj);
+    obj.insert(__FOREIGN_KEYS, foreignKeysObj);
 
     return obj;
 }
 
-RelationModel *TableModel::foregionKey(QString otherTable) const
+RelationModel *TableModel::foregionKey(const QString &otherTable) const
 {
-    foreach (RelationModel *fk, _foregionKeys)
+    foreach (RelationModel *fk, _foreignKeys)
         if(fk->masterClassName == otherTable)
+            return fk;
+
+    return 0;
+}
+
+RelationModel *TableModel::foregionKeyByField(const QString &fieldName) const
+{
+    foreach (RelationModel *fk, _foreignKeys)
+        if(fk->localColumn == fieldName)
             return fk;
 
     return 0;
@@ -377,6 +397,61 @@ QString TableModel::primaryKey() const
         if(f->isPrimaryKey)
             return f->name;
     return QString::null;
+}
+
+FieldModel::FieldModel(const QJsonObject &json)
+{
+    name = json.value(__NAME).toString();
+    type = static_cast<QVariant::Type>(json.value(__TYPE).toInt());
+    length = json.value(__nut_LEN).toInt();
+    notNull = json.value(__nut_NOT_NULL).toBool();
+    isAutoIncrement = json.value(__nut_AUTO_INCREMENT).toBool();
+    isPrimaryKey = json.value(__nut_PRIMARY_KEY).toBool();
+    defaultValue = json.value(__nut_DEFAULT_VALUE).toString();
+}
+
+QJsonObject FieldModel::toJson() const
+{
+    QJsonObject fieldObj;
+    fieldObj.insert(__NAME, name);
+    fieldObj.insert(__TYPE, QString(QVariant::typeToName(type)));
+    fieldObj.insert(__nut_LEN, length);
+    fieldObj.insert(__nut_NOT_NULL, notNull);
+    fieldObj.insert(__nut_AUTO_INCREMENT, isAutoIncrement);
+    fieldObj.insert(__nut_PRIMARY_KEY, isPrimaryKey);
+    fieldObj.insert(__nut_DEFAULT_VALUE, defaultValue);
+    return fieldObj;
+}
+
+RelationModel::RelationModel(const QJsonObject &obj)
+{
+    localColumn = obj.value("localColumn").toString();
+    localProperty = obj.value("localProperty").toString();
+    masterClassName = obj.value("masterClassName").toString();
+    foreignColumn = obj.value("foreignColumn").toString();
+}
+
+QJsonObject RelationModel::toJson() const
+{
+    QJsonObject o;
+    o.insert("localColumn", localColumn);
+    o.insert("localProperty", localProperty);
+    o.insert("masterClassName", masterClassName);
+    o.insert("foreignColumn", foreignColumn);
+    return o;
+}
+
+bool operator ==(const RelationModel &l, const RelationModel &r)
+{
+    return r.foreignColumn == l.foreignColumn
+            && r.localColumn == l.localColumn
+            && r.localProperty == l.localColumn
+            && r.masterClassName == l.masterClassName;
+}
+
+bool operator !=(const RelationModel &l, const RelationModel &r)
+{
+    return !(l == r);
 }
 
 NUT_END_NAMESPACE

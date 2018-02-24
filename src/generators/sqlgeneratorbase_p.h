@@ -65,10 +65,13 @@ public:
 
     virtual QString fieldType(FieldModel *field) = 0;
     virtual QString fieldDeclare(FieldModel *field);
+    virtual QString relationDeclare(const RelationModel *relation);
 
     virtual QStringList diff(DatabaseModel lastModel, DatabaseModel newModel);
     virtual QString diff(FieldModel *oldField, FieldModel *newField);
     virtual QString diff(TableModel *oldTable, TableModel *newTable);
+    virtual QString diffRelation(TableModel *oldTable, TableModel *newTable);
+    virtual QString diff(RelationModel *oldRel, RelationModel *newRel);
 
     virtual QString join(const QString &mainTable,
                          const QList<RelationModel*> list,
@@ -120,7 +123,7 @@ public:
     virtual QString phrase(const PhraseData *d) const;
     virtual QString operatorString(const PhraseData::Condition &cond) const;
     virtual void appendSkipTake(QString &sql, int skip = -1, int take = -1);
-private:
+protected:
     QString createConditionalPhrase(const PhraseData *d) const;
     QString createFieldPhrase(const PhraseList &ph);
     QString createOrderPhrase(const PhraseList &ph);
