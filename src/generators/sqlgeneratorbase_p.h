@@ -41,6 +41,7 @@ class SqlGeneratorBase : public QObject
 
     Database *_database;
 public:
+    //TODO: remove this enum
     enum CommandType{
         Select,
         Insert,
@@ -96,7 +97,8 @@ public:
                                   const int take = -1);
 
     virtual QString selectCommand(const QString &tableName,
-                                  const AgregateType &t, const QString &agregateArg,
+                                  const AgregateType &t,
+                                  const QString &agregateArg,
                                   const ConditionalPhrase &where,
                                   const QList<RelationModel *> &joins,
                                   const int skip = -1,
