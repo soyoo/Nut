@@ -419,8 +419,8 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::join(const QString &className)
                 .relationByClassNames(className, d->className);
 
     if (!rel) {
-        qInfo("No relation between %s and %s",
-              qPrintable(d->className), qPrintable(className));
+        qInfo() << "No relation between" << d->className
+                << "and" << className;
         return this;
     }
 
