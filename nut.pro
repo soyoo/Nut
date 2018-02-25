@@ -3,6 +3,7 @@ QT       -= gui
 
 TARGET = nut
 TEMPLATE = lib
+CONFIG += c++11
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
