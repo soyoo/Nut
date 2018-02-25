@@ -223,15 +223,26 @@ AssignmentPhrase::AssignmentPhrase(AbstractFieldPhrase *l, const AssignmentPhras
     //    l->data = 0;
 }
 
+AssignmentPhrase::~AssignmentPhrase()
+{
+    if (data)
+        delete data;
+}
+
 //AssignmentPhrase::AssignmentPhrase(AssignmentPhrase *l, const AssignmentPhrase *r)
 //{
 ////    data = new PhraseData(l->data, PhraseData::Append, r->data);
 //    qFatal("SS");
 //}
 
-AssignmentPhraseList AssignmentPhrase::operator &(const AssignmentPhrase &other)
+//AssignmentPhraseList AssignmentPhrase::operator &(const AssignmentPhrase &other)
+//{
+//    return AssignmentPhraseList(this, &other);
+//}
+
+AssignmentPhraseList::AssignmentPhraseList()
 {
-    return AssignmentPhraseList(this, &other);
+
 }
 
 AssignmentPhraseList::AssignmentPhraseList(const AssignmentPhrase &l)
@@ -245,15 +256,20 @@ AssignmentPhraseList::AssignmentPhraseList(AssignmentPhraseList *l, const Assign
     data.append(r->data);
 }
 
-AssignmentPhraseList::AssignmentPhraseList(AssignmentPhrase *l, const AssignmentPhrase *r)
+AssignmentPhraseList::AssignmentPhraseList(const AssignmentPhrase &r, const AssignmentPhrase &l)
 {
-    data.append(l->data);
-    data.append(r->data);
+    data.append(l.data);
+    data.append(r.data);
 }
 
 AssignmentPhraseList AssignmentPhraseList::operator &(const AssignmentPhrase &ph)
 {
     return AssignmentPhraseList(this, &ph);
+}
+
+AssignmentPhraseList::~AssignmentPhraseList()
+{
+    qDeleteAll(data);
 }
 
 ConditionalPhrase::ConditionalPhrase() : data(0)
@@ -372,6 +388,29 @@ ConditionalPhrase ConditionalPhrase::operator !()
     ConditionalPhrase f(data);
     f.data->isNot = !data->isNot;
     return f;
+}
+
+AssignmentPhraseList operator &(const AssignmentPhrase &l, const AssignmentPhrase &r)
+{
+    return AssignmentPhraseList(l, r);
+}
+
+AssignmentPhraseList operator &(const AssignmentPhrase &l, AssignmentPhrase &&r)
+{
+    r.data = 0;
+    return AssignmentPhraseList(l, r);
+}
+
+AssignmentPhraseList operator &(AssignmentPhrase &&l, const AssignmentPhrase &r)
+{
+    l.data = 0;
+    return AssignmentPhraseList(l, r);
+}
+
+AssignmentPhraseList operator &(AssignmentPhrase &&l, AssignmentPhrase &&r)
+{
+    r.data = l.data = 0;
+    return AssignmentPhraseList(l, r);
 }
 
 NUT_END_NAMESPACE

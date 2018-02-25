@@ -115,11 +115,15 @@ class AssignmentPhraseList
 {
 public:
     QList<PhraseData*> data;
+    AssignmentPhraseList();
     AssignmentPhraseList(const AssignmentPhrase &l);
     AssignmentPhraseList(AssignmentPhraseList *l, const AssignmentPhrase *r);
     AssignmentPhraseList(AssignmentPhrase *l, const AssignmentPhrase *r);
+    AssignmentPhraseList(const AssignmentPhrase &r, const AssignmentPhrase &l);
 
     AssignmentPhraseList operator &(const AssignmentPhrase &ph);
+
+    ~AssignmentPhraseList();
 };
 
 class AssignmentPhrase
@@ -128,11 +132,17 @@ public:
     PhraseData *data;
     AssignmentPhrase(AbstractFieldPhrase *l, QVariant r);
     AssignmentPhrase(AbstractFieldPhrase *l, const AssignmentPhrase *r);
+    ~AssignmentPhrase();
 //    AssignmentPhrase(AssignmentPhrase *l, const AssignmentPhrase *r);
 
-    AssignmentPhraseList operator &(const AssignmentPhrase &other);
+//    AssignmentPhraseList operator &(const AssignmentPhrase &other);
 
 };
+
+AssignmentPhraseList operator &(const AssignmentPhrase &l, const AssignmentPhrase &r);
+AssignmentPhraseList operator &(const AssignmentPhrase &l, AssignmentPhrase &&r);
+AssignmentPhraseList operator &(AssignmentPhrase &&l, const AssignmentPhrase &r);
+AssignmentPhraseList operator &(AssignmentPhrase &&l, AssignmentPhrase &&r);
 
 class PhraseList{
 public:
