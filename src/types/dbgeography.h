@@ -35,8 +35,8 @@ class NUT_EXPORT DbGeography
 
 public:
     explicit DbGeography();
-    DbGeography(const DbGeography &other);
-    DbGeography(const QVariant &value);
+    explicit DbGeography(const DbGeography &other);
+    explicit DbGeography(const QVariant &value);
 
     qreal longitude() const;
     qreal latitude() const;

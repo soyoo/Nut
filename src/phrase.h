@@ -103,8 +103,8 @@ public:
     PhraseData(PhraseData *l, Condition o);
     PhraseData(PhraseData *l, Condition o, const PhraseData *r);
     PhraseData(PhraseData *l, Condition o, QVariant r);
-
-    PhraseData(const PhraseData *other);
+    explicit PhraseData(const PhraseData &other);
+    explicit PhraseData(const PhraseData *other);
 
     QString toString() const;
 
@@ -115,7 +115,7 @@ class AssignmentPhraseList
 {
 public:
     QList<PhraseData*> data;
-    AssignmentPhraseList();
+    explicit AssignmentPhraseList();
     AssignmentPhraseList(const AssignmentPhrase &l);
     AssignmentPhraseList(AssignmentPhraseList *l, const AssignmentPhrase *r);
     AssignmentPhraseList(AssignmentPhrase *l, const AssignmentPhrase *r);
@@ -130,25 +130,28 @@ class AssignmentPhrase
 {
 public:
     PhraseData *data;
-    AssignmentPhrase(AbstractFieldPhrase *l, QVariant r);
-    AssignmentPhrase(AbstractFieldPhrase *l, const AssignmentPhrase *r);
+    explicit AssignmentPhrase(PhraseData *d);
+    explicit AssignmentPhrase(AbstractFieldPhrase *l, const QVariant r);
+    explicit AssignmentPhrase(AbstractFieldPhrase *l, const AssignmentPhrase *r);
+    explicit AssignmentPhrase(AssignmentPhrase *ph, const QVariant &v);
+//    explicit AssignmentPhrase(AssignmentPhrase &other);
     ~AssignmentPhrase();
 //    AssignmentPhrase(AssignmentPhrase *l, const AssignmentPhrase *r);
 
-//    AssignmentPhraseList operator &(const AssignmentPhrase &other);
+    AssignmentPhraseList operator &(const AssignmentPhrase &other);
 
 };
 
-AssignmentPhraseList operator &(const AssignmentPhrase &l, const AssignmentPhrase &r);
-AssignmentPhraseList operator &(const AssignmentPhrase &l, AssignmentPhrase &&r);
-AssignmentPhraseList operator &(AssignmentPhrase &&l, const AssignmentPhrase &r);
-AssignmentPhraseList operator &(AssignmentPhrase &&l, AssignmentPhrase &&r);
+//AssignmentPhraseList operator &(const AssignmentPhrase &l, const AssignmentPhrase &r);
+//AssignmentPhraseList operator &(const AssignmentPhrase &l, AssignmentPhrase &&r);
+//AssignmentPhraseList operator &(AssignmentPhrase &&l, const AssignmentPhrase &r);
+//AssignmentPhraseList operator &(AssignmentPhrase &&l, AssignmentPhrase &&r);
 
 class PhraseList{
 public:
     bool isValid;
     QList<const PhraseData*> data;
-    PhraseList();
+    explicit PhraseList();
     PhraseList(const PhraseList &other);
     PhraseList(const AbstractFieldPhrase &other);
     PhraseList(const AbstractFieldPhrase *left, const AbstractFieldPhrase &right);
@@ -181,7 +184,7 @@ public:
     ConditionalPhrase(ConditionalPhrase *l, PhraseData::Condition cond, ConditionalPhrase &r);
     virtual ~ConditionalPhrase();
 
-    ConditionalPhrase operator =(const ConditionalPhrase &other);
+    ConditionalPhrase &operator =(const ConditionalPhrase &other);
     ConditionalPhrase operator ==(const QVariant &other);
     ConditionalPhrase operator ==(const AbstractFieldPhrase &other);
     ConditionalPhrase operator &&(const ConditionalPhrase &other);
@@ -267,8 +270,8 @@ public:
         return ConditionalPhrase(this, PhraseData::Like, term);
     }
 
-    AssignmentPhrase operator =(const QVariant &other) {
-        return AssignmentPhrase(this, other);
+    AssignmentPhrase operator =(const QVariant &v) {
+        return AssignmentPhrase(this, v);
     }
 };
 

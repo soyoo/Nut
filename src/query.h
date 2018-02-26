@@ -50,7 +50,7 @@ template <class T>
     bool m_autoDelete;
 
 public:
-    Query(Database *database, TableSetBase *tableSet, bool autoDelete);
+    explicit Query(Database *database, TableSetBase *tableSet, bool autoDelete);
     ~Query();
 
     //ddl
@@ -520,7 +520,7 @@ Q_OUTOFLINE_TEMPLATE int Query<T>::update(const AssignmentPhraseList &ph)
                 ph,
                 d->wherePhrase);
     QSqlQuery q = d->database->exec(d->sql);
-
+qDebug() << d->sql;
     if (m_autoDelete)
         deleteLater();
     return q.numRowsAffected();

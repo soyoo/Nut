@@ -959,7 +959,7 @@ QString SqlGeneratorBase::createConditionalPhrase(const PhraseData *d) const
         else if (op == PhraseData::AddMonths)
             ret = QString("DATEADD(month, %1, %2)")
                     .arg(d->operand.toString()).arg(createConditionalPhrase(d->left));
-        else if (op == PhraseData::AddYears)
+        else if (op == PhraseData::AddDays)
             ret = QString("DATEADD(day, %1, %2)")
                     .arg(d->operand.toString()).arg(createConditionalPhrase(d->left));
         else if (op == PhraseData::AddHours)

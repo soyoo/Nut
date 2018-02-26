@@ -45,23 +45,20 @@ PhraseData::PhraseData(PhraseData *l, PhraseData::Condition o,
 
 PhraseData::PhraseData(PhraseData *l, PhraseData::Condition o, QVariant r)
     : className(0), fieldName(0),
-      type(WithVariant), operatorCond(o), left(new PhraseData(l)), operand(r), isNot(false)
+      type(WithVariant), operatorCond(o), left(new PhraseData(l)), right(0), operand(r), isNot(false)
 { }
 
-PhraseData::PhraseData(const PhraseData *other)
-{
-    left = other->left;
-    right = other->right;
-    operand = other->operand;
-    operatorCond = other->operatorCond;
-    className = other->className;
-    fieldName = other->fieldName;
-    type = other->type;
-    isNot = other->isNot;
-    if (type != Field) {
-        qDebug() << "Bug";
-    }
-}
+PhraseData::PhraseData(const PhraseData &other) :
+    left(other.left), right(other.right), operand(other.operand),
+    operatorCond(other.operatorCond), className(other.className),
+    fieldName(other.fieldName), type(other.type), isNot(other.isNot)
+{ }
+
+PhraseData::PhraseData(const PhraseData *other) :
+    left(other->left), right(other->right), operand(other->operand),
+    operatorCond(other->operatorCond), className(other->className),
+    fieldName(other->fieldName), type(other->type), isNot(other->isNot)
+{ }
 
 QString PhraseData::toString() const
 {
@@ -169,7 +166,7 @@ PhraseList::PhraseList() : isValid(false)
 
 }
 
-PhraseList::PhraseList(const PhraseList &other)
+PhraseList::PhraseList(const PhraseList &other) : isValid(true)
 {
     data = qMove(other.data);
 }
@@ -211,7 +208,10 @@ PhraseList PhraseList::operator |(PhraseList &other) {
     return PhraseList(this, &other);
 }
 
-AssignmentPhrase::AssignmentPhrase(AbstractFieldPhrase *l, QVariant r)
+AssignmentPhrase::AssignmentPhrase(PhraseData *d) : data(d)
+{ }
+
+AssignmentPhrase::AssignmentPhrase(AbstractFieldPhrase *l, const QVariant r)
 {
     data = new PhraseData(l->data, PhraseData::Equal, r);
 //    l->data = 0;
@@ -222,6 +222,17 @@ AssignmentPhrase::AssignmentPhrase(AbstractFieldPhrase *l, const AssignmentPhras
     data = new PhraseData(l->data, PhraseData::Equal, r->data);
     //    l->data = 0;
 }
+
+AssignmentPhrase::AssignmentPhrase(AssignmentPhrase *ph, const QVariant &v)
+{
+    data = new PhraseData(ph->data, PhraseData::Equal, v);
+}
+
+//AssignmentPhrase::AssignmentPhrase(AssignmentPhrase &other)
+//{
+//    data = other.data;
+//    other.data = 0;
+//}
 
 AssignmentPhrase::~AssignmentPhrase()
 {
@@ -235,10 +246,10 @@ AssignmentPhrase::~AssignmentPhrase()
 //    qFatal("SS");
 //}
 
-//AssignmentPhraseList AssignmentPhrase::operator &(const AssignmentPhrase &other)
-//{
-//    return AssignmentPhraseList(this, &other);
-//}
+AssignmentPhraseList AssignmentPhrase::operator &(const AssignmentPhrase &other)
+{
+    return AssignmentPhraseList(this, &other);
+}
 
 AssignmentPhraseList::AssignmentPhraseList()
 {
@@ -251,6 +262,12 @@ AssignmentPhraseList::AssignmentPhraseList(const AssignmentPhrase &l)
 }
 
 AssignmentPhraseList::AssignmentPhraseList(AssignmentPhraseList *l, const AssignmentPhrase *r)
+{
+    data.append(l->data);
+    data.append(r->data);
+}
+
+AssignmentPhraseList::AssignmentPhraseList(AssignmentPhrase *l, const AssignmentPhrase *r)
 {
     data.append(l->data);
     data.append(r->data);
@@ -269,7 +286,8 @@ AssignmentPhraseList AssignmentPhraseList::operator &(const AssignmentPhrase &ph
 
 AssignmentPhraseList::~AssignmentPhraseList()
 {
-    qDeleteAll(data);
+//    qDeleteAll(data);
+//    data.clear();
 }
 
 ConditionalPhrase::ConditionalPhrase() : data(0)
@@ -355,7 +373,7 @@ ConditionalPhrase::~ConditionalPhrase()
         delete data;
 }
 
-ConditionalPhrase ConditionalPhrase::operator =(const ConditionalPhrase &other)
+ConditionalPhrase &ConditionalPhrase::operator =(const ConditionalPhrase &other)
 {
     this->data = new PhraseData(other.data);
     return *this;
@@ -390,27 +408,27 @@ ConditionalPhrase ConditionalPhrase::operator !()
     return f;
 }
 
-AssignmentPhraseList operator &(const AssignmentPhrase &l, const AssignmentPhrase &r)
-{
-    return AssignmentPhraseList(l, r);
-}
+//AssignmentPhraseList operator &(const AssignmentPhrase &l, const AssignmentPhrase &r)
+//{
+//    return AssignmentPhraseList(l, r);
+//}
 
-AssignmentPhraseList operator &(const AssignmentPhrase &l, AssignmentPhrase &&r)
-{
-    r.data = 0;
-    return AssignmentPhraseList(l, r);
-}
+//AssignmentPhraseList operator &(const AssignmentPhrase &l, AssignmentPhrase &&r)
+//{
+//    r.data = 0;
+//    return AssignmentPhraseList(l, r);
+//}
 
-AssignmentPhraseList operator &(AssignmentPhrase &&l, const AssignmentPhrase &r)
-{
-    l.data = 0;
-    return AssignmentPhraseList(l, r);
-}
+//AssignmentPhraseList operator &(AssignmentPhrase &&l, const AssignmentPhrase &r)
+//{
+//    l.data = 0;
+//    return AssignmentPhraseList(l, r);
+//}
 
-AssignmentPhraseList operator &(AssignmentPhrase &&l, AssignmentPhrase &&r)
-{
-    r.data = l.data = 0;
-    return AssignmentPhraseList(l, r);
-}
+//AssignmentPhraseList operator &(AssignmentPhrase &&l, AssignmentPhrase &&r)
+//{
+//    r.data = l.data = 0;
+//    return AssignmentPhraseList(l, r);
+//}
 
 NUT_END_NAMESPACE

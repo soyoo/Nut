@@ -57,7 +57,7 @@ public:
         SignleField
     };
 
-    SqlGeneratorBase(Database *parent);
+    explicit SqlGeneratorBase(Database *parent);
     virtual ~SqlGeneratorBase();
 
     virtual QString masterDatabaseName(QString databaseName);

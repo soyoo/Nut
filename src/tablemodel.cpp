@@ -408,6 +408,7 @@ FieldModel::FieldModel(const QJsonObject &json)
     isAutoIncrement = json.value(__nut_AUTO_INCREMENT).toBool();
     isPrimaryKey = json.value(__nut_PRIMARY_KEY).toBool();
     defaultValue = json.value(__nut_DEFAULT_VALUE).toString();
+    isUnique = json.value(__nut_UNIQUE).toBool();
 }
 
 QJsonObject FieldModel::toJson() const
@@ -429,6 +430,7 @@ RelationModel::RelationModel(const QJsonObject &obj)
     localProperty = obj.value("localProperty").toString();
     masterClassName = obj.value("masterClassName").toString();
     foreignColumn = obj.value("foreignColumn").toString();
+    slaveTable = masterTable = 0;
 }
 
 QJsonObject RelationModel::toJson() const

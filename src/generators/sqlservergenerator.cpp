@@ -126,7 +126,7 @@ QString SqlServerGenerator::escapeValue(const QVariant &v) const
         QPoint pt = v.toPoint();
         return QString("geography::POINT(%1, %2, 4326)").arg(pt.x()).arg(
             pt.y());
-    } else if (v.type() == QVariant::Point) {
+    } else if (v.type() == QVariant::PointF) {
         QPointF pt = v.toPointF();
         return QString("geography::POINT(%1, %2, 4326)").arg(pt.x()).arg(
             pt.y());

@@ -27,6 +27,7 @@ private slots:
     void createUser();
     void createPost();
     void createPost2();
+    void updatePostOnTheFly();
     void selectPublicts();
     void join();
     void selectPosts();

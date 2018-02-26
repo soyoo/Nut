@@ -52,7 +52,9 @@ NUT_BEGIN_NAMESPACE
 qulonglong DatabasePrivate::lastId = 0;
 QMap<QString, DatabaseModel> DatabasePrivate::allTableMaps;
 
-DatabasePrivate::DatabasePrivate(Database *parent) : q_ptr(parent), isDatabaseNew(false)
+DatabasePrivate::DatabasePrivate(Database *parent) : q_ptr(parent),
+    port(0), sqlGenertor(0), changeLogs(0),
+    isDatabaseNew(false)
 {
 }
 

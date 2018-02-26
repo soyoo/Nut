@@ -31,13 +31,13 @@ NUT_BEGIN_NAMESPACE
 
 class TableModel;
 struct FieldModel{
-    FieldModel() : name(QString::null), length(0), defaultValue(QString::null),
+    explicit FieldModel() : name(QString::null), length(0), defaultValue(QString::null),
         notNull(false), isPrimaryKey(false), isAutoIncrement(false), isUnique(false)
     {
 
     }
 
-    FieldModel(const QJsonObject &json);
+    explicit FieldModel(const QJsonObject &json);
 
     QString name;
     //TODO: QMetaType::Type??
@@ -73,7 +73,7 @@ struct RelationModel{
     RelationModel() : localColumn(""), localProperty(""), slaveTable(0),
         foreignColumn(""), masterTable(0), masterClassName("")
     {}
-    RelationModel(const QJsonObject &obj);
+    explicit RelationModel(const QJsonObject &obj);
 
     //slave
     QString localColumn;
@@ -92,9 +92,8 @@ bool operator !=(const RelationModel &l, const RelationModel &r);
 class TableModel
 {
 public:
-
-    TableModel(int typeId, QString tableName = QString::null);
-    TableModel(QJsonObject json, QString tableName);
+    explicit TableModel(int typeId, QString tableName = QString::null);
+    explicit TableModel(QJsonObject json, QString tableName);
 
     QJsonObject toJson() const;
 
