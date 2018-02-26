@@ -25,7 +25,7 @@
 #include <QString>
 #include <QVariant>
 #include <QtGlobal>
-#if __cplusplus >= 201103L
+#ifdef Q_COMPILER_INITIALIZER_LISTS
 #   include <initializer_list>
 #endif
 
@@ -330,6 +330,15 @@ public:
     AssignmentPhrase operator =(const bool &other) {
         return AssignmentPhrase(this, other);
     }
+
+    FieldPhrase<bool> operator !()
+    {
+        FieldPhrase<bool> f(data->className, data->fieldName);
+        f.data = new PhraseData(data);
+        f.data->isNot = !data->isNot;
+        return f;
+    }
+
     operator ConditionalPhrase()
     {
         return ConditionalPhrase(this, PhraseData::Equal, !data->isNot);
