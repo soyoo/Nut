@@ -26,6 +26,12 @@ NUT_BEGIN_NAMESPACE
 
 #define LOG(s) qDebug() << __func__ << s;
 
+PhraseData::PhraseData() :
+    className(""), fieldName(""),
+    type(Field), operatorCond(NotAssign),
+    left(0), right(0), operand(QVariant::Invalid), isNot(false)
+{ }
+
 PhraseData::PhraseData(const char *className, const char *fieldName) :
     className(className), fieldName(fieldName),
     type(Field), operatorCond(NotAssign),
@@ -384,22 +390,67 @@ ConditionalPhrase ConditionalPhrase::operator ==(const QVariant &other)
     return ConditionalPhrase(this, PhraseData::Equal, other);
 }
 
-ConditionalPhrase ConditionalPhrase::operator ==(const AbstractFieldPhrase &other)
-{
-    return ConditionalPhrase(this, PhraseData::Equal, other);
+//ConditionalPhrase ConditionalPhrase::operator ==(const AbstractFieldPhrase &other)
+//{
+//    return ConditionalPhrase(this, PhraseData::Equal, other);
+//}
+
+//ConditionalPhrase ConditionalPhrase::operator &&(const ConditionalPhrase &other)
+//{
+//    return ConditionalPhrase(this, PhraseData::And,
+//                             const_cast<ConditionalPhrase&>(other));
+//}
+
+//ConditionalPhrase ConditionalPhrase::operator ||(const ConditionalPhrase &other)
+//{
+//    return ConditionalPhrase(this, PhraseData::Or,
+//                             const_cast<ConditionalPhrase&>(other));
+//}
+
+#define DECLARE_CONDITIONALPHRASE_OPERATORS(op, cond) \
+ConditionalPhrase operator op(const ConditionalPhrase &l, const ConditionalPhrase &r) \
+{ \
+    ConditionalPhrase p; \
+    p.data = new PhraseData; \
+    p.data->operatorCond = cond; \
+    p.data->left = new PhraseData(l.data); \
+    p.data->right = new PhraseData(r.data); \
+    return p; \
+} \
+ConditionalPhrase operator op(const ConditionalPhrase &l, ConditionalPhrase &&r) \
+{ \
+    ConditionalPhrase p; \
+    p.data = new PhraseData; \
+    p.data->operatorCond = cond; \
+    p.data->left = new PhraseData(l.data); \
+    p.data->right = r.data; \
+    r.data = 0; \
+    return p; \
+} \
+ConditionalPhrase operator op(ConditionalPhrase &&l, const ConditionalPhrase &r) \
+{ \
+    ConditionalPhrase p; \
+    p.data = new PhraseData; \
+    p.data->operatorCond = cond; \
+    p.data->left = l.data; \
+    l.data = 0; \
+    p.data->right = new PhraseData(r.data); \
+    return p; \
+} \
+ConditionalPhrase operator op(ConditionalPhrase &&l, ConditionalPhrase &&r) \
+{ \
+    ConditionalPhrase p; \
+    p.data = new PhraseData; \
+    p.data->operatorCond = cond; \
+    p.data->left = l.data; \
+    p.data->right = r.data; \
+    l.data = r.data = 0; \
+    return p; \
 }
 
-ConditionalPhrase ConditionalPhrase::operator &&(const ConditionalPhrase &other)
-{
-    return ConditionalPhrase(this, PhraseData::And,
-                             const_cast<ConditionalPhrase&>(other));
-}
-
-ConditionalPhrase ConditionalPhrase::operator ||(const ConditionalPhrase &other)
-{
-    return ConditionalPhrase(this, PhraseData::Or,
-                             const_cast<ConditionalPhrase&>(other));
-}
+DECLARE_CONDITIONALPHRASE_OPERATORS(==, PhraseData::Equal)
+DECLARE_CONDITIONALPHRASE_OPERATORS(||, PhraseData::Or)
+DECLARE_CONDITIONALPHRASE_OPERATORS(&&, PhraseData::And)
 
 ConditionalPhrase ConditionalPhrase::operator !()
 {

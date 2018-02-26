@@ -91,14 +91,15 @@ public:
     const char *fieldName;
 
     Type type;
-    Condition operatorCond;
 
     const PhraseData *left;
     const PhraseData *right;
 
     QVariant operand;
+    Condition operatorCond;
     bool isNot;
 
+    PhraseData();
     PhraseData(const char *className, const char *fieldName);
     PhraseData(PhraseData *l, Condition o);
     PhraseData(PhraseData *l, Condition o, const PhraseData *r);
@@ -186,9 +187,9 @@ public:
 
     ConditionalPhrase &operator =(const ConditionalPhrase &other);
     ConditionalPhrase operator ==(const QVariant &other);
-    ConditionalPhrase operator ==(const AbstractFieldPhrase &other);
-    ConditionalPhrase operator &&(const ConditionalPhrase &other);
-    ConditionalPhrase operator ||(const ConditionalPhrase &other);
+//    ConditionalPhrase operator ==(const AbstractFieldPhrase &other);
+//    ConditionalPhrase operator &&(const ConditionalPhrase &other);
+//    ConditionalPhrase operator ||(const ConditionalPhrase &other);
     ConditionalPhrase operator !();
 
     SPECIALIZATION_NUMERIC_MEMBER(type, <,  PhraseData::Less)
@@ -196,6 +197,16 @@ public:
     SPECIALIZATION_NUMERIC_MEMBER(type, >,  PhraseData::Greater)
     SPECIALIZATION_NUMERIC_MEMBER(type, >=, PhraseData::GreaterEqual)
 };
+
+#define DECLARE_CONDITIONALPHRASE_OPERATORS(op) \
+ConditionalPhrase operator op(const ConditionalPhrase &l, const ConditionalPhrase &r); \
+ConditionalPhrase operator op(const ConditionalPhrase &l, ConditionalPhrase &&r); \
+ConditionalPhrase operator op(ConditionalPhrase &&l, const ConditionalPhrase &r); \
+ConditionalPhrase operator op(ConditionalPhrase &&l, ConditionalPhrase &&r);
+
+DECLARE_CONDITIONALPHRASE_OPERATORS(==)
+DECLARE_CONDITIONALPHRASE_OPERATORS(&&)
+DECLARE_CONDITIONALPHRASE_OPERATORS(||)
 
 class AbstractFieldPhrase
 {
