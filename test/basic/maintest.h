@@ -27,6 +27,7 @@ private slots:
     void createUser();
     void createPost();
     void createPost2();
+    void selectPublicts();
     void join();
     void selectPosts();
     void selectScoreAverage();

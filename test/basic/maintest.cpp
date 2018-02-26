@@ -119,6 +119,14 @@ void MainTest::createPost2()
     qDebug() << "New post2 inserted with id:" << newPost->id();
 }
 
+void MainTest::selectPublicts()
+{
+    auto q = db.postTable()->query()
+            ->where(Post::isPublicField())
+            ->toList();
+
+}
+
 void MainTest::selectPosts()
 {
     auto q = db.postTable()->query()

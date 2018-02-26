@@ -320,6 +320,23 @@ SPECIALIZATION_NUMERIC(qreal)
     }
 
 template<>
+class FieldPhrase<bool> : public AbstractFieldPhrase
+{
+public:
+    FieldPhrase(const char *className, const char *s) :
+        AbstractFieldPhrase(className, s)
+    {}
+
+    AssignmentPhrase operator =(const bool &other) {
+        return AssignmentPhrase(this, other);
+    }
+    operator ConditionalPhrase()
+    {
+        return ConditionalPhrase(this, PhraseData::Equal, !data->isNot);
+    }
+};
+
+template<>
 class FieldPhrase<QDate> : public AbstractFieldPhrase
 {
 public:
