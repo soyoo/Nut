@@ -168,8 +168,8 @@ class ConditionalPhrase
 {
 public:
     PhraseData *data;
-    QSharedPointer<PhraseData> leftDataPointer;
-    QSharedPointer<PhraseData> rightDataPointer;
+//    QSharedPointer<PhraseData> leftDataPointer;
+//    QSharedPointer<PhraseData> rightDataPointer;
     ConditionalPhrase();
     ConditionalPhrase(const ConditionalPhrase &other);
 #ifdef Q_COMPILER_RVALUE_REFS
@@ -212,8 +212,10 @@ class AbstractFieldPhrase
 {
 public:
     PhraseData *data;
+    explicit AbstractFieldPhrase(PhraseData *d);
     AbstractFieldPhrase(const char *className, const char *fieldName);
     AbstractFieldPhrase(const AbstractFieldPhrase &other);
+    AbstractFieldPhrase(AbstractFieldPhrase &&other);
 
     virtual ~AbstractFieldPhrase();
 
@@ -251,7 +253,7 @@ public:
     ConditionalPhrase operator <=(const AbstractFieldPhrase &other);
     ConditionalPhrase operator >=(const AbstractFieldPhrase &other);
 
-    AbstractFieldPhrase operator !();
+    AbstractFieldPhrase &operator !();
     AssignmentPhrase operator =(const QVariant &other);
     AssignmentPhrase operator <<(const QVariant &other);
 };

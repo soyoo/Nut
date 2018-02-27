@@ -84,6 +84,9 @@ PhraseData::~PhraseData()
     LOG("");
 }
 
+AbstractFieldPhrase::AbstractFieldPhrase(PhraseData *d) : data(d)
+{ }
+
 AbstractFieldPhrase::AbstractFieldPhrase(const char *className, const char *fieldName)
     :data(new PhraseData(className, fieldName))
 {
@@ -92,8 +95,14 @@ AbstractFieldPhrase::AbstractFieldPhrase(const char *className, const char *fiel
 
 AbstractFieldPhrase::AbstractFieldPhrase(const AbstractFieldPhrase &other)
 {
-    qDebug() <<"4444444444444444";
+    qDebug() <<"Copy ctor"<<other.data->toString();
     data = new PhraseData(other.data);
+}
+
+AbstractFieldPhrase::AbstractFieldPhrase(AbstractFieldPhrase &&other)
+{
+    data = other.data;
+    other.data = 0;
 }
 
 AbstractFieldPhrase::~AbstractFieldPhrase()
@@ -148,13 +157,11 @@ AbstractFieldPhraseOperatorField(<=, PhraseData::LessEqual)
 AbstractFieldPhraseOperatorField(> , PhraseData::Greater)
 AbstractFieldPhraseOperatorField(>=, PhraseData::GreaterEqual)
 
-AbstractFieldPhrase AbstractFieldPhrase::operator !()
+AbstractFieldPhrase &AbstractFieldPhrase::operator !()
 {
-    //TODO: classname and s
-    AbstractFieldPhrase f(data->className, data->fieldName);
-    f.data = new PhraseData(data);
-    f.data->isNot = !data->isNot;
-    return f;
+    AbstractFieldPhrase *f = new AbstractFieldPhrase(new PhraseData(data));
+    f->data->isNot = !data->isNot;
+    return *f;
 }
 
 AssignmentPhrase AbstractFieldPhrase::operator =(const QVariant &other)
