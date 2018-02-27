@@ -26,6 +26,12 @@ NUT_BEGIN_NAMESPACE
 
 #define LOG(s) qDebug() << __func__ << s;
 
+PhraseData::PhraseData() :
+    className(""), fieldName(""),
+    type(Field), operatorCond(NotAssign),
+    left(0), right(0), operand(QVariant::Invalid), isNot(false)
+{ }
+
 PhraseData::PhraseData(const char *className, const char *fieldName) :
     className(className), fieldName(fieldName),
     type(Field), operatorCond(NotAssign),
@@ -45,23 +51,20 @@ PhraseData::PhraseData(PhraseData *l, PhraseData::Condition o,
 
 PhraseData::PhraseData(PhraseData *l, PhraseData::Condition o, QVariant r)
     : className(0), fieldName(0),
-      type(WithVariant), operatorCond(o), left(new PhraseData(l)), operand(r), isNot(false)
+      type(WithVariant), operatorCond(o), left(new PhraseData(l)), right(0), operand(r), isNot(false)
 { }
 
-PhraseData::PhraseData(const PhraseData *other)
-{
-    left = other->left;
-    right = other->right;
-    operand = other->operand;
-    operatorCond = other->operatorCond;
-    className = other->className;
-    fieldName = other->fieldName;
-    type = other->type;
-    isNot = other->isNot;
-    if (type != Field) {
-        qDebug() << "Bug";
-    }
-}
+PhraseData::PhraseData(const PhraseData &other) :
+    left(other.left), right(other.right), operand(other.operand),
+    operatorCond(other.operatorCond), className(other.className),
+    fieldName(other.fieldName), type(other.type), isNot(other.isNot)
+{ }
+
+PhraseData::PhraseData(const PhraseData *other) :
+    left(other->left), right(other->right), operand(other->operand),
+    operatorCond(other->operatorCond), className(other->className),
+    fieldName(other->fieldName), type(other->type), isNot(other->isNot)
+{ }
 
 QString PhraseData::toString() const
 {
@@ -169,7 +172,7 @@ PhraseList::PhraseList() : isValid(false)
 
 }
 
-PhraseList::PhraseList(const PhraseList &other)
+PhraseList::PhraseList(const PhraseList &other) : isValid(true)
 {
     data = qMove(other.data);
 }
@@ -211,7 +214,10 @@ PhraseList PhraseList::operator |(PhraseList &other) {
     return PhraseList(this, &other);
 }
 
-AssignmentPhrase::AssignmentPhrase(AbstractFieldPhrase *l, QVariant r)
+AssignmentPhrase::AssignmentPhrase(PhraseData *d) : data(d)
+{ }
+
+AssignmentPhrase::AssignmentPhrase(AbstractFieldPhrase *l, const QVariant r)
 {
     data = new PhraseData(l->data, PhraseData::Equal, r);
 //    l->data = 0;
@@ -223,6 +229,23 @@ AssignmentPhrase::AssignmentPhrase(AbstractFieldPhrase *l, const AssignmentPhras
     //    l->data = 0;
 }
 
+AssignmentPhrase::AssignmentPhrase(AssignmentPhrase *ph, const QVariant &v)
+{
+    data = new PhraseData(ph->data, PhraseData::Equal, v);
+}
+
+//AssignmentPhrase::AssignmentPhrase(AssignmentPhrase &other)
+//{
+//    data = other.data;
+//    other.data = 0;
+//}
+
+AssignmentPhrase::~AssignmentPhrase()
+{
+    if (data)
+        delete data;
+}
+
 //AssignmentPhrase::AssignmentPhrase(AssignmentPhrase *l, const AssignmentPhrase *r)
 //{
 ////    data = new PhraseData(l->data, PhraseData::Append, r->data);
@@ -232,6 +255,11 @@ AssignmentPhrase::AssignmentPhrase(AbstractFieldPhrase *l, const AssignmentPhras
 AssignmentPhraseList AssignmentPhrase::operator &(const AssignmentPhrase &other)
 {
     return AssignmentPhraseList(this, &other);
+}
+
+AssignmentPhraseList::AssignmentPhraseList()
+{
+
 }
 
 AssignmentPhraseList::AssignmentPhraseList(const AssignmentPhrase &l)
@@ -251,9 +279,21 @@ AssignmentPhraseList::AssignmentPhraseList(AssignmentPhrase *l, const Assignment
     data.append(r->data);
 }
 
+AssignmentPhraseList::AssignmentPhraseList(const AssignmentPhrase &r, const AssignmentPhrase &l)
+{
+    data.append(l.data);
+    data.append(r.data);
+}
+
 AssignmentPhraseList AssignmentPhraseList::operator &(const AssignmentPhrase &ph)
 {
     return AssignmentPhraseList(this, &ph);
+}
+
+AssignmentPhraseList::~AssignmentPhraseList()
+{
+//    qDeleteAll(data);
+//    data.clear();
 }
 
 ConditionalPhrase::ConditionalPhrase() : data(0)
@@ -339,7 +379,7 @@ ConditionalPhrase::~ConditionalPhrase()
         delete data;
 }
 
-ConditionalPhrase ConditionalPhrase::operator =(const ConditionalPhrase &other)
+ConditionalPhrase &ConditionalPhrase::operator =(const ConditionalPhrase &other)
 {
     this->data = new PhraseData(other.data);
     return *this;
@@ -350,22 +390,67 @@ ConditionalPhrase ConditionalPhrase::operator ==(const QVariant &other)
     return ConditionalPhrase(this, PhraseData::Equal, other);
 }
 
-ConditionalPhrase ConditionalPhrase::operator ==(const AbstractFieldPhrase &other)
-{
-    return ConditionalPhrase(this, PhraseData::Equal, other);
+//ConditionalPhrase ConditionalPhrase::operator ==(const AbstractFieldPhrase &other)
+//{
+//    return ConditionalPhrase(this, PhraseData::Equal, other);
+//}
+
+//ConditionalPhrase ConditionalPhrase::operator &&(const ConditionalPhrase &other)
+//{
+//    return ConditionalPhrase(this, PhraseData::And,
+//                             const_cast<ConditionalPhrase&>(other));
+//}
+
+//ConditionalPhrase ConditionalPhrase::operator ||(const ConditionalPhrase &other)
+//{
+//    return ConditionalPhrase(this, PhraseData::Or,
+//                             const_cast<ConditionalPhrase&>(other));
+//}
+
+#define DECLARE_CONDITIONALPHRASE_OPERATORS(op, cond) \
+ConditionalPhrase operator op(const ConditionalPhrase &l, const ConditionalPhrase &r) \
+{ \
+    ConditionalPhrase p; \
+    p.data = new PhraseData; \
+    p.data->operatorCond = cond; \
+    p.data->left = new PhraseData(l.data); \
+    p.data->right = new PhraseData(r.data); \
+    return p; \
+} \
+ConditionalPhrase operator op(const ConditionalPhrase &l, ConditionalPhrase &&r) \
+{ \
+    ConditionalPhrase p; \
+    p.data = new PhraseData; \
+    p.data->operatorCond = cond; \
+    p.data->left = new PhraseData(l.data); \
+    p.data->right = r.data; \
+    r.data = 0; \
+    return p; \
+} \
+ConditionalPhrase operator op(ConditionalPhrase &&l, const ConditionalPhrase &r) \
+{ \
+    ConditionalPhrase p; \
+    p.data = new PhraseData; \
+    p.data->operatorCond = cond; \
+    p.data->left = l.data; \
+    l.data = 0; \
+    p.data->right = new PhraseData(r.data); \
+    return p; \
+} \
+ConditionalPhrase operator op(ConditionalPhrase &&l, ConditionalPhrase &&r) \
+{ \
+    ConditionalPhrase p; \
+    p.data = new PhraseData; \
+    p.data->operatorCond = cond; \
+    p.data->left = l.data; \
+    p.data->right = r.data; \
+    l.data = r.data = 0; \
+    return p; \
 }
 
-ConditionalPhrase ConditionalPhrase::operator &&(const ConditionalPhrase &other)
-{
-    return ConditionalPhrase(this, PhraseData::And,
-                             const_cast<ConditionalPhrase&>(other));
-}
-
-ConditionalPhrase ConditionalPhrase::operator ||(const ConditionalPhrase &other)
-{
-    return ConditionalPhrase(this, PhraseData::Or,
-                             const_cast<ConditionalPhrase&>(other));
-}
+DECLARE_CONDITIONALPHRASE_OPERATORS(==, PhraseData::Equal)
+DECLARE_CONDITIONALPHRASE_OPERATORS(||, PhraseData::Or)
+DECLARE_CONDITIONALPHRASE_OPERATORS(&&, PhraseData::And)
 
 ConditionalPhrase ConditionalPhrase::operator !()
 {
@@ -373,5 +458,28 @@ ConditionalPhrase ConditionalPhrase::operator !()
     f.data->isNot = !data->isNot;
     return f;
 }
+
+//AssignmentPhraseList operator &(const AssignmentPhrase &l, const AssignmentPhrase &r)
+//{
+//    return AssignmentPhraseList(l, r);
+//}
+
+//AssignmentPhraseList operator &(const AssignmentPhrase &l, AssignmentPhrase &&r)
+//{
+//    r.data = 0;
+//    return AssignmentPhraseList(l, r);
+//}
+
+//AssignmentPhraseList operator &(AssignmentPhrase &&l, const AssignmentPhrase &r)
+//{
+//    l.data = 0;
+//    return AssignmentPhraseList(l, r);
+//}
+
+//AssignmentPhraseList operator &(AssignmentPhrase &&l, AssignmentPhrase &&r)
+//{
+//    r.data = l.data = 0;
+//    return AssignmentPhraseList(l, r);
+//}
 
 NUT_END_NAMESPACE

@@ -35,8 +35,8 @@ class TableSetBase : public QObject
 {
 
 public:
-    TableSetBase(Database *parent);
-    TableSetBase(Table *parent);
+    explicit TableSetBase(Database *parent);
+    explicit TableSetBase(Table *parent);
 
     virtual int save(Database *db, bool cleanUp = false);
     void clearChilds();

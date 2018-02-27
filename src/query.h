@@ -50,7 +50,7 @@ template <class T>
     bool m_autoDelete;
 
 public:
-    Query(Database *database, TableSetBase *tableSet, bool autoDelete);
+    explicit Query(Database *database, TableSetBase *tableSet, bool autoDelete);
     ~Query();
 
     //ddl
@@ -124,8 +124,8 @@ template <class T>
 Q_OUTOFLINE_TEMPLATE Query<T>::~Query()
 {
     Q_D(Query);
+    qDebug() << "~Query";// << d->sql;
     delete d;
-    qDebug() << "~Query";
 }
 
 template <class T>
@@ -419,8 +419,8 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::join(const QString &className)
                 .relationByClassNames(className, d->className);
 
     if (!rel) {
-        qInfo("No relation between %s and %s",
-              qPrintable(d->className), qPrintable(className));
+        qDebug() << "No relation between" << d->className
+                << "and" << className;
         return this;
     }
 
@@ -520,7 +520,7 @@ Q_OUTOFLINE_TEMPLATE int Query<T>::update(const AssignmentPhraseList &ph)
                 ph,
                 d->wherePhrase);
     QSqlQuery q = d->database->exec(d->sql);
-
+qDebug() << d->sql;
     if (m_autoDelete)
         deleteLater();
     return q.numRowsAffected();

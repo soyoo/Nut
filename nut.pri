@@ -1,5 +1,7 @@
 QT += core sql
 
+CONFIG += c++11
+
 INCLUDEPATH += $$PWD/include
 
 HEADERS += \

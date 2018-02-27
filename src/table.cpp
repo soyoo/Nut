@@ -39,7 +39,7 @@ NUT_BEGIN_NAMESPACE
  *  This should be fixed to v1.2
  */
 
-Table::Table(QObject *parent) : QObject(parent), myModel(0)
+Table::Table(QObject *parent) : QObject(parent), myModel(0), _parentTableSet(0)
 {
     setStatus(NewCreated);
 }

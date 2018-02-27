@@ -69,6 +69,7 @@ void MainTest::createUser()
 
 void MainTest::createPost()
 {
+    TIC();
     Post *newPost = new Post;
     newPost->setTitle("post title");
     newPost->setSaveDate(QDateTime::currentDateTime());
@@ -93,6 +94,7 @@ void MainTest::createPost()
     postId = newPost->id();
 
     QTEST_ASSERT(newPost->id() != 0);
+    TOC();
     qDebug() << "New post inserted with id:" << newPost->id();
 }
 
@@ -117,6 +119,26 @@ void MainTest::createPost2()
 
     QTEST_ASSERT(newPost->id() != 0);
     qDebug() << "New post2 inserted with id:" << newPost->id();
+}
+
+void MainTest::updatePostOnTheFly()
+{
+    auto c = db.postTable()->query()
+            ->where(Post::idField() == postId)
+            ->update(Post::titleField() = "New title");
+
+    QTEST_ASSERT(c == 1);
+}
+
+void MainTest::selectPublicts()
+{
+    auto q = db.postTable()->query()
+            ->where(Post::isPublicField())
+            ->toList();
+
+    auto q2 = db.postTable()->query()
+            ->where(!Post::isPublicField())
+            ->toList();
 }
 
 void MainTest::selectPosts()

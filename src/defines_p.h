@@ -24,6 +24,7 @@
 #define __NAME              "name"
 #define __TYPE              "type"
 #define __FIELDS            "fields"
+#define __FOREIGN_KEYS      "foreign_keys"
 #define __nut_FIELD             "field"
 
 #define __nut_DB_VERSION        "database_version"

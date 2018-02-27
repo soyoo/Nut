@@ -13,6 +13,8 @@ class SqlModelPrivate {
     SqlModel *q_ptr;
     Q_DECLARE_PUBLIC(SqlModel)
 public:
+    explicit SqlModelPrivate();
+
     QString tableName;
 
     QList<Table*> rows;

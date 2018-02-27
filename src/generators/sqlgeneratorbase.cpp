@@ -70,7 +70,7 @@ QString SqlGeneratorBase::masterDatabaseName(QString databaseName)
 
 QString SqlGeneratorBase::createTable(TableModel *table)
 {
-    Q_UNUSED(table);
+    Q_UNUSED(table)
     return "";
 }
 
@@ -114,6 +114,13 @@ QString SqlGeneratorBase::fieldDeclare(FieldModel *field)
     return field->name + " " + fieldType(field) + (field->notNull ? " NOT NULL" : "");
 }
 
+QString SqlGeneratorBase::relationDeclare(const RelationModel *relation)
+{
+    return QString("FOREIGN KEY (FK_%1) REFERENCES %2(%1)")
+            .arg(relation->localColumn)
+            .arg(relation->slaveTable->name());
+}
+
 QStringList SqlGeneratorBase::diff(DatabaseModel lastModel,
                                    DatabaseModel newModel)
 {
@@ -125,9 +132,11 @@ QStringList SqlGeneratorBase::diff(DatabaseModel lastModel,
         TableModel *oldTable = lastModel.tableByName(table->name());
         TableModel *newTable = newModel.tableByName(table->name());
         QString sql = diff(oldTable, newTable);
-
         if (!sql.isEmpty())
             ret << sql;
+//        QString sqlRel = diffRelation(oldTable, newTable);
+//        if (!sqlRel.isEmpty())
+//            ret << sqlRel;
     }
 
     return ret;
@@ -161,14 +170,24 @@ QString SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
     if (!newTable)
         return "DROP TABLE " + oldTable->name();
 
-    QSet<QString> fieldNames;
+    QList<QString> fieldNames;
+    QList<QString> relations;
 
-    if (oldTable)
+    if (oldTable) {
         foreach (FieldModel *f, oldTable->fields())
-            fieldNames.insert(f->name);
+            if (!fieldNames.contains(f->name))
+                fieldNames.append(f->name);
+        foreach (RelationModel *r, oldTable->foregionKeys())
+            if (!relations.contains(r->localColumn))
+                relations.append(r->localColumn);
+    }
 
     foreach (FieldModel *f, newTable->fields())
-        fieldNames.insert(f->name);
+        if (!fieldNames.contains(f->name))
+            fieldNames.append(f->name);
+    foreach (RelationModel *r, newTable->foregionKeys())
+        if (!relations.contains(r->localColumn))
+            relations.append(r->localColumn);
 
     QStringList columnSql;
     foreach (QString fieldName, fieldNames) {
@@ -183,20 +202,102 @@ QString SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
             columnSql << fieldDeclare(newField);
         }
     }
+//    foreach (QString fieldName, relations) {
+//        RelationModel *newRelation = newTable->foregionKeyByField(fieldName);
+//        if (oldTable) {
+//            RelationModel *oldRelation = oldTable->foregionKeyByField(fieldName);
+
+//            QString buffer = diff(oldRelation, newRelation);
+//            if (!buffer.isNull())
+//                columnSql << buffer;
+//        } else {
+//            columnSql << relationDeclare(newRelation);
+//        }
+//    }
     QString sql;
     if (oldTable) {
-        sql = QString("ALTER TABLE %1 \n%2").arg(newTable->name()).arg(
-            columnSql.join(",\n"));
+        sql = QString("ALTER TABLE %1 \n%2")
+                .arg(newTable->name())
+                .arg(columnSql.join(",\n"));
     } else {
         if (!newTable->primaryKey().isNull())
             columnSql << QString("CONSTRAINT pk_%1 PRIMARY KEY (%2)")
                              .arg(newTable->name())
                              .arg(newTable->primaryKey());
 
-        sql = QString("CREATE TABLE %1 \n(%2)").arg(newTable->name()).arg(
-            columnSql.join(",\n"));
+        sql = QString("CREATE TABLE %1 \n(%2)")
+                .arg(newTable->name())
+                .arg(columnSql.join(",\n"));
     }
     return sql;
+}
+
+QString SqlGeneratorBase::diffRelation(TableModel *oldTable, TableModel *newTable)
+{
+    if (!newTable)
+        return "";
+
+    QList<QString> relations;
+
+    if (oldTable)
+        foreach (RelationModel *r, oldTable->foregionKeys())
+            if (!relations.contains(r->localColumn))
+                relations.append(r->localColumn);
+
+    foreach (RelationModel *r, newTable->foregionKeys())
+        if (!relations.contains(r->localColumn))
+            relations.append(r->localColumn);
+
+    QStringList columnSql;
+    foreach (QString fieldName, relations) {
+        RelationModel *newRelation = newTable->foregionKeyByField(fieldName);
+        RelationModel *oldRelation = 0;
+        if (oldTable)
+            oldRelation = oldTable->foregionKeyByField(fieldName);
+
+        QString buffer = diff(oldRelation, newRelation);
+        if (!buffer.isNull())
+            columnSql << buffer;
+    }
+
+    if (columnSql.count())
+        return "ALTER TABLE " + newTable->name() + "\n"
+                + columnSql.join(",\n");
+    else
+        return "";
+
+}
+
+QString SqlGeneratorBase::diff(RelationModel *oldRel, RelationModel *newRel)
+{
+    /*
+        CONSTRAINT FK_PersonOrder FOREIGN KEY (PersonID)
+            REFERENCES Persons(PersonID)
+
+        ADD CONSTRAINT FK_%1 FOREIGN KEY (%1) REFERENCES %2(%3)
+
+        return QString("ADD CONSTRAINT FK_%1 FOREIGN KEY (%1) "
+                                 "REFERENCES %2(%3)")
+                         .arg(newRelation->localColumn)
+                         .arg(newRelation->masterTable->name())
+                         .arg(newRelation->foreignColumn);
+    */
+    if (!oldRel)
+        return QString("ADD CONSTRAINT FK_%1 FOREIGN KEY (%1) "
+                       "REFERENCES %2(%3)")
+                .arg(newRel->localColumn)
+                .arg(newRel->masterTable->name())
+                .arg(newRel->foreignColumn);
+
+    if (!newRel)
+        return QString("ADD CONSTRAINT FK_%1 FOREIGN KEY (%1) "
+                       "REFERENCES %2(%3)")
+                .arg(oldRel->localColumn)
+                .arg(oldRel->masterTable->name())
+                .arg(oldRel->foreignColumn);
+
+//    if (*oldRel == *newRel)
+        return "";
 }
 
 QString SqlGeneratorBase::join(const QString &mainTable,
@@ -235,7 +336,7 @@ QString SqlGeneratorBase::join(const QStringList &list, QStringList *order)
     //TODO: make this ungly code better and bugless :-)
     /*
      * Known issues:
-     *  Support onle near joins, far supports with medium table finding not support yet
+     *  Support only near joins, far supports with medium table finding not support yet
      */
 
     if (!list.count())
@@ -858,7 +959,7 @@ QString SqlGeneratorBase::createConditionalPhrase(const PhraseData *d) const
         else if (op == PhraseData::AddMonths)
             ret = QString("DATEADD(month, %1, %2)")
                     .arg(d->operand.toString()).arg(createConditionalPhrase(d->left));
-        else if (op == PhraseData::AddYears)
+        else if (op == PhraseData::AddDays)
             ret = QString("DATEADD(day, %1, %2)")
                     .arg(d->operand.toString()).arg(createConditionalPhrase(d->left));
         else if (op == PhraseData::AddHours)

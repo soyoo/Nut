@@ -27,6 +27,7 @@ class Post : public Table
     NUT_DECLARE_FIELD(QDateTime, saveDate, saveDate, setSaveDate)
 
     NUT_DECLARE_FIELD(QString, body, body, setBody)
+    NUT_DECLARE_FIELD(bool, isPublic, isPublic, setPublic)
 
     NUT_DECLARE_CHILD_TABLE(Comment, comments)
     NUT_DECLARE_CHILD_TABLE(Score, scores)
