@@ -57,11 +57,6 @@ DatabaseModel::DatabaseModel(const QJsonObject &json) :
     }
 }
 
-DatabaseModel::DatabaseModel(DatabaseModel &model)
-{
-
-}
-
 TableModel *DatabaseModel::tableByName(QString tableName) const
 {
     for(int i = 0; i < size(); i++){

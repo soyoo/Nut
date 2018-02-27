@@ -43,7 +43,7 @@ public:
     DatabaseModel(const QString &name = QString::null);
     DatabaseModel(const DatabaseModel &other);
     DatabaseModel(const QJsonObject &json);
-    DatabaseModel(DatabaseModel &model);
+//    DatabaseModel(DatabaseModel &model);
 
     TableModel *tableByName(QString tableName) const;
     TableModel *tableByClassName(QString className) const;
