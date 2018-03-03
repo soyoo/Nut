@@ -157,11 +157,11 @@ AbstractFieldPhraseOperatorField(<=, PhraseData::LessEqual)
 AbstractFieldPhraseOperatorField(> , PhraseData::Greater)
 AbstractFieldPhraseOperatorField(>=, PhraseData::GreaterEqual)
 
-AbstractFieldPhrase &AbstractFieldPhrase::operator !()
+AbstractFieldPhrase AbstractFieldPhrase::operator !()
 {
-    AbstractFieldPhrase *f = new AbstractFieldPhrase(new PhraseData(data));
-    f->data->isNot = !data->isNot;
-    return *f;
+    AbstractFieldPhrase f(new PhraseData(data));
+    f.data->isNot = !data->isNot;
+    return f;
 }
 
 AssignmentPhrase AbstractFieldPhrase::operator =(const QVariant &other)
@@ -182,6 +182,7 @@ PhraseList::PhraseList() : isValid(false)
 PhraseList::PhraseList(const PhraseList &other) : isValid(true)
 {
     data = qMove(other.data);
+    const_cast<PhraseList&>(other).data.clear();
 }
 
 PhraseList::PhraseList(const AbstractFieldPhrase &other) : isValid(true)
@@ -199,6 +200,8 @@ PhraseList::PhraseList(const AbstractFieldPhrase *left, const AbstractFieldPhras
 PhraseList::PhraseList(PhraseList *left, PhraseList *right) : isValid(true)
 {
     data = qMove(left->data + right->data);
+    left->data.clear();
+    right->data.clear();
 }
 
 PhraseList::PhraseList(PhraseList *left, const AbstractFieldPhrase *right)
@@ -210,6 +213,7 @@ PhraseList::PhraseList(PhraseList *left, const AbstractFieldPhrase *right)
 
 PhraseList::~PhraseList()
 {
+    qDeleteAll(data);
 //    data.clear();
 }
 

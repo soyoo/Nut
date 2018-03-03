@@ -89,7 +89,7 @@ struct RelationModel{
 };
 bool operator ==(const RelationModel &l, const RelationModel &r);
 bool operator !=(const RelationModel &l, const RelationModel &r);
-class TableModel
+class   TableModel
 {
 public:
     explicit TableModel(int typeId, QString tableName = QString::null);
