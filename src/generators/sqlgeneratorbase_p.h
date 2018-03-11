@@ -34,7 +34,7 @@ struct FieldModel;
 class DatabaseModel;
 class TableModel;
 class Database;
-class RelationModel;
+struct RelationModel;
 class SqlGeneratorBase : public QObject
 {
 //    Q_OBJECT

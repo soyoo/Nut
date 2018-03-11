@@ -324,6 +324,12 @@ TableModel::TableModel(QJsonObject json, QString tableName)
     _allModels.insert(this);
 }
 
+TableModel::~TableModel()
+{
+    qDeleteAll(_fields);
+    qDeleteAll(_foreignKeys);
+}
+
 QJsonObject TableModel::toJson() const
 {
     QJsonObject obj;

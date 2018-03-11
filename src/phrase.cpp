@@ -280,9 +280,10 @@ PhraseList::~PhraseList()
     LOG("");
 }
 
-PhraseList &PhraseList::operator =(const PhraseData &other)
+PhraseList &PhraseList::operator =(const PhraseList &other)
 {
-    return other;
+    data.append(const_cast<PhraseList&>(other).data);
+    return *this;
 }
 
 PhraseList PhraseList::operator |(const AbstractFieldPhrase &other) {

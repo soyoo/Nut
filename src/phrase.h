@@ -182,7 +182,7 @@ public:
     PhraseList(PhraseList *left, const AbstractFieldPhrase *right);
     virtual ~PhraseList();
 
-    PhraseList &operator =(const PhraseData &other);
+    PhraseList &operator =(const PhraseList &other);
     PhraseList operator |(PhraseList &other);
     PhraseList operator |(const AbstractFieldPhrase &other);
 

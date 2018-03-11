@@ -94,6 +94,7 @@ class   TableModel
 public:
     explicit TableModel(int typeId, QString tableName = QString::null);
     explicit TableModel(QJsonObject json, QString tableName);
+    virtual ~TableModel();
 
     QJsonObject toJson() const;
 
