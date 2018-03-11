@@ -24,12 +24,12 @@
 
 NUT_BEGIN_NAMESPACE
 
-#define LOG(s) qDebug() << __func__ << s;
+#define LOG(s) qDebug() << __func__ << s
 
 PhraseData::PhraseData() :
     className(""), fieldName(""),
     type(Field), operatorCond(NotAssign),
-    left(0), right(0), operand(QVariant::Invalid), isNot(false), parents(3)
+    left(0), right(0), operand(QVariant::Invalid), isNot(false), parents(1)
 { }
 
 PhraseData::PhraseData(const char *className, const char *fieldName) :
@@ -67,6 +67,12 @@ PhraseData *PhraseData::operator =(PhraseData *other)
 {
     LOG("");
     other->parents++;
+    return other;
+}
+
+PhraseData &PhraseData::operator =(PhraseData &other)
+{
+    other.parents++;
     return other;
 }
 
@@ -111,7 +117,7 @@ PhraseData::~PhraseData()
 
 void PhraseData::cleanUp()
 {
-    cleanUp(this);
+//    cleanUp(this);
 }
 
 void PhraseData::cleanUp(PhraseData *d)
@@ -134,22 +140,22 @@ AbstractFieldPhrase::AbstractFieldPhrase(const char *className,
 
 AbstractFieldPhrase::AbstractFieldPhrase(const AbstractFieldPhrase &other)
 {
-    qDebug() <<"Copy ctor"<<other.data->toString()<<other.data->parents;
     data = other.data;
     data->parents++;
+    qDebug() <<"Copy ctor"<<other.data->toString()<<other.data->parents;
 }
 
 AbstractFieldPhrase::AbstractFieldPhrase(AbstractFieldPhrase &&other)
 {
     data = other.data;
+    data->parents++;
     other.data = 0;
 }
 
 AbstractFieldPhrase::~AbstractFieldPhrase()
 {
     if (data) {
-        LOG(data->toString());
-        qDebug() << data->parents;
+        LOG(data->toString()) << data->parents;
     } else {
         LOG("");
     }
@@ -203,6 +209,7 @@ AbstractFieldPhraseOperatorField(>=, PhraseData::GreaterEqual)
 
 AbstractFieldPhrase AbstractFieldPhrase::operator !()
 {
+
     AbstractFieldPhrase f(data->className, data->fieldName);
     f.data->isNot = !data->isNot;
     return f;
@@ -225,8 +232,15 @@ PhraseList::PhraseList() : isValid(false)
 
 PhraseList::PhraseList(const PhraseList &other) : isValid(true)
 {
+    LOG("");
     data = qMove(other.data);
     const_cast<PhraseList&>(other).data.clear();
+}
+
+PhraseList::PhraseList(PhraseList &&other)
+{
+    LOG("");
+    data = other.data;
 }
 
 PhraseList::PhraseList(const AbstractFieldPhrase &other) : isValid(true)
@@ -256,13 +270,20 @@ PhraseList::PhraseList(PhraseList *left, PhraseList *right) : isValid(true)
 PhraseList::PhraseList(PhraseList *left, const AbstractFieldPhrase *right)
     : isValid(true)
 {
-    data = left->data;
+    data.append(left->data);
     data.append(right->data);
     incAllDataParents();
 }
 
 PhraseList::~PhraseList()
-{ }
+{
+    LOG("");
+}
+
+PhraseList &PhraseList::operator =(const PhraseData &other)
+{
+    return other;
+}
 
 PhraseList PhraseList::operator |(const AbstractFieldPhrase &other) {
     return PhraseList(this, &other);
@@ -564,6 +585,14 @@ PhraseDataList::PhraseDataList() : QList<PhraseData*>()
 
 }
 
+PhraseDataList::PhraseDataList(const PhraseDataList &other) : QList<PhraseData*>()
+{
+    PhraseDataList &o = const_cast<PhraseDataList&>(other);
+    PhraseDataList::iterator i;
+    for (i = o.begin(); i != o.end(); ++i)
+        append(*i);
+}
+
 void PhraseDataList::append(PhraseData *d)
 {
     d->parents++;
@@ -580,11 +609,11 @@ void PhraseDataList::append(QList<PhraseData *> &dl)
 PhraseDataList::~PhraseDataList()
 {
     QList<PhraseData*>::iterator i;
-     for (i = begin(); i != end(); ++i) {
-         (*i)->cleanUp();
-         if (!--(*i)->parents)
-             delete *i;
-     }
+    for (i = begin(); i != end(); ++i) {
+        (*i)->cleanUp();
+        if (!--(*i)->parents)
+            delete *i;
+    }
 }
 
 //AssignmentPhraseList operator &(const AssignmentPhrase &l, const AssignmentPhrase &r)

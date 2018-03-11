@@ -109,6 +109,7 @@ public:
 //    explicit PhraseData(const PhraseData *other);
 
     PhraseData *operator =(PhraseData *other);
+    PhraseData &operator =(PhraseData &other);
 
     QString toString() const;
 
@@ -123,6 +124,7 @@ class PhraseDataList : public QList<PhraseData*>
 {
 public:
     PhraseDataList();
+    PhraseDataList(const PhraseDataList &other);
     void append(PhraseData *d);
     void append(QList<PhraseData*> &dl);
     virtual ~PhraseDataList();
@@ -173,12 +175,14 @@ public:
     PhraseDataList data;
     explicit PhraseList();
     PhraseList(const PhraseList &other);
+    PhraseList(PhraseList &&other);
     PhraseList(const AbstractFieldPhrase &other);
     PhraseList(const AbstractFieldPhrase *left, const AbstractFieldPhrase &right);
     PhraseList(PhraseList *left, PhraseList *right);
     PhraseList(PhraseList *left, const AbstractFieldPhrase *right);
     virtual ~PhraseList();
 
+    PhraseList &operator =(const PhraseData &other);
     PhraseList operator |(PhraseList &other);
     PhraseList operator |(const AbstractFieldPhrase &other);
 
