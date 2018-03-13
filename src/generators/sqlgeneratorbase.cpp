@@ -931,7 +931,9 @@ SqlGeneratorBase::operatorString(const PhraseData::Condition &cond) const
 
 void SqlGeneratorBase::appendSkipTake(QString &sql, int skip, int take)
 {
-
+    Q_UNUSED(sql);
+    Q_UNUSED(skip);
+    Q_UNUSED(take);
 }
 
 QString SqlGeneratorBase::createConditionalPhrase(const PhraseData *d) const

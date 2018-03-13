@@ -92,24 +92,42 @@ public:
 
     Type type;
 
-    const PhraseData *left;
-    const PhraseData *right;
+    PhraseData *left;
+    PhraseData *right;
 
     QVariant operand;
     Condition operatorCond;
     bool isNot;
+    quint16 parents;
 
     PhraseData();
     PhraseData(const char *className, const char *fieldName);
     PhraseData(PhraseData *l, Condition o);
-    PhraseData(PhraseData *l, Condition o, const PhraseData *r);
+    PhraseData(PhraseData *l, Condition o, PhraseData *r);
     PhraseData(PhraseData *l, Condition o, QVariant r);
-    explicit PhraseData(const PhraseData &other);
-    explicit PhraseData(const PhraseData *other);
+//    explicit PhraseData(const PhraseData &other);
+//    explicit PhraseData(const PhraseData *other);
+
+    PhraseData *operator =(PhraseData *other);
+    PhraseData &operator =(PhraseData &other);
 
     QString toString() const;
 
     ~PhraseData();
+
+    void cleanUp();
+private:
+    void cleanUp(PhraseData *d);
+};
+
+class PhraseDataList : public QList<PhraseData*>
+{
+public:
+    PhraseDataList();
+    PhraseDataList(const PhraseDataList &other);
+    void append(PhraseData *d);
+    void append(QList<PhraseData*> &dl);
+    virtual ~PhraseDataList();
 };
 
 class AssignmentPhraseList
@@ -125,6 +143,9 @@ public:
     AssignmentPhraseList operator &(const AssignmentPhrase &ph);
 
     ~AssignmentPhraseList();
+
+private:
+    void incAllDataParents();
 };
 
 class AssignmentPhrase
@@ -151,25 +172,30 @@ public:
 class PhraseList{
 public:
     bool isValid;
-    QList<const PhraseData*> data;
+    PhraseDataList data;
     explicit PhraseList();
     PhraseList(const PhraseList &other);
+    PhraseList(PhraseList &&other);
     PhraseList(const AbstractFieldPhrase &other);
     PhraseList(const AbstractFieldPhrase *left, const AbstractFieldPhrase &right);
     PhraseList(PhraseList *left, PhraseList *right);
     PhraseList(PhraseList *left, const AbstractFieldPhrase *right);
     virtual ~PhraseList();
 
+    PhraseList &operator =(const PhraseList &other);
     PhraseList operator |(PhraseList &other);
     PhraseList operator |(const AbstractFieldPhrase &other);
+
+private:
+    void incAllDataParents();
 };
 
 class ConditionalPhrase
 {
 public:
     PhraseData *data;
-    QSharedPointer<PhraseData> leftDataPointer;
-    QSharedPointer<PhraseData> rightDataPointer;
+//    QSharedPointer<PhraseData> leftDataPointer;
+//    QSharedPointer<PhraseData> rightDataPointer;
     ConditionalPhrase();
     ConditionalPhrase(const ConditionalPhrase &other);
 #ifdef Q_COMPILER_RVALUE_REFS
@@ -212,8 +238,10 @@ class AbstractFieldPhrase
 {
 public:
     PhraseData *data;
+    explicit AbstractFieldPhrase(PhraseData *d);
     AbstractFieldPhrase(const char *className, const char *fieldName);
     AbstractFieldPhrase(const AbstractFieldPhrase &other);
+    AbstractFieldPhrase(AbstractFieldPhrase &&other);
 
     virtual ~AbstractFieldPhrase();
 
@@ -348,7 +376,7 @@ public:
     FieldPhrase<bool> operator !()
     {
         FieldPhrase<bool> f(data->className, data->fieldName);
-        f.data = new PhraseData(data);
+//        f.data = new PhraseData(data);
         f.data->isNot = !data->isNot;
         return f;
     }

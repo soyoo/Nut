@@ -57,6 +57,10 @@ DatabaseModel::DatabaseModel(const QJsonObject &json) :
     }
 }
 
+DatabaseModel::~DatabaseModel()
+{
+}
+
 TableModel *DatabaseModel::tableByName(QString tableName) const
 {
     for(int i = 0; i < size(); i++){
@@ -221,6 +225,18 @@ DatabaseModel *DatabaseModel::modelByName(const QString &name)
         return _models[name];
 
     return Q_NULLPTR;
+}
+
+void DatabaseModel::deleteAllModels()
+{
+    QMapIterator<QString, DatabaseModel*> i(_models);
+     while (i.hasNext()) {
+         i.next();
+//         cout << i.key() << ": " << i.value() << endl;
+         delete i.value();
+     }
+//    qDeleteAll(_models.values());
+    _models.clear();
 }
 
 NUT_END_NAMESPACE

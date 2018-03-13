@@ -24,47 +24,71 @@
 
 NUT_BEGIN_NAMESPACE
 
-#define LOG(s) qDebug() << __func__ << s;
+#define LOG(s) qDebug() << __func__ << s
 
 PhraseData::PhraseData() :
     className(""), fieldName(""),
     type(Field), operatorCond(NotAssign),
-    left(0), right(0), operand(QVariant::Invalid), isNot(false)
+    left(0), right(0), operand(QVariant::Invalid), isNot(false), parents(1)
 { }
 
 PhraseData::PhraseData(const char *className, const char *fieldName) :
     className(className), fieldName(fieldName),
     type(Field), operatorCond(NotAssign),
-    left(0), right(0), operand(QVariant::Invalid), isNot(false)
+    left(0), right(0), operand(QVariant::Invalid), isNot(false), parents(1)
 { }
 
 PhraseData::PhraseData(PhraseData *l, PhraseData::Condition o)
     : className(0), fieldName(0),
-      type(WithoutOperand), operatorCond(o), left(new PhraseData(l)), right(0), isNot(false)
-{ }
+      type(WithoutOperand), operatorCond(o), left(l), right(0),
+      isNot(false), parents(1)
+{
+    l->parents++;
+}
 
 PhraseData::PhraseData(PhraseData *l, PhraseData::Condition o,
-                       const PhraseData *r)
+                       PhraseData *r)
     : className(0), fieldName(0),
-      type(WithOther), operatorCond(o), left(new PhraseData(l)), right(new PhraseData(r)), isNot(false)
-{ }
+      type(WithOther), operatorCond(o),
+      left(l), right(r),
+      isNot(false), parents(1)
+{
+    l->parents++;
+    r->parents++;
+}
 
 PhraseData::PhraseData(PhraseData *l, PhraseData::Condition o, QVariant r)
     : className(0), fieldName(0),
-      type(WithVariant), operatorCond(o), left(new PhraseData(l)), right(0), operand(r), isNot(false)
+      type(WithVariant), operatorCond(o), left(l),
+      right(0), operand(r), isNot(false), parents(1)
 { }
 
-PhraseData::PhraseData(const PhraseData &other) :
-    left(other.left), right(other.right), operand(other.operand),
-    operatorCond(other.operatorCond), className(other.className),
-    fieldName(other.fieldName), type(other.type), isNot(other.isNot)
-{ }
+PhraseData *PhraseData::operator =(PhraseData *other)
+{
+    LOG("");
+    other->parents++;
+    return other;
+}
 
-PhraseData::PhraseData(const PhraseData *other) :
-    left(other->left), right(other->right), operand(other->operand),
-    operatorCond(other->operatorCond), className(other->className),
-    fieldName(other->fieldName), type(other->type), isNot(other->isNot)
-{ }
+PhraseData &PhraseData::operator =(PhraseData &other)
+{
+    other.parents++;
+    return other;
+}
+
+//PhraseData::PhraseData(const PhraseData &other) :
+//    left(other.left), right(other.right), operand(other.operand),
+//    operatorCond(other.operatorCond), className(other.className),
+//    fieldName(other.fieldName), type(other.type), isNot(other.isNot),
+//    parents(other.parents + 1)
+//{ }
+
+//PhraseData::PhraseData(const PhraseData *other) :
+//    left(other->left), right(other->right), operand(other->operand),
+//    operatorCond(other->operatorCond), className(other->className),
+//    fieldName(other->fieldName), type(other->type), isNot(other->isNot),
+//    parents(other->parents + 1)
+//{ }
 
 QString PhraseData::toString() const
 {
@@ -81,10 +105,34 @@ PhraseData::~PhraseData()
 //        if (left)
 //            delete left;
 //    }
+
+//    if (right && !--right->parents)
+//        delete right;
+
+//    if (left && !--left->parents)
+//        delete left;
+
     LOG("");
 }
 
-AbstractFieldPhrase::AbstractFieldPhrase(const char *className, const char *fieldName)
+void PhraseData::cleanUp()
+{
+//    cleanUp(this);
+}
+
+void PhraseData::cleanUp(PhraseData *d)
+{
+    if (d->left)
+        cleanUp(d->left);
+    if (d->right)
+        cleanUp(d->right);
+}
+
+AbstractFieldPhrase::AbstractFieldPhrase(PhraseData *d) : data(d)
+{ }
+
+AbstractFieldPhrase::AbstractFieldPhrase(const char *className,
+                                         const char *fieldName)
     :data(new PhraseData(className, fieldName))
 {
     qDebug() <<"AbstractFieldPhrase created"<<className<<fieldName;
@@ -92,21 +140,30 @@ AbstractFieldPhrase::AbstractFieldPhrase(const char *className, const char *fiel
 
 AbstractFieldPhrase::AbstractFieldPhrase(const AbstractFieldPhrase &other)
 {
-    qDebug() <<"4444444444444444";
-    data = new PhraseData(other.data);
+    data = other.data;
+    data->parents++;
+    qDebug() <<"Copy ctor"<<other.data->toString()<<other.data->parents;
+}
+
+AbstractFieldPhrase::AbstractFieldPhrase(AbstractFieldPhrase &&other)
+{
+    data = other.data;
+    data->parents++;
+    other.data = 0;
 }
 
 AbstractFieldPhrase::~AbstractFieldPhrase()
 {
     if (data) {
-        LOG(data->toString());
+        LOG(data->toString()) << data->parents;
     } else {
         LOG("");
     }
 
     if (data) {
-        delete data;
-        data = 0;
+        --data->parents;
+        if (data->parents <= 0)
+            delete data;
     }
 }
 
@@ -121,9 +178,11 @@ ConditionalPhrase AbstractFieldPhrase::isNull()
 }
 
 
-ConditionalPhrase AbstractFieldPhrase::operator ==(const ConditionalPhrase &other)
+ConditionalPhrase AbstractFieldPhrase::operator ==(const ConditionalPhrase
+                                                   &other)
 {
-    return ConditionalPhrase(this, PhraseData::Equal, const_cast<ConditionalPhrase&>(other));
+    return ConditionalPhrase(this, PhraseData::Equal,
+                             const_cast<ConditionalPhrase&>(other));
 }
 
 #define AbstractFieldPhraseOperatorVariant(class, op, cond) \
@@ -150,9 +209,8 @@ AbstractFieldPhraseOperatorField(>=, PhraseData::GreaterEqual)
 
 AbstractFieldPhrase AbstractFieldPhrase::operator !()
 {
-    //TODO: classname and s
+
     AbstractFieldPhrase f(data->className, data->fieldName);
-    f.data = new PhraseData(data);
     f.data->isNot = !data->isNot;
     return f;
 }
@@ -174,40 +232,68 @@ PhraseList::PhraseList() : isValid(false)
 
 PhraseList::PhraseList(const PhraseList &other) : isValid(true)
 {
+    LOG("");
     data = qMove(other.data);
+    const_cast<PhraseList&>(other).data.clear();
+}
+
+PhraseList::PhraseList(PhraseList &&other)
+{
+    LOG("");
+    data = other.data;
 }
 
 PhraseList::PhraseList(const AbstractFieldPhrase &other) : isValid(true)
 {
-    data.append(new PhraseData(other.data));
+    data.append(other.data);
+    incAllDataParents();
 }
 
-PhraseList::PhraseList(const AbstractFieldPhrase *left, const AbstractFieldPhrase &right)
+PhraseList::PhraseList(const AbstractFieldPhrase *left,
+                       const AbstractFieldPhrase &right)
     : isValid(true)
 {
-    data.append(new PhraseData(left->data));
-    data.append(new PhraseData(right.data));
+    data.append(left->data);
+    data.append(right.data);
+    incAllDataParents();
 }
 
 PhraseList::PhraseList(PhraseList *left, PhraseList *right) : isValid(true)
 {
-    data = qMove(left->data + right->data);
+//    data = qMove(left->data + right->data);
+    data.append(left->data);
+    data.append(right->data);
+//    left->data.clear();
+//    right->data.clear();
 }
 
 PhraseList::PhraseList(PhraseList *left, const AbstractFieldPhrase *right)
     : isValid(true)
 {
-    data = left->data;
-    data.append(new PhraseData(right->data));
+    data.append(left->data);
+    data.append(right->data);
+    incAllDataParents();
 }
 
 PhraseList::~PhraseList()
 {
-//    data.clear();
+    LOG("");
+}
+
+PhraseList &PhraseList::operator =(const PhraseList &other)
+{
+    data.append(const_cast<PhraseList&>(other).data);
+    return *this;
 }
 
 PhraseList PhraseList::operator |(const AbstractFieldPhrase &other) {
     return PhraseList(this, &other);
+}
+
+void PhraseList::incAllDataParents()
+{
+//    foreach (PhraseData *d, data)
+//        d->parents++;
 }
 
 PhraseList PhraseList::operator |(PhraseList &other) {
@@ -215,15 +301,19 @@ PhraseList PhraseList::operator |(PhraseList &other) {
 }
 
 AssignmentPhrase::AssignmentPhrase(PhraseData *d) : data(d)
-{ }
+{
+    d->parents++;
+}
 
 AssignmentPhrase::AssignmentPhrase(AbstractFieldPhrase *l, const QVariant r)
 {
+
     data = new PhraseData(l->data, PhraseData::Equal, r);
 //    l->data = 0;
 }
 
-AssignmentPhrase::AssignmentPhrase(AbstractFieldPhrase *l, const AssignmentPhrase *r)
+AssignmentPhrase::AssignmentPhrase(AbstractFieldPhrase *l,
+                                   const AssignmentPhrase *r)
 {
     data = new PhraseData(l->data, PhraseData::Equal, r->data);
     //    l->data = 0;
@@ -243,7 +333,8 @@ AssignmentPhrase::AssignmentPhrase(AssignmentPhrase *ph, const QVariant &v)
 AssignmentPhrase::~AssignmentPhrase()
 {
     if (data)
-        delete data;
+        if (!--data->parents)
+            delete data;
 }
 
 //AssignmentPhrase::AssignmentPhrase(AssignmentPhrase *l, const AssignmentPhrase *r)
@@ -265,35 +356,52 @@ AssignmentPhraseList::AssignmentPhraseList()
 AssignmentPhraseList::AssignmentPhraseList(const AssignmentPhrase &l)
 {
     data.append(l.data);
+    incAllDataParents();
 }
 
-AssignmentPhraseList::AssignmentPhraseList(AssignmentPhraseList *l, const AssignmentPhrase *r)
+AssignmentPhraseList::AssignmentPhraseList(AssignmentPhraseList *l,
+                                           const AssignmentPhrase *r)
 {
     data.append(l->data);
     data.append(r->data);
+    incAllDataParents();
 }
 
-AssignmentPhraseList::AssignmentPhraseList(AssignmentPhrase *l, const AssignmentPhrase *r)
+AssignmentPhraseList::AssignmentPhraseList(AssignmentPhrase *l,
+                                           const AssignmentPhrase *r)
 {
     data.append(l->data);
     data.append(r->data);
+    incAllDataParents();
 }
 
-AssignmentPhraseList::AssignmentPhraseList(const AssignmentPhrase &r, const AssignmentPhrase &l)
+AssignmentPhraseList::AssignmentPhraseList(const AssignmentPhrase &r,
+                                           const AssignmentPhrase &l)
 {
     data.append(l.data);
     data.append(r.data);
+    incAllDataParents();
 }
 
-AssignmentPhraseList AssignmentPhraseList::operator &(const AssignmentPhrase &ph)
+AssignmentPhraseList AssignmentPhraseList::operator &(const AssignmentPhrase
+                                                      &ph)
 {
     return AssignmentPhraseList(this, &ph);
 }
 
 AssignmentPhraseList::~AssignmentPhraseList()
 {
+    foreach (PhraseData *d, data)
+        if (!--d->parents)
+            delete d;
 //    qDeleteAll(data);
-//    data.clear();
+    //    data.clear();
+}
+
+void AssignmentPhraseList::incAllDataParents()
+{
+    foreach (PhraseData *d, data)
+        d->parents++;
 }
 
 ConditionalPhrase::ConditionalPhrase() : data(0)
@@ -302,7 +410,8 @@ ConditionalPhrase::ConditionalPhrase() : data(0)
 ConditionalPhrase::ConditionalPhrase(const ConditionalPhrase &other)
 {
     qDebug() << "************* ctor called:";
-    this->data = new PhraseData(other.data);
+    data = other.data;
+    data->parents++;
 //    const_cast<ConditionalPhrase&>(other).data = 0;
 }
 
@@ -316,7 +425,8 @@ ConditionalPhrase::ConditionalPhrase(const ConditionalPhrase &&other)
 
 ConditionalPhrase::ConditionalPhrase(const PhraseData *data)
 {
-    this->data = new PhraseData(data);
+    this->data = const_cast<PhraseData*>(data);
+    this->data->parents++;
 }
 
 ConditionalPhrase::ConditionalPhrase(AbstractFieldPhrase *l,
@@ -375,13 +485,17 @@ ConditionalPhrase::ConditionalPhrase(ConditionalPhrase *l,
 ConditionalPhrase::~ConditionalPhrase()
 {
     LOG("");
-    if (data)
-        delete data;
+    if (data) {
+        data->cleanUp();
+        if (!--data->parents)
+            delete data;
+    }
 }
 
 ConditionalPhrase &ConditionalPhrase::operator =(const ConditionalPhrase &other)
 {
-    this->data = new PhraseData(other.data);
+    data = other.data;
+    data->parents++;
     return *this;
 }
 
@@ -408,33 +522,40 @@ ConditionalPhrase ConditionalPhrase::operator ==(const QVariant &other)
 //}
 
 #define DECLARE_CONDITIONALPHRASE_OPERATORS(op, cond) \
-ConditionalPhrase operator op(const ConditionalPhrase &l, const ConditionalPhrase &r) \
-{ \
-    ConditionalPhrase p; \
-    p.data = new PhraseData; \
-    p.data->operatorCond = cond; \
-    p.data->left = new PhraseData(l.data); \
-    p.data->right = new PhraseData(r.data); \
-    return p; \
-} \
-ConditionalPhrase operator op(const ConditionalPhrase &l, ConditionalPhrase &&r) \
-{ \
-    ConditionalPhrase p; \
-    p.data = new PhraseData; \
-    p.data->operatorCond = cond; \
-    p.data->left = new PhraseData(l.data); \
-    p.data->right = r.data; \
-    r.data = 0; \
-    return p; \
-} \
-ConditionalPhrase operator op(ConditionalPhrase &&l, const ConditionalPhrase &r) \
+ConditionalPhrase operator op(const ConditionalPhrase &l, \
+                              const ConditionalPhrase &r) \
 { \
     ConditionalPhrase p; \
     p.data = new PhraseData; \
     p.data->operatorCond = cond; \
     p.data->left = l.data; \
-    l.data = 0; \
-    p.data->right = new PhraseData(r.data); \
+    p.data->right = r.data; \
+    l.data->parents++;  \
+    r.data->parents++;  \
+    return p; \
+} \
+ConditionalPhrase operator op(const ConditionalPhrase &l, \
+                              ConditionalPhrase &&r) \
+{ \
+    ConditionalPhrase p; \
+    p.data = new PhraseData; \
+    p.data->operatorCond = cond; \
+    p.data->left = l.data; \
+    p.data->right = r.data; \
+    l.data->parents++;  \
+    r.data->parents++;  \
+    return p; \
+} \
+ConditionalPhrase operator op(ConditionalPhrase &&l, \
+                              const ConditionalPhrase &r) \
+{ \
+    ConditionalPhrase p; \
+    p.data = new PhraseData; \
+    p.data->operatorCond = cond; \
+    p.data->left = l.data; \
+    p.data->right = r.data; \
+    l.data->parents++;  \
+    r.data->parents++;  \
     return p; \
 } \
 ConditionalPhrase operator op(ConditionalPhrase &&l, ConditionalPhrase &&r) \
@@ -444,7 +565,8 @@ ConditionalPhrase operator op(ConditionalPhrase &&l, ConditionalPhrase &&r) \
     p.data->operatorCond = cond; \
     p.data->left = l.data; \
     p.data->right = r.data; \
-    l.data = r.data = 0; \
+    l.data->parents++;  \
+    r.data->parents++;  \
     return p; \
 }
 
@@ -457,6 +579,42 @@ ConditionalPhrase ConditionalPhrase::operator !()
     ConditionalPhrase f(data);
     f.data->isNot = !data->isNot;
     return f;
+}
+
+PhraseDataList::PhraseDataList() : QList<PhraseData*>()
+{
+
+}
+
+PhraseDataList::PhraseDataList(const PhraseDataList &other) : QList<PhraseData*>()
+{
+    PhraseDataList &o = const_cast<PhraseDataList&>(other);
+    PhraseDataList::iterator i;
+    for (i = o.begin(); i != o.end(); ++i)
+        append(*i);
+}
+
+void PhraseDataList::append(PhraseData *d)
+{
+    d->parents++;
+    QList<PhraseData*>::append(d);
+}
+
+void PhraseDataList::append(QList<PhraseData *> &dl)
+{
+    foreach (PhraseData *d, dl)
+        d->parents++;
+    QList<PhraseData*>::append(dl);
+}
+
+PhraseDataList::~PhraseDataList()
+{
+    QList<PhraseData*>::iterator i;
+    for (i = begin(); i != end(); ++i) {
+        (*i)->cleanUp();
+        if (!--(*i)->parents)
+            delete *i;
+    }
 }
 
 //AssignmentPhraseList operator &(const AssignmentPhrase &l, const AssignmentPhrase &r)

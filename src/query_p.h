@@ -31,7 +31,7 @@ NUT_BEGIN_NAMESPACE
 class Database;
 class TableSetBase;
 class QueryBase;
-class RelationModel;
+struct RelationModel;
 class QueryPrivate{
     QueryBase *q_ptr;
     Q_DECLARE_PUBLIC(QueryBase)
