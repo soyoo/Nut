@@ -29,7 +29,7 @@ NUT_BEGIN_NAMESPACE
 class SqlServerGenerator : public SqlGeneratorBase
 {
 public:
-    SqlServerGenerator(Database *parent = 0);
+    explicit SqlServerGenerator(Database *parent = 0);
 
     QString masterDatabaseName(QString databaseName);
 
@@ -37,12 +37,8 @@ public:
     QString diff(FieldModel *oldField, FieldModel *newField);
 
     QString escapeValue(const QVariant &v) const;
+    void appendSkipTake(QString &sql, int skip, int take);
 
-//    QString selectCommand(AgregateType t, QString agregateArg,
-//                          QString tableName,
-//                          QList<WherePhrase> &wheres,
-//                          QList<WherePhrase> &orders,
-//                          QList<RelationModel *> joins, int skip, int take);
 };
 
 NUT_END_NAMESPACE

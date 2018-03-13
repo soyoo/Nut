@@ -25,7 +25,7 @@
 #include <QString>
 #include <QVariant>
 #include <QtGlobal>
-#if __cplusplus >= 201103L
+#ifdef Q_COMPILER_INITIALIZER_LISTS
 #   include <initializer_list>
 #endif
 
@@ -91,71 +91,111 @@ public:
     const char *fieldName;
 
     Type type;
-    Condition operatorCond;
 
-    const PhraseData *left;
-    const PhraseData *right;
+    PhraseData *left;
+    PhraseData *right;
 
     QVariant operand;
+    Condition operatorCond;
     bool isNot;
+    quint16 parents;
 
+    PhraseData();
     PhraseData(const char *className, const char *fieldName);
     PhraseData(PhraseData *l, Condition o);
-    PhraseData(PhraseData *l, Condition o, const PhraseData *r);
+    PhraseData(PhraseData *l, Condition o, PhraseData *r);
     PhraseData(PhraseData *l, Condition o, QVariant r);
+//    explicit PhraseData(const PhraseData &other);
+//    explicit PhraseData(const PhraseData *other);
 
-    PhraseData(const PhraseData *other);
+    PhraseData *operator =(PhraseData *other);
+    PhraseData &operator =(PhraseData &other);
 
     QString toString() const;
 
     ~PhraseData();
+
+    void cleanUp();
+private:
+    void cleanUp(PhraseData *d);
+};
+
+class PhraseDataList : public QList<PhraseData*>
+{
+public:
+    PhraseDataList();
+    PhraseDataList(const PhraseDataList &other);
+    void append(PhraseData *d);
+    void append(QList<PhraseData*> &dl);
+    virtual ~PhraseDataList();
 };
 
 class AssignmentPhraseList
 {
 public:
     QList<PhraseData*> data;
+    explicit AssignmentPhraseList();
     AssignmentPhraseList(const AssignmentPhrase &l);
     AssignmentPhraseList(AssignmentPhraseList *l, const AssignmentPhrase *r);
     AssignmentPhraseList(AssignmentPhrase *l, const AssignmentPhrase *r);
+    AssignmentPhraseList(const AssignmentPhrase &r, const AssignmentPhrase &l);
 
     AssignmentPhraseList operator &(const AssignmentPhrase &ph);
+
+    ~AssignmentPhraseList();
+
+private:
+    void incAllDataParents();
 };
 
 class AssignmentPhrase
 {
 public:
     PhraseData *data;
-    AssignmentPhrase(AbstractFieldPhrase *l, QVariant r);
-    AssignmentPhrase(AbstractFieldPhrase *l, const AssignmentPhrase *r);
+    explicit AssignmentPhrase(PhraseData *d);
+    explicit AssignmentPhrase(AbstractFieldPhrase *l, const QVariant r);
+    explicit AssignmentPhrase(AbstractFieldPhrase *l, const AssignmentPhrase *r);
+    explicit AssignmentPhrase(AssignmentPhrase *ph, const QVariant &v);
+//    explicit AssignmentPhrase(AssignmentPhrase &other);
+    ~AssignmentPhrase();
 //    AssignmentPhrase(AssignmentPhrase *l, const AssignmentPhrase *r);
 
     AssignmentPhraseList operator &(const AssignmentPhrase &other);
 
 };
 
+//AssignmentPhraseList operator &(const AssignmentPhrase &l, const AssignmentPhrase &r);
+//AssignmentPhraseList operator &(const AssignmentPhrase &l, AssignmentPhrase &&r);
+//AssignmentPhraseList operator &(AssignmentPhrase &&l, const AssignmentPhrase &r);
+//AssignmentPhraseList operator &(AssignmentPhrase &&l, AssignmentPhrase &&r);
+
 class PhraseList{
 public:
     bool isValid;
-    QList<const PhraseData*> data;
-    PhraseList();
+    PhraseDataList data;
+    explicit PhraseList();
     PhraseList(const PhraseList &other);
+    PhraseList(PhraseList &&other);
     PhraseList(const AbstractFieldPhrase &other);
     PhraseList(const AbstractFieldPhrase *left, const AbstractFieldPhrase &right);
     PhraseList(PhraseList *left, PhraseList *right);
     PhraseList(PhraseList *left, const AbstractFieldPhrase *right);
     virtual ~PhraseList();
 
+    PhraseList &operator =(const PhraseList &other);
     PhraseList operator |(PhraseList &other);
     PhraseList operator |(const AbstractFieldPhrase &other);
+
+private:
+    void incAllDataParents();
 };
 
 class ConditionalPhrase
 {
 public:
     PhraseData *data;
-    QSharedPointer<PhraseData> leftDataPointer;
-    QSharedPointer<PhraseData> rightDataPointer;
+//    QSharedPointer<PhraseData> leftDataPointer;
+//    QSharedPointer<PhraseData> rightDataPointer;
     ConditionalPhrase();
     ConditionalPhrase(const ConditionalPhrase &other);
 #ifdef Q_COMPILER_RVALUE_REFS
@@ -171,11 +211,11 @@ public:
     ConditionalPhrase(ConditionalPhrase *l, PhraseData::Condition cond, ConditionalPhrase &r);
     virtual ~ConditionalPhrase();
 
-    ConditionalPhrase operator =(const ConditionalPhrase &other);
+    ConditionalPhrase &operator =(const ConditionalPhrase &other);
     ConditionalPhrase operator ==(const QVariant &other);
-    ConditionalPhrase operator ==(const AbstractFieldPhrase &other);
-    ConditionalPhrase operator &&(const ConditionalPhrase &other);
-    ConditionalPhrase operator ||(const ConditionalPhrase &other);
+//    ConditionalPhrase operator ==(const AbstractFieldPhrase &other);
+//    ConditionalPhrase operator &&(const ConditionalPhrase &other);
+//    ConditionalPhrase operator ||(const ConditionalPhrase &other);
     ConditionalPhrase operator !();
 
     SPECIALIZATION_NUMERIC_MEMBER(type, <,  PhraseData::Less)
@@ -184,12 +224,24 @@ public:
     SPECIALIZATION_NUMERIC_MEMBER(type, >=, PhraseData::GreaterEqual)
 };
 
+#define DECLARE_CONDITIONALPHRASE_OPERATORS(op) \
+ConditionalPhrase operator op(const ConditionalPhrase &l, const ConditionalPhrase &r); \
+ConditionalPhrase operator op(const ConditionalPhrase &l, ConditionalPhrase &&r); \
+ConditionalPhrase operator op(ConditionalPhrase &&l, const ConditionalPhrase &r); \
+ConditionalPhrase operator op(ConditionalPhrase &&l, ConditionalPhrase &&r);
+
+DECLARE_CONDITIONALPHRASE_OPERATORS(==)
+DECLARE_CONDITIONALPHRASE_OPERATORS(&&)
+DECLARE_CONDITIONALPHRASE_OPERATORS(||)
+
 class AbstractFieldPhrase
 {
 public:
     PhraseData *data;
+    explicit AbstractFieldPhrase(PhraseData *d);
     AbstractFieldPhrase(const char *className, const char *fieldName);
     AbstractFieldPhrase(const AbstractFieldPhrase &other);
+    AbstractFieldPhrase(AbstractFieldPhrase &&other);
 
     virtual ~AbstractFieldPhrase();
 
@@ -257,8 +309,8 @@ public:
         return ConditionalPhrase(this, PhraseData::Like, term);
     }
 
-    AssignmentPhrase operator =(const QVariant &other) {
-        return AssignmentPhrase(this, other);
+    AssignmentPhrase operator =(const QVariant &v) {
+        return AssignmentPhrase(this, v);
     }
 };
 
@@ -308,6 +360,32 @@ SPECIALIZATION_NUMERIC(qreal)
     { \
         return ConditionalPhrase(this, cond, val); \
     }
+
+template<>
+class FieldPhrase<bool> : public AbstractFieldPhrase
+{
+public:
+    FieldPhrase(const char *className, const char *s) :
+        AbstractFieldPhrase(className, s)
+    {}
+
+    AssignmentPhrase operator =(const bool &other) {
+        return AssignmentPhrase(this, other);
+    }
+
+    FieldPhrase<bool> operator !()
+    {
+        FieldPhrase<bool> f(data->className, data->fieldName);
+//        f.data = new PhraseData(data);
+        f.data->isNot = !data->isNot;
+        return f;
+    }
+
+    operator ConditionalPhrase()
+    {
+        return ConditionalPhrase(this, PhraseData::Equal, !data->isNot);
+    }
+};
 
 template<>
 class FieldPhrase<QDate> : public AbstractFieldPhrase

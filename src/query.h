@@ -50,7 +50,7 @@ template <class T>
     bool m_autoDelete;
 
 public:
-    Query(Database *database, TableSetBase *tableSet, bool autoDelete);
+    explicit Query(Database *database, TableSetBase *tableSet, bool autoDelete);
     ~Query();
 
     //ddl
@@ -72,9 +72,6 @@ public:
     Query<T> *orderBy(const PhraseList &ph);
     Query<T> *where(const ConditionalPhrase &ph);
     Query<T> *setWhere(const ConditionalPhrase &ph);
-
-    Query<T> *include(TableSetBase *t);
-    Query<T> *include(Table *t);
 
     //data selecting
     T *first();
@@ -124,8 +121,8 @@ template <class T>
 Q_OUTOFLINE_TEMPLATE Query<T>::~Query()
 {
     Q_D(Query);
+    qDebug() << "~Query";// << d->sql;
     delete d;
-    qDebug() << "~Query";
 }
 
 template <class T>
@@ -139,7 +136,7 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
     d->sql = d->database->sqlGenertor()->selectCommand(
                 d->tableName, d->fieldPhrase, d->wherePhrase, d->orderPhrase,
                 d->relations, d->skip, d->take);
-qDebug() <<d->sql;
+
     QSqlQuery q = d->database->exec(d->sql);
     if (q.lastError().isValid()) {
         qDebug() << q.lastError().text();
@@ -419,8 +416,8 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::join(const QString &className)
                 .relationByClassNames(className, d->className);
 
     if (!rel) {
-        qInfo("No relation between %s and %s",
-              qPrintable(d->className), qPrintable(className));
+        qDebug() << "No relation between" << d->className
+                << "and" << className;
         return this;
     }
 
@@ -493,20 +490,6 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::orderBy(const PhraseList &ph)
 {
     Q_D(Query);
     d->orderPhrase = ph;
-    return this;
-}
-
-template <class T>
-Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::include(TableSetBase *t)
-{
-    Q_D(Query);
-    return this;
-}
-
-template <class T>
-Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::include(Table *t)
-{
-    Q_D(Query);
     return this;
 }
 

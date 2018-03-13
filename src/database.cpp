@@ -52,7 +52,9 @@ NUT_BEGIN_NAMESPACE
 qulonglong DatabasePrivate::lastId = 0;
 QMap<QString, DatabaseModel> DatabasePrivate::allTableMaps;
 
-DatabasePrivate::DatabasePrivate(Database *parent) : q_ptr(parent), isDatabaseNew(false)
+DatabasePrivate::DatabasePrivate(Database *parent) : q_ptr(parent),
+    port(0), sqlGenertor(0), changeLogs(0),
+    isDatabaseNew(false)
 {
 }
 
@@ -141,7 +143,7 @@ bool DatabasePrivate::updateDatabase()
         qDebug("Databse is changed");
 
     QStringList sql = sqlGenertor->diff(last, current);
-
+qDebug()<<"database Sql =\n"<<sql;
     db.transaction();
     foreach (QString s, sql) {
         db.exec(s);
@@ -188,6 +190,7 @@ bool DatabasePrivate::getCurrectScheema()
 
     // TODO: change logs must not be in model
     int changeLogTypeId = qRegisterMetaType<ChangeLogTable*>();
+
     currentModel.append(
         new TableModel(changeLogTypeId, __CHANGE_LOG_TABLE_NAME));
     tables.insert(ChangeLogTable::staticMetaObject.className(),

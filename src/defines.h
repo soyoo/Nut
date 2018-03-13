@@ -32,73 +32,77 @@
 #   define NUT_EXPORT Q_DECL_EXPORT
 #endif
 
-#define NUT_INFO(type, name, value) \
-    Q_CLASSINFO(__nut_NAME_PERFIX type #name #value, type "\n" #name "\n" #value)
+#define NUT_INFO(type, name, value)                                            \
+    Q_CLASSINFO(__nut_NAME_PERFIX type #name #value,                           \
+                type "\n" #name "\n" #value)
 
 // Database
 #define NUT_DB_VERSION(version)  \
     NUT_INFO(__nut_DB_VERSION, version, 0)
 
-#define NUT_DECLARE_TABLE(type, name)                                       \
+#define NUT_DECLARE_TABLE(type, name)                                          \
     NUT_INFO(__nut_TABLE, type, name)                                          \
-    Q_PROPERTY(type* name READ name)                                        \
-    Q_PROPERTY(NUT_WRAP_NAMESPACE(TableSet<type>) name##Table READ name##Table)                         \
-    type* m_##name;                                                         \
-    NUT_WRAP_NAMESPACE(TableSet<type>) *m_##name##Table;                    \
-public:                                                                     \
-    static const type _##name;                                              \
-    type* name() const{ return m_##name; }                                  \
-    NUT_WRAP_NAMESPACE(TableSet<type>) *name##Table() const { return m_##name##Table; }
+    Q_PROPERTY(type* name READ name)                                           \
+    Q_PROPERTY(NUT_WRAP_NAMESPACE(TableSet<type>) name##Table READ name##Table)\
+    type* m_##name;                                                            \
+    NUT_WRAP_NAMESPACE(TableSet<type>) *m_##name##Table;                       \
+public:                                                                        \
+    static const type _##name;                                                 \
+    type* name() const{ return m_##name; }                                     \
+    NUT_WRAP_NAMESPACE(TableSet<type>) *name##Table() const                    \
+            { return m_##name##Table; }
 
 //Table
-#define NUT_DECLARE_FIELD(type, name, read, write)                          \
-    Q_PROPERTY(type name READ read WRITE write)                             \
-    NUT_INFO(__nut_FIELD, name, 0)                                           \
-    type m_##name;                                                          \
-public:                                                                     \
-    static NUT_WRAP_NAMESPACE(FieldPhrase<type>) name ## Field(){                                       \
-        static NUT_WRAP_NAMESPACE(FieldPhrase<type>) f = NUT_WRAP_NAMESPACE(FieldPhrase<type>)(staticMetaObject.className(), #name);                          \
-        return f;                                                           \
-    }                                                                       \
-    type read() const{                                                      \
-        return m_##name;                                                    \
-    }                                                                       \
-    void write(type name){                                                  \
-        m_##name = name;                                                    \
-        propertyChanged(#name);                                             \
+#define NUT_DECLARE_FIELD(type, name, read, write)                             \
+    Q_PROPERTY(type name READ read WRITE write)                                \
+    NUT_INFO(__nut_FIELD, name, 0)                                             \
+    type m_##name;                                                             \
+public:                                                                        \
+    static NUT_WRAP_NAMESPACE(FieldPhrase<type>) name ## Field(){              \
+        static NUT_WRAP_NAMESPACE(FieldPhrase<type>) f =                       \
+                NUT_WRAP_NAMESPACE(FieldPhrase<type>)                          \
+                        (staticMetaObject.className(), #name);                 \
+        return f;                                                              \
+    }                                                                          \
+    type read() const{                                                         \
+        return m_##name;                                                       \
+    }                                                                          \
+    void write(type name){                                                     \
+        m_##name = name;                                                       \
+        propertyChanged(#name);                                                \
     }
 
-#define NUT_FOREGION_KEY(type, keytype, name, read, write)                  \
-    Q_PROPERTY(type* name READ read WRITE write)                            \
-    NUT_DECLARE_FIELD(keytype, name##Id, read##Id, write##Id)               \
+#define NUT_FOREGION_KEY(type, keytype, name, read, write)                     \
+    Q_PROPERTY(type* name READ read WRITE write)                               \
+    NUT_DECLARE_FIELD(keytype, name##Id, read##Id, write##Id)                  \
     NUT_INFO(__nut_FOREGION_KEY, name, type)                                   \
-    type *m_##name;                                                         \
-public:                                                                     \
-    type *read() const { return m_##name ; }                                \
-    void write(type *name){                                                 \
-        m_##name = name;                                                    \
+    type *m_##name;                                                            \
+public:                                                                        \
+    type *read() const { return m_##name ; }                                   \
+    void write(type *name){                                                    \
+        m_##name = name;                                                       \
     }
 
-#define NUT_DECLARE_CHILD_TABLE(type, n)                                    \
-    private:                                                                \
-        NUT_WRAP_NAMESPACE(TableSet)<type> *m_##n;                                              \
-    public:                                                                 \
-        static type *n##Table();                                            \
+#define NUT_DECLARE_CHILD_TABLE(type, n)                                       \
+    private:                                                                   \
+        NUT_WRAP_NAMESPACE(TableSet)<type> *m_##n;                             \
+    public:                                                                    \
+        static type *n##Table();                                               \
         NUT_WRAP_NAMESPACE(TableSet)<type> *n();
 
-#define NUT_IMPLEMENT_CHILD_TABLE(class, type, n)                           \
-    type *class::n##Table(){                                            \
-        static type *f = new type();                                    \
-        return f;                                                       \
-    }                                                                   \
-    NUT_WRAP_NAMESPACE(TableSet)<type> *class::n(){                     \
-        return m_##n;                                                   \
+#define NUT_IMPLEMENT_CHILD_TABLE(class, type, n)                              \
+    type *class::n##Table(){                                                   \
+        static type *f = new type();                                           \
+        return f;                                                              \
+    }                                                                          \
+    NUT_WRAP_NAMESPACE(TableSet)<type> *class::n(){                            \
+        return m_##n;                                                          \
     }
 
 
 #define NUT_PRIMARY_KEY(x)                  NUT_INFO(__nut_PRIMARY_KEY,  x, 0)
 #define NUT_AUTO_INCREMENT(x)               NUT_INFO(__nut_AUTO_INCREMENT, x, 0)
-#define NUT_PRIMARY_AUTO_INCREMENT(x)           NUT_PRIMARY_KEY(x)          \
+#define NUT_PRIMARY_AUTO_INCREMENT(x)           NUT_PRIMARY_KEY(x)             \
                                                 NUT_AUTO_INCREMENT(x)
 #define NUT_DISPLAY_NAME(field, name)       NUT_INFO(__nut_DISPLAY, field, name)
 #define NUT_UNIQUE(x)                       NUT_INFO(__nut_UNIQUE, x, 0)

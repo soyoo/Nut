@@ -39,8 +39,8 @@ template<class T>
 class NUT_EXPORT TableSet : public TableSetBase
 {
 public:
-    TableSet(Database *parent);
-    TableSet(Table *parent);
+    explicit TableSet(Database *parent);
+    explicit TableSet(Table *parent);
 
     void append(T *t);
     void append(QList<T *> t);

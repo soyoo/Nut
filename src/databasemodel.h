@@ -43,6 +43,7 @@ public:
     DatabaseModel(const QString &name = QString::null);
     DatabaseModel(const DatabaseModel &other);
     DatabaseModel(const QJsonObject &json);
+    ~DatabaseModel();
 
     TableModel *tableByName(QString tableName) const;
     TableModel *tableByClassName(QString className) const;
@@ -69,6 +70,7 @@ public:
     void fixRelations();
 
     static DatabaseModel *modelByName(const QString &name);
+    static void deleteAllModels();
 };
 
 NUT_END_NAMESPACE

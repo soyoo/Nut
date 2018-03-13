@@ -23,7 +23,7 @@
 NUT_BEGIN_NAMESPACE
 
 QueryPrivate::QueryPrivate(QueryBase *parent) : q_ptr(parent),
-     skip(-1), take(-1)
+    database(0), tableSet(0), skip(-1), take(-1)
 {
 
 }

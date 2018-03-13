@@ -34,13 +34,14 @@ struct FieldModel;
 class DatabaseModel;
 class TableModel;
 class Database;
-class RelationModel;
+struct RelationModel;
 class SqlGeneratorBase : public QObject
 {
 //    Q_OBJECT
 
     Database *_database;
 public:
+    //TODO: remove this enum
     enum CommandType{
         Select,
         Insert,
@@ -56,7 +57,7 @@ public:
         SignleField
     };
 
-    SqlGeneratorBase(Database *parent);
+    explicit SqlGeneratorBase(Database *parent);
     virtual ~SqlGeneratorBase();
 
     virtual QString masterDatabaseName(QString databaseName);
@@ -65,10 +66,13 @@ public:
 
     virtual QString fieldType(FieldModel *field) = 0;
     virtual QString fieldDeclare(FieldModel *field);
+    virtual QString relationDeclare(const RelationModel *relation);
 
     virtual QStringList diff(DatabaseModel lastModel, DatabaseModel newModel);
     virtual QString diff(FieldModel *oldField, FieldModel *newField);
     virtual QString diff(TableModel *oldTable, TableModel *newTable);
+    virtual QString diffRelation(TableModel *oldTable, TableModel *newTable);
+    virtual QString diff(RelationModel *oldRel, RelationModel *newRel);
 
     virtual QString join(const QString &mainTable,
                          const QList<RelationModel*> list,
@@ -93,7 +97,8 @@ public:
                                   const int take = -1);
 
     virtual QString selectCommand(const QString &tableName,
-                                  const AgregateType &t, const QString &agregateArg,
+                                  const AgregateType &t,
+                                  const QString &agregateArg,
                                   const ConditionalPhrase &where,
                                   const QList<RelationModel *> &joins,
                                   const int skip = -1,
@@ -119,8 +124,8 @@ public:
     virtual QVariant readValue(const QVariant::Type &type, const QVariant &dbValue);
     virtual QString phrase(const PhraseData *d) const;
     virtual QString operatorString(const PhraseData::Condition &cond) const;
-
-private:
+    virtual void appendSkipTake(QString &sql, int skip = -1, int take = -1);
+protected:
     QString createConditionalPhrase(const PhraseData *d) const;
     QString createFieldPhrase(const PhraseList &ph);
     QString createOrderPhrase(const PhraseList &ph);
