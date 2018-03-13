@@ -229,7 +229,13 @@ DatabaseModel *DatabaseModel::modelByName(const QString &name)
 
 void DatabaseModel::deleteAllModels()
 {
-    qDeleteAll(_models.values());
+    QMapIterator<QString, DatabaseModel*> i(_models);
+     while (i.hasNext()) {
+         i.next();
+//         cout << i.key() << ": " << i.value() << endl;
+         delete i.value();
+     }
+//    qDeleteAll(_models.values());
     _models.clear();
 }
 

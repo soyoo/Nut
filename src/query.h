@@ -73,9 +73,6 @@ public:
     Query<T> *where(const ConditionalPhrase &ph);
     Query<T> *setWhere(const ConditionalPhrase &ph);
 
-    Query<T> *include(TableSetBase *t);
-    Query<T> *include(Table *t);
-
     //data selecting
     T *first();
     QList<T*> toList(int count = -1);
@@ -493,20 +490,6 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::orderBy(const PhraseList &ph)
 {
     Q_D(Query);
     d->orderPhrase = ph;
-    return this;
-}
-
-template <class T>
-Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::include(TableSetBase *t)
-{
-    Q_D(Query);
-    return this;
-}
-
-template <class T>
-Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::include(Table *t)
-{
-    Q_D(Query);
     return this;
 }
 
