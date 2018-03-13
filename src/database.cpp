@@ -190,6 +190,7 @@ bool DatabasePrivate::getCurrectScheema()
 
     // TODO: change logs must not be in model
     int changeLogTypeId = qRegisterMetaType<ChangeLogTable*>();
+
     currentModel.append(
         new TableModel(changeLogTypeId, __CHANGE_LOG_TABLE_NAME));
     tables.insert(ChangeLogTable::staticMetaObject.className(),

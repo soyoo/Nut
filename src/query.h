@@ -73,9 +73,6 @@ public:
     Query<T> *where(const ConditionalPhrase &ph);
     Query<T> *setWhere(const ConditionalPhrase &ph);
 
-    Query<T> *include(TableSetBase *t);
-    Query<T> *include(Table *t);
-
     //data selecting
     T *first();
     QList<T*> toList(int count = -1);
@@ -139,7 +136,7 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
     d->sql = d->database->sqlGenertor()->selectCommand(
                 d->tableName, d->fieldPhrase, d->wherePhrase, d->orderPhrase,
                 d->relations, d->skip, d->take);
-qDebug() <<d->sql;
+
     QSqlQuery q = d->database->exec(d->sql);
     if (q.lastError().isValid()) {
         qDebug() << q.lastError().text();
@@ -307,7 +304,7 @@ Q_OUTOFLINE_TEMPLATE QList<F> Query<T>::select(const FieldPhrase<F> f)
                 d->wherePhrase,
                 d->relations,
                 d->skip, d->take);
-qDebug() << d->sql;
+
     QSqlQuery q = d->database->exec(d->sql);
 
     while (q.next()) {
@@ -497,20 +494,6 @@ Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::orderBy(const PhraseList &ph)
 }
 
 template <class T>
-Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::include(TableSetBase *t)
-{
-    Q_D(Query);
-    return this;
-}
-
-template <class T>
-Q_OUTOFLINE_TEMPLATE Query<T> *Query<T>::include(Table *t)
-{
-    Q_D(Query);
-    return this;
-}
-
-template <class T>
 Q_OUTOFLINE_TEMPLATE int Query<T>::update(const AssignmentPhraseList &ph)
 {
     Q_D(Query);
@@ -520,7 +503,7 @@ Q_OUTOFLINE_TEMPLATE int Query<T>::update(const AssignmentPhraseList &ph)
                 ph,
                 d->wherePhrase);
     QSqlQuery q = d->database->exec(d->sql);
-qDebug() << d->sql;
+
     if (m_autoDelete)
         deleteLater();
     return q.numRowsAffected();

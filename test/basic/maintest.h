@@ -39,6 +39,8 @@ private slots:
     void selectWithInvalidRelation();
     void modifyPost();
     void emptyDatabase();
+
+    void cleanupTestCase();
 };
 
 #endif // MAINTEST_H

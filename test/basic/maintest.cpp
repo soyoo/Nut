@@ -209,7 +209,7 @@ void MainTest::testDate()
 
     db.postTable()->append(newPost);
 
-    db.saveChanges();
+    db.saveChanges(true);
 
     auto q = db.postTable()->query()
             ->setWhere(Post::idField() == newPost->id())
@@ -267,6 +267,15 @@ void MainTest::emptyDatabase()
     auto postsCount = db.postTable()->query()->remove();
     QTEST_ASSERT(postsCount == 3);
     QTEST_ASSERT(commentsCount == 6);
+}
+
+void MainTest::cleanupTestCase()
+{
+    post->deleteLater();
+    user->deleteLater();
+
+    qDeleteAll(TableModel::allModels());
+    DatabaseModel::deleteAllModels();
 }
 
 QTEST_MAIN(MainTest)
