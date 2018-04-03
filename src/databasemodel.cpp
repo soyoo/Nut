@@ -31,13 +31,13 @@ QMap<QString, DatabaseModel*> DatabaseModel::_models;
 #define NODE_VERSION "version"
 #define NODE_TABLES  "tables"
 DatabaseModel::DatabaseModel(const QString &name) :
-    QList<TableModel*>(), _databaseClassName(name), _version(QString::null)
+    QList<TableModel*>(), _databaseClassName(name), _version(QString())
 {
     _models.insert(name, this);
 }
 
 DatabaseModel::DatabaseModel(const DatabaseModel &other) :
-    QList<TableModel*>(other), _version(QString::null)
+    QList<TableModel*>(other), _version(QString())
 {
 
 }
@@ -173,7 +173,7 @@ RelationModel *DatabaseModel::relationByTableNames(const QString &masterTableNam
 
 DatabaseModel DatabaseModel::fromJson(QJsonObject &json)
 {
-    DatabaseModel model(QString::null);
+    DatabaseModel model(QString());
 
     model.setVersion(json.value(NODE_VERSION).toString());
 

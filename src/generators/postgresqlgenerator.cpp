@@ -92,7 +92,7 @@ QString PostgreSqlGenerator::fieldType(FieldModel *field)
 
     default:
         qDebug() << "Type for " << (int)field->type << field->type << "(" << QMetaType::typeName(field->type) << ")" << "nut supported";
-        dbType = "";
+        dbType = QString();
     }
 
     if(field->type == (unsigned)QMetaType::type("Nut::DbGeography"))
@@ -103,10 +103,10 @@ QString PostgreSqlGenerator::fieldType(FieldModel *field)
 
 QString PostgreSqlGenerator::diff(FieldModel *oldField, FieldModel *newField)
 {
-    QString sql = "";
+    QString sql = QString();
     if(oldField && newField)
         if(*oldField == *newField)
-            return QString::null;
+            return QString();
 
     if(!newField){
         sql = "DROP COLUMN " + oldField->name;

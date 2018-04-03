@@ -40,7 +40,7 @@ class DatabaseModel : public QList<TableModel *>
     static QMap<QString, DatabaseModel *> _models;
 
 public:
-    DatabaseModel(const QString &name = QString::null);
+    DatabaseModel(const QString &name = QString());
     DatabaseModel(const DatabaseModel &other);
     DatabaseModel(const QJsonObject &json);
     ~DatabaseModel();

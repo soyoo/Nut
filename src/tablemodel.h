@@ -31,7 +31,7 @@ NUT_BEGIN_NAMESPACE
 
 class TableModel;
 struct FieldModel{
-    explicit FieldModel() : name(QString::null), length(0), defaultValue(QString::null),
+    explicit FieldModel() : name(QString()), length(0), defaultValue(QString()),
         notNull(false), isPrimaryKey(false), isAutoIncrement(false), isUnique(false)
     {
 
@@ -70,8 +70,8 @@ struct FieldModel{
 };
 
 struct RelationModel{
-    RelationModel() : localColumn(""), localProperty(""), slaveTable(0),
-        foreignColumn(""), masterTable(0), masterClassName("")
+    RelationModel() : localColumn(QString()), localProperty(QString()), slaveTable(0),
+        foreignColumn(QString()), masterTable(0), masterClassName(QString())
     {}
     explicit RelationModel(const QJsonObject &obj);
 
@@ -92,7 +92,7 @@ bool operator !=(const RelationModel &l, const RelationModel &r);
 class   TableModel
 {
 public:
-    explicit TableModel(int typeId, QString tableName = QString::null);
+    explicit TableModel(int typeId, QString tableName = QString());
     explicit TableModel(QJsonObject json, QString tableName);
     virtual ~TableModel();
 

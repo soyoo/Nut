@@ -448,7 +448,7 @@ QString Database::tableName(QString className)
     if (m)
         return m->name();
     else
-        return QString::null;;
+        return QString();
 }
 
 void Database::setDatabaseName(QString databaseName)
@@ -534,7 +534,7 @@ bool Database::open(bool updateDatabase)
     else if (d->driver == "QSQLITE" || d->driver == "QSQLITE3")
         d->sqlGenertor = new SqliteGenerator(this);
     else if (d->driver == "QODBC" || d->driver == "QODBC3") {
-        QString driverName = QString::null;
+        QString driverName = QString();
         QStringList parts = d->databaseName.toLower().split(';');
         foreach (QString p, parts)
             if (p.trimmed().startsWith("driver="))

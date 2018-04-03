@@ -88,7 +88,7 @@ QString MySqlGenerator::fieldType(FieldModel *field)
                  qPrintable(field->name),
                  QMetaType::typeName(field->type),
                  field->type);
-        dbType = "";
+        dbType = QString();
     }
 
     if(field->typeName == QStringLiteral("Nut::DbGeography"))
