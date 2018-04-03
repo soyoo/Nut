@@ -65,13 +65,13 @@ SqlGeneratorBase::~SqlGeneratorBase()
 QString SqlGeneratorBase::masterDatabaseName(QString databaseName)
 {
     Q_UNUSED(databaseName);
-    return "";
+    return QString();
 }
 
 QString SqlGeneratorBase::createTable(TableModel *table)
 {
     Q_UNUSED(table)
-    return "";
+    return QString();
 }
 
 QString SqlGeneratorBase::saveRecord(Table *t, QString tableName)
@@ -92,15 +92,15 @@ QString SqlGeneratorBase::saveRecord(Table *t, QString tableName)
         Q_UNREACHABLE();
     }
 
-    return "";
+    return QString();
 }
 
 QString SqlGeneratorBase::recordsPhrase(TableModel *table)
 {
     if (!table)
-        return "";
+        return QString();
 
-    QString ret = "";
+    QString ret = QString();
     foreach (FieldModel *f, table->fields()) {
         if (!ret.isEmpty())
             ret.append(", ");
@@ -144,10 +144,10 @@ QStringList SqlGeneratorBase::diff(DatabaseModel lastModel,
 
 QString SqlGeneratorBase::diff(FieldModel *oldField, FieldModel *newField)
 {
-    QString sql = "";
+    QString sql = QString();
     if (oldField && newField)
         if (*oldField == *newField)
-            return QString::null;
+            return QString();
 
     if (!newField) {
         sql = "DROP COLUMN " + oldField->name;
@@ -165,7 +165,7 @@ QString SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
 {
     if (oldTable && newTable)
         if (*oldTable == *newTable)
-            return "";
+            return QString();
 
     if (!newTable)
         return "DROP TABLE " + oldTable->name();
@@ -235,7 +235,7 @@ QString SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
 QString SqlGeneratorBase::diffRelation(TableModel *oldTable, TableModel *newTable)
 {
     if (!newTable)
-        return "";
+        return QString();
 
     QList<QString> relations;
 
@@ -264,7 +264,7 @@ QString SqlGeneratorBase::diffRelation(TableModel *oldTable, TableModel *newTabl
         return "ALTER TABLE " + newTable->name() + "\n"
                 + columnSql.join(",\n");
     else
-        return "";
+        return QString();
 
 }
 
@@ -297,7 +297,7 @@ QString SqlGeneratorBase::diff(RelationModel *oldRel, RelationModel *newRel)
                 .arg(oldRel->foreignColumn);
 
 //    if (*oldRel == *newRel)
-        return "";
+        return QString();
 }
 
 QString SqlGeneratorBase::join(const QString &mainTable,
@@ -340,7 +340,7 @@ QString SqlGeneratorBase::join(const QStringList &list, QStringList *order)
      */
 
     if (!list.count())
-        return "";
+        return QString();
 
     if (list.count() == 1)
         return "[" + list.first() + "]";
@@ -394,7 +394,7 @@ QString SqlGeneratorBase::join(const QStringList &list, QStringList *order)
 
 QString SqlGeneratorBase::insertRecord(Table *t, QString tableName)
 {
-    QString sql = "";
+    QString sql = QString();
     QString key = t->primaryKey();
     QStringList values;
 
@@ -403,7 +403,7 @@ QString SqlGeneratorBase::insertRecord(Table *t, QString tableName)
             values.append("'" + t->property(f.toLatin1().data()).toString()
                           + "'");
 
-    QString changedPropertiesText = "";
+    QString changedPropertiesText = QString();
     QSet<QString> props = t->changedProperties();
     foreach (QString s, props) {
         if (changedPropertiesText != "")
@@ -422,7 +422,7 @@ QString SqlGeneratorBase::insertRecord(Table *t, QString tableName)
 
 QString SqlGeneratorBase::updateRecord(Table *t, QString tableName)
 {
-    QString sql = "";
+    QString sql = QString();
     QString key = t->primaryKey();
     QStringList values;
 
@@ -476,7 +476,7 @@ QString SqlGeneratorBase::agregateText(const AgregateType &t,
         break;
 
     default:
-        return QString::null;
+        return QString();
     }
 }
 
@@ -502,7 +502,7 @@ QString SqlGeneratorBase::fromTableText(const QString &tableName,
                      qPrintable(tableName),
                      qPrintable(joinClassName),
                      qPrintable(joinTableName.isNull() ? "NULL" : joinTableName));
-            joinClassName = QString::null;
+            joinClassName = QString();
         }
     }
 
@@ -511,7 +511,7 @@ QString SqlGeneratorBase::fromTableText(const QString &tableName,
 
 QString SqlGeneratorBase::deleteRecords(QString tableName, QString where)
 {
-    QString sql = "";
+    QString sql = QString();
     if (where.isEmpty() || where.isNull())
         sql = "DELETE FROM " + tableName;
     else
@@ -540,7 +540,7 @@ QString SqlGeneratorBase::selectCommand(const QString &tableName,
         foreach (RelationModel *rel, joins)
             tables << rel->masterTable << rel->slaveTable;
 
-        selectText = "";
+        selectText = QString();
         foreach (TableModel *t, tables) {
             if (!selectText.isEmpty())
                 selectText.append(", ");
@@ -625,7 +625,7 @@ QString SqlGeneratorBase::updateCommand(const QString &tableName,
                                         const AssignmentPhraseList &assigments,
                                         const ConditionalPhrase &where)
 {
-    QString assigmentTexts = "";
+    QString assigmentTexts = QString();
     foreach (PhraseData *d, assigments.data) {
         if (assigmentTexts != "")
             assigmentTexts.append(", ");
@@ -821,7 +821,7 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
 
     default:
         Q_UNREACHABLE();
-        return "";
+        return QString();
     }
 }
 
@@ -834,7 +834,7 @@ QVariant SqlGeneratorBase::readValue(const QVariant::Type &type,
 
 QString SqlGeneratorBase::phrase(const PhraseData *d) const
 {
-    QString ret = "";
+    QString ret = QString();
 
     switch (d->type) {
     case PhraseData::Field:
@@ -939,9 +939,9 @@ void SqlGeneratorBase::appendSkipTake(QString &sql, int skip, int take)
 QString SqlGeneratorBase::createConditionalPhrase(const PhraseData *d) const
 {
     if (!d)
-        return "";
+        return QString();
 
-    QString ret = "";
+    QString ret = QString();
 
     PhraseData::Condition op = d->operatorCond;
     //apply not (!)
@@ -999,7 +999,7 @@ QString SqlGeneratorBase::createConditionalPhrase(const PhraseData *d) const
 
 QString SqlGeneratorBase::createOrderPhrase(const PhraseList &ph)
 {
-    QString ret = "";
+    QString ret = QString();
     foreach (const PhraseData *d, ph.data) {
         if (ret != "")
             ret.append(", ");
@@ -1013,7 +1013,7 @@ QString SqlGeneratorBase::createOrderPhrase(const PhraseList &ph)
 
 QString SqlGeneratorBase::createFieldPhrase(const PhraseList &ph)
 {
-    QString ret = "";
+    QString ret = QString();
     foreach (const PhraseData *d, ph.data) {
         if (ret != "")
             ret.append(", ");

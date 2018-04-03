@@ -65,7 +65,7 @@ QString SqliteGenerator::fieldType(FieldModel *field)
             dbType = "text";
         break;
     default:
-        dbType = "";
+        dbType = QString();
     }
 
     return dbType;

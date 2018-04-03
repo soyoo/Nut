@@ -92,7 +92,7 @@ QString SqlServerGenerator::fieldType(FieldModel *field)
 
     default:
         Q_UNREACHABLE();
-        dbType = "";
+        dbType = QString();
     }
 
     return dbType;
@@ -100,10 +100,10 @@ QString SqlServerGenerator::fieldType(FieldModel *field)
 
 QString SqlServerGenerator::diff(FieldModel *oldField, FieldModel *newField)
 {
-    QString sql = "";
+    QString sql = QString();
     if (oldField && newField)
         if (*oldField == *newField)
-            return QString::null;
+            return QString();
 
     if (!newField) {
         sql = "DROP COLUMN " + oldField->name;

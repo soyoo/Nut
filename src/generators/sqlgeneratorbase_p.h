@@ -131,7 +131,7 @@ protected:
     QString createOrderPhrase(const PhraseList &ph);
     void createInsertPhrase(const AssignmentPhraseList &ph, QString &fields, QString &values);
 
-    QString agregateText(const AgregateType &t, const QString &arg = QString::null) const;
+    QString agregateText(const AgregateType &t, const QString &arg = QString()) const;
     QString fromTableText(const QString &tableName, QString &joinClassName, QString &orderBy) const;
 //    QString createWhere(QList<WherePhrase> &wheres);
     void replaceTableNames(QString &command);

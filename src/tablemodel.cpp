@@ -402,7 +402,7 @@ QString TableModel::primaryKey() const
     foreach (FieldModel *f, _fields)
         if(f->isPrimaryKey)
             return f->name;
-    return QString::null;
+    return QString();
 }
 
 FieldModel::FieldModel(const QJsonObject &json)
