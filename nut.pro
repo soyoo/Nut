@@ -23,12 +23,14 @@ HEADERS += \
     $$PWD/src/tablesetbase_p.h \
     $$PWD/src/querybase_p.h \
     $$PWD/src/tablemodel.h \
-    $$PWD/src/wherephrase.h \
     $$PWD/src/query_p.h \
     $$PWD/src/table.h \
     $$PWD/src/database.h \
     $$PWD/src/database_p.h \
-    $$PWD/src/serializableobject.h
+    $$PWD/src/serializableobject.h \
+    $$PWD/src/sqlmodel.h \
+    $$PWD/src/sqlmodel_p.h \
+    $$PWD/src/phrase.h
 
 SOURCES += \
     $$PWD/src/generators/sqlgeneratorbase.cpp \
@@ -44,7 +46,8 @@ SOURCES += \
     $$PWD/src/changelogtable.cpp \
     $$PWD/src/querybase.cpp \
     $$PWD/src/tablemodel.cpp \
-    $$PWD/src/wherephrase.cpp \
     $$PWD/src/table.cpp \
     $$PWD/src/database.cpp \
-    $$PWD/src/serializableobject.cpp
+    $$PWD/src/serializableobject.cpp \
+    $$PWD/src/sqlmodel.cpp \
+    $$PWD/src/phrase.cpp
