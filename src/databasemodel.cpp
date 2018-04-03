@@ -173,7 +173,7 @@ RelationModel *DatabaseModel::relationByTableNames(const QString &masterTableNam
 
 DatabaseModel DatabaseModel::fromJson(QJsonObject &json)
 {
-    DatabaseModel model(QString());
+    DatabaseModel model;
 
     model.setVersion(json.value(NODE_VERSION).toString());
 
