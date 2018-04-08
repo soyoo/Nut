@@ -24,8 +24,6 @@
 
 NUT_BEGIN_NAMESPACE
 
-#define LOG(s) qDebug() << __func__ << s
-
 PhraseData::PhraseData() :
     className(""), fieldName(""),
     type(Field), operatorCond(NotAssign),
@@ -65,7 +63,6 @@ PhraseData::PhraseData(PhraseData *l, PhraseData::Condition o, QVariant r)
 
 PhraseData *PhraseData::operator =(PhraseData *other)
 {
-    LOG("");
     other->parents++;
     return other;
 }
@@ -76,20 +73,6 @@ PhraseData &PhraseData::operator =(PhraseData &other)
     return other;
 }
 
-//PhraseData::PhraseData(const PhraseData &other) :
-//    left(other.left), right(other.right), operand(other.operand),
-//    operatorCond(other.operatorCond), className(other.className),
-//    fieldName(other.fieldName), type(other.type), isNot(other.isNot),
-//    parents(other.parents + 1)
-//{ }
-
-//PhraseData::PhraseData(const PhraseData *other) :
-//    left(other->left), right(other->right), operand(other->operand),
-//    operatorCond(other->operatorCond), className(other->className),
-//    fieldName(other->fieldName), type(other->type), isNot(other->isNot),
-//    parents(other->parents + 1)
-//{ }
-
 QString PhraseData::toString() const
 {
     return QString("[%1].%2").arg(className).arg(fieldName);
@@ -97,27 +80,10 @@ QString PhraseData::toString() const
 
 PhraseData::~PhraseData()
 {
-//    if (type == WithOther) {
-//        delete left;
-//        delete right;
-//    }
-//    if (type == WithVariant) {
-//        if (left)
-//            delete left;
-//    }
-
-//    if (right && !--right->parents)
-//        delete right;
-
-//    if (left && !--left->parents)
-//        delete left;
-
-    LOG("");
 }
 
 void PhraseData::cleanUp()
 {
-//    cleanUp(this);
 }
 
 void PhraseData::cleanUp(PhraseData *d)
@@ -154,12 +120,6 @@ AbstractFieldPhrase::AbstractFieldPhrase(AbstractFieldPhrase &&other)
 
 AbstractFieldPhrase::~AbstractFieldPhrase()
 {
-    if (data) {
-        LOG(data->toString()) << data->parents;
-    } else {
-        LOG("");
-    }
-
     if (data) {
         --data->parents;
         if (data->parents <= 0)
@@ -232,14 +192,12 @@ PhraseList::PhraseList() : isValid(false)
 
 PhraseList::PhraseList(const PhraseList &other) : isValid(true)
 {
-    LOG("");
     data = qMove(other.data);
     const_cast<PhraseList&>(other).data.clear();
 }
 
 PhraseList::PhraseList(PhraseList &&other)
 {
-    LOG("");
     data = other.data;
 }
 
@@ -277,7 +235,6 @@ PhraseList::PhraseList(PhraseList *left, const AbstractFieldPhrase *right)
 
 PhraseList::~PhraseList()
 {
-    LOG("");
 }
 
 PhraseList &PhraseList::operator =(const PhraseList &other)
@@ -484,7 +441,6 @@ ConditionalPhrase::ConditionalPhrase(ConditionalPhrase *l,
 
 ConditionalPhrase::~ConditionalPhrase()
 {
-    LOG("");
     if (data) {
         data->cleanUp();
         if (!--data->parents)

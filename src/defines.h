@@ -26,6 +26,11 @@
 #include "defines_p.h"
 #include "qglobal.h"
 
+#include <QString>
+#include <QStringList>
+#include <QVariant>
+#include <QMetaClassInfo>
+
 #ifdef NUT_COMPILE_STATIC
 #   define NUT_EXPORT
 #else
@@ -36,21 +41,95 @@
     Q_CLASSINFO(__nut_NAME_PERFIX type #name #value,                           \
                 type "\n" #name "\n" #value)
 
+#define NUT_INFO_STRING(type, name, value)                                     \
+    Q_CLASSINFO(__nut_NAME_PERFIX type #name #value,                           \
+                type "\n" #name "\n" value)
+
+inline bool nutClassInfo(const QMetaClassInfo &classInfo,
+                         QString &type, QString &name, QVariant &value)
+{
+    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
+        return false;
+    } else {
+        QStringList parts = QString(classInfo.value()).split("\n");
+        if (parts.count() != 3)
+            return false;
+
+        type = parts[0];
+        name = parts[1];
+        value = qVariantFromValue(parts[2]);
+        return true;
+    }
+}
+
+inline bool nutClassInfoString(const QMetaClassInfo &classInfo,
+                              QString &type, QString &name, QString &value)
+{
+    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
+        return false;
+    } else {
+        QStringList parts = QString(classInfo.value()).split("\n");
+        if (parts.count() != 3)
+            return false;
+
+        type = parts[0];
+        name = parts[1];
+        value = parts[2];
+        return true;
+    }
+}
+
+inline bool nutClassInfoBool(const QMetaClassInfo &classInfo,
+                              QString &type, QString &name, bool &value)
+{
+    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
+        return false;
+    } else {
+        QStringList parts = QString(classInfo.value()).split("\n");
+        if (parts.count() != 3)
+            return false;
+
+        QString buffer = parts[2].toLower();
+        if (buffer != "true" && buffer != "false")
+            return false;
+
+        type = parts[0];
+        name = parts[1];
+        value = (buffer == "true");
+        return true;
+    }
+}
+
+inline bool nutClassInfoInt(const QMetaClassInfo &classInfo,
+                            QString &type, QString &name, bool &value)
+{
+    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
+        return false;
+    } else {
+        QStringList parts = QString(classInfo.value()).split("\n");
+        if (parts.count() != 3)
+            return false;
+        bool ok;
+        type = parts[0];
+        name = parts[1];
+        value = parts[2].toInt(&ok);
+        return ok;
+    }
+}
+
+
 // Database
 #define NUT_DB_VERSION(version)  \
     NUT_INFO(__nut_DB_VERSION, version, 0)
 
 #define NUT_DECLARE_TABLE(type, name)                                          \
     NUT_INFO(__nut_TABLE, type, name)                                          \
-    Q_PROPERTY(type* name READ name)                                           \
-    Q_PROPERTY(NUT_WRAP_NAMESPACE(TableSet<type>) name##Table READ name##Table)\
-    type* m_##name;                                                            \
-    NUT_WRAP_NAMESPACE(TableSet<type>) *m_##name##Table;                       \
+    Q_PROPERTY(NUT_WRAP_NAMESPACE(TableSet<type>) name READ name)              \
+    NUT_WRAP_NAMESPACE(TableSet<type>) *m_##name;                              \
 public:                                                                        \
-    static const type _##name;                                                 \
-    type* name() const{ return m_##name; }                                     \
-    NUT_WRAP_NAMESPACE(TableSet<type>) *name##Table() const                    \
-            { return m_##name##Table; }
+    static const type *_##name;                                                \
+    NUT_WRAP_NAMESPACE(TableSet<type>) *name() const                           \
+            { return m_##name; }
 
 //Table
 #define NUT_DECLARE_FIELD(type, name, read, write)                             \
@@ -99,11 +178,9 @@ public:                                                                        \
         return m_##n;                                                          \
     }
 
-
 #define NUT_PRIMARY_KEY(x)                  NUT_INFO(__nut_PRIMARY_KEY,  x, 0)
 #define NUT_AUTO_INCREMENT(x)               NUT_INFO(__nut_AUTO_INCREMENT, x, 0)
-#define NUT_PRIMARY_AUTO_INCREMENT(x)           NUT_PRIMARY_KEY(x)             \
-                                                NUT_AUTO_INCREMENT(x)
+#define NUT_PRIMARY_AUTO_INCREMENT(x)       NUT_INFO(__nut_PRIMARY_KEY_AI, x, 0)
 #define NUT_DISPLAY_NAME(field, name)       NUT_INFO(__nut_DISPLAY, field, name)
 #define NUT_UNIQUE(x)                       NUT_INFO(__nut_UNIQUE, x, 0)
 #define NUT_LEN(field, len)                 NUT_INFO(__nut_LEN, field, len)

@@ -203,8 +203,8 @@ bool DatabasePrivate::getCurrectScheema()
         QString name;
         QString value;
 
-        if (!checkClassInfo(q->metaObject()->classInfo(i),
-                            type, name, value)) {
+        if (!nutClassInfoString(q->metaObject()->classInfo(i),
+                                type, name, value)) {
             continue;
         }
 
@@ -249,21 +249,21 @@ bool DatabasePrivate::getCurrectScheema()
     return true;
 }
 
-bool DatabasePrivate::checkClassInfo(const QMetaClassInfo &classInfo, QString &type, QString &name, QString &value)
-{
-    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
-        return false;
-    } else {
-        QStringList parts = QString(classInfo.value()).split("\n");
-        if (parts.count() != 3)
-            return false;
+//bool DatabasePrivate::checkClassInfo(const QMetaClassInfo &classInfo, QString &type, QString &name, QString &value)
+//{
+//    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
+//        return false;
+//    } else {
+//        QStringList parts = QString(classInfo.value()).split("\n");
+//        if (parts.count() != 3)
+//            return false;
 
-        type = parts[0];
-        name = parts[1];
-        value = parts[2];
-        return true;
-    }
-}
+//        type = parts[0];
+//        name = parts[1];
+//        value = parts[2];
+//        return true;
+//    }
+//}
 
 DatabaseModel DatabasePrivate::getLastScheema()
 {
