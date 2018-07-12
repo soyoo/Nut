@@ -395,13 +395,13 @@ QString SqlGeneratorBase::join(const QStringList &list, QStringList *order)
 QString SqlGeneratorBase::insertRecord(Table *t, QString tableName)
 {
     QString sql = QString();
-    QString key = t->primaryKey();
+    QString key = t->isPrimaryKeyAutoIncrement() ? t->primaryKey() : QString();
+
     QStringList values;
 
     foreach (QString f, t->changedProperties())
         if (f != key)
-            values.append("'" + t->property(f.toLatin1().data()).toString()
-                          + "'");
+            values.append(escapeValue(t->property(f.toLatin1().data())));
 
     QString changedPropertiesText = QString();
     QSet<QString> props = t->changedProperties();
@@ -785,7 +785,7 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
         break;
 
     case QVariant::Uuid:
-        return v.toUuid().toString();
+        return "'" + v.toUuid().toString() + "'";
         break;
 
     case QVariant::Char:

@@ -205,11 +205,19 @@ bool DatabasePrivate::getCurrectScheema()
 
         if (!nutClassInfoString(q->metaObject()->classInfo(i),
                                 type, name, value)) {
+            qDebug() << "No valid table in" << q->metaObject()->classInfo(i).value();
             continue;
         }
-
-        if (type == __nut_TABLE)
+        if (type == __nut_TABLE) {
+            //name: table class name
+            //value: table variable name (table name in db)
             tables.insert(name, value);
+
+            int typeId = QMetaType::type(name.toLocal8Bit() + "*");
+            qDebug() << type << name << value << typeId;
+            TableModel *sch = new TableModel(typeId, value);
+            currentModel.append(sch);
+        }
 
         if (type == __nut_DB_VERSION)
             currentModel.setVersion(name);

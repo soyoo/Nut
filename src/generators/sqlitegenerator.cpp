@@ -64,6 +64,9 @@ QString SqliteGenerator::fieldType(FieldModel *field)
         else
             dbType = "text";
         break;
+    case QVariant::Uuid:
+        dbType = "text";
+        break;
     default:
         dbType = QString();
     }

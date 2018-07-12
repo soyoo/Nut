@@ -126,10 +126,11 @@ inline bool nutClassInfoInt(const QMetaClassInfo &classInfo,
     NUT_INFO(__nut_TABLE, type, name)                                          \
     Q_PROPERTY(NUT_WRAP_NAMESPACE(TableSet<type>) name READ name)              \
     NUT_WRAP_NAMESPACE(TableSet<type>) *m_##name;                              \
-public:                                                                        \
+    public:                                                                    \
     static const type *_##name;                                                \
     NUT_WRAP_NAMESPACE(TableSet<type>) *name() const                           \
-            { return m_##name; }
+    { return m_##name; }                                                       \
+    private:
 
 //Table
 #define NUT_DECLARE_FIELD(type, name, read, write)                             \
