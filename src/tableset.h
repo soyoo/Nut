@@ -21,10 +21,10 @@
 #ifndef TABLESET_H
 #define TABLESET_H
 
-#include <QtCore/qglobal.h>
-#include <QtCore/QVariant>
+#include <QtCore/QtGlobal>
 #include <QtCore/QMetaMethod>
 #include <QtCore/QMetaType>
+#include <QtCore/QVariant>
 #include <QtSql/QSqlQuery>
 
 #include "tablesetbase_p.h"
@@ -52,6 +52,7 @@ public:
     int length() const;
     T *at(int i) const;
     const T &operator[](int i) const;
+
     Query<T> *query();
     Query<T> *query(bool autoDelete);
 };

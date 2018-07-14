@@ -1,6 +1,12 @@
 #ifndef CONSTS_H
 #define CONSTS_H
 
+#define PRINT(x) qDebug() << #x "=" << x;
+#define TIC()  QElapsedTimer timer; timer.start()
+#define TOC()  qDebug() << QString("Elapsed time: %1ms for %2") \
+    .arg(timer.elapsed() / 1000.) \
+    .arg(__func__)
+
 //#define DRIVER "QPSQL"
 //#define HOST "127.0.0.1"
 //#define DATABASE "nutdb2"

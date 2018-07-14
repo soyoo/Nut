@@ -477,7 +477,7 @@ ConditionalPhrase ConditionalPhrase::operator ==(const QVariant &other)
 //                             const_cast<ConditionalPhrase&>(other));
 //}
 
-#define DECLARE_CONDITIONALPHRASE_OPERATORS(op, cond) \
+#define DECLARE_CONDITIONALPHRASE_OPERATORS_IMPL(op, cond) \
 ConditionalPhrase operator op(const ConditionalPhrase &l, \
                               const ConditionalPhrase &r) \
 { \
@@ -526,9 +526,9 @@ ConditionalPhrase operator op(ConditionalPhrase &&l, ConditionalPhrase &&r) \
     return p; \
 }
 
-DECLARE_CONDITIONALPHRASE_OPERATORS(==, PhraseData::Equal)
-DECLARE_CONDITIONALPHRASE_OPERATORS(||, PhraseData::Or)
-DECLARE_CONDITIONALPHRASE_OPERATORS(&&, PhraseData::And)
+DECLARE_CONDITIONALPHRASE_OPERATORS_IMPL(==, PhraseData::Equal)
+DECLARE_CONDITIONALPHRASE_OPERATORS_IMPL(||, PhraseData::Or)
+DECLARE_CONDITIONALPHRASE_OPERATORS_IMPL(&&, PhraseData::And)
 
 ConditionalPhrase ConditionalPhrase::operator !()
 {
