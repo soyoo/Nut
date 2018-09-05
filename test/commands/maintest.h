@@ -14,7 +14,7 @@ class MainTest : public QObject
     Post *post;
     Query<Post> *q;
 public:
-    explicit MainTest(QObject *parent = 0);
+    explicit MainTest(QObject *parent = nullptr);
 
 signals:
 

@@ -21,7 +21,7 @@ void MainTest::no1()
     FieldPhrase<QString> name("main", "name");
     FieldPhrase<QString> last_name("main", "last_name");
     FieldPhrase<QDate> date("main", "date");
-    auto w = id == 4 && name == "salam";
+    auto w = (id == 4 && name == "hi");
 }
 
 QTEST_MAIN(MainTest)

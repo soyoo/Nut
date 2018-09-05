@@ -17,10 +17,10 @@ class WeblogDatabase : public Database
 
     NUT_DB_VERSION(1)
 
-    NUT_DECLARE_TABLE(Post, post)
-    NUT_DECLARE_TABLE(Comment, comment)
-    NUT_DECLARE_TABLE(User, user)
-    NUT_DECLARE_TABLE(Score, score)
+    NUT_DECLARE_TABLE(Post, posts)
+    NUT_DECLARE_TABLE(Comment, comments)
+    NUT_DECLARE_TABLE(User, users)
+    NUT_DECLARE_TABLE(Score, scores)
 
 public:
     WeblogDatabase();
