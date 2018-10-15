@@ -25,4 +25,25 @@
 //#define USERNAME "sa"
 //#define PASSWORD "qwe123!@#"
 
+#ifdef Q_OS_LINUX
+#   define OS "Linux"
+#elif defined(Q_OS_WIN)
+#   define OS "Windows"
+#elif defined(Q_OS_OSX)
+#   define OS "macOS"
+#else
+#   define OS "Unknown"
+#endif
+
+#define PRINT_FORM(db) \
+    qDebug() << "\n\n****************************"                             \
+             << "\nAll tests passed,"                                          \
+             << "please fill in bellow form and email it to me at"             \
+             << "hamed.masafi@gmail.com"                                       \
+             << "\n\tDriver:" << db.driver()                                   \
+             << "\n\tOS: " OS " (version: ________)"                           \
+             << "\n\tQt version: " QT_VERSION_STR                              \
+             << "\n\tTest:" << metaObject()->className()                       \
+             << "\n****************************\n";
+
 #endif // CONSTS_H

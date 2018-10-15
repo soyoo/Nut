@@ -534,7 +534,7 @@ QString SqlGeneratorBase::selectCommand(const QString &tableName,
     Q_UNUSED(take);
     QString selectText;
 
-    if (!fields.isValid) {
+    if (fields.data.count() == 0) {
         QSet<TableModel*> tables;
         tables.insert(_database->model().tableByName(tableName));
         foreach (RelationModel *rel, joins)
@@ -646,6 +646,27 @@ QString SqlGeneratorBase::updateCommand(const QString &tableName,
     removeTableNames(sql);
 
     return sql;
+}
+
+QString SqlGeneratorBase::insertCommand(const QString &tableName, const AssignmentPhraseList &assigments)
+{
+
+    QString fieldNames;
+    QString values;
+    foreach (PhraseData *d, assigments.data) {
+        if (fieldNames != "")
+            fieldNames.append(", ");
+
+        if (values != "")
+            values.append(", ");
+
+        fieldNames.append(d->left->fieldName);
+        values.append(escapeValue(d->operand));
+    }
+    return QString("INSERT INTO %1 (%2) VALUES (%3);")
+              .arg(tableName)
+              .arg(fieldNames)
+              .arg(values);
 }
 
 //QString SqlGeneratorBase::selectCommand(SqlGeneratorBase::AgregateType t,

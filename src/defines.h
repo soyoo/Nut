@@ -138,7 +138,7 @@ inline bool nutClassInfoInt(const QMetaClassInfo &classInfo,
     NUT_INFO(__nut_FIELD, name, 0)                                             \
     type m_##name;                                                             \
 public:                                                                        \
-    static NUT_WRAP_NAMESPACE(FieldPhrase<type>) name ## Field(){              \
+    static NUT_WRAP_NAMESPACE(FieldPhrase<type>)& name ## Field(){              \
         static NUT_WRAP_NAMESPACE(FieldPhrase<type>) f =                       \
                 NUT_WRAP_NAMESPACE(FieldPhrase<type>)                          \
                         (staticMetaObject.className(), #name);                 \

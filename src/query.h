@@ -83,12 +83,14 @@ public:
     QVariant min(const FieldPhrase<int> &f);
     QVariant average(const FieldPhrase<int> &f);
 
+    QVariant insert(AssignmentPhraseList p);
+
     //data mailpulation
     int update(const AssignmentPhraseList &ph);
 //    int insert(const AssignmentPhraseList &ph);
     int remove();
 
-    QSqlQueryModel *toModal();
+    QSqlQueryModel *toModel();
 
     //debug purpose
     QString sqlCommand() const;
@@ -121,7 +123,6 @@ template <class T>
 Q_OUTOFLINE_TEMPLATE Query<T>::~Query()
 {
     Q_D(Query);
-    qDebug() << "~Query";// << d->sql;
     delete d;
 }
 
@@ -223,7 +224,8 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
             //            if (p == lastP)
             //                qFatal("NULL Loop detected");
 
-            n = (++n) % levels.count();
+            ++n;
+            n = n % levels.count();
             if (checked[n])
                 continue;
             LevelData &data = levels[n];
@@ -231,13 +233,16 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
             // check if key value is changed
             if (data.lastKeyValue == q.value(data.keyFiledname)) {
                 --p;
+                qDebug() << "key os not changed for" << data.keyFiledname;
                 continue;
             }
 
             // check if master if current table has processed
             foreach (int m, data.masters)
-                if (!checked[m])
+                if (!checked[m]) {
+                    qDebug() << "row is checked";
                     continue;
+                }
 
             checked[n] = true;
             --p;
@@ -257,6 +262,8 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
                 if (!table)
                     qFatal("Could not create instance of %s",
                            qPrintable(data.table->name()));
+
+                qDebug() << data.table->name() << "created";
             }
 
             QStringList childFields = data.table->fieldsNames();
@@ -327,7 +334,7 @@ Q_OUTOFLINE_TEMPLATE T *Query<T>::first()
     if (list.count())
         return list.first();
     else
-        return 0;
+        return nullptr;
 }
 
 template <class T>
@@ -402,6 +409,17 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::average(const FieldPhrase<int> &f)
     if (q.next())
         return q.value(0).toInt();
     return 0;
+}
+
+template<class T>
+Q_OUTOFLINE_TEMPLATE QVariant Query<T>::insert(AssignmentPhraseList p)
+{
+    Q_D(Query);
+    d->sql = d->database->sqlGenertor()
+            ->insertCommand(d->tableName, p);
+    QSqlQuery q = d->database->exec(d->sql);
+
+   return q.lastInsertId();
 }
 
 template <class T>
@@ -524,7 +542,7 @@ Q_OUTOFLINE_TEMPLATE int Query<T>::remove()
 }
 
 template <class T>
-Q_OUTOFLINE_TEMPLATE QSqlQueryModel *Query<T>::toModal()
+Q_OUTOFLINE_TEMPLATE QSqlQueryModel *Query<T>::toModel()
 {
     Q_D(Query);
 
@@ -533,21 +551,31 @@ Q_OUTOFLINE_TEMPLATE QSqlQueryModel *Query<T>::toModal()
                 d->fieldPhrase,
                 d->wherePhrase, d->orderPhrase, d->relations,
                 d->skip, d->take);
-
+qDebug() << d->sql;
     DatabaseModel dbModel = d->database->model();
     QSqlQueryModel *model = new QSqlQueryModel;
     model->setQuery(d->sql, d->database->database());
 
     int fieldIndex = 0;
-    foreach (const PhraseData *pd, d->fieldPhrase.data) {
-        QString displayName = dbModel.tableByClassName(pd->className)
-                ->field(pd->fieldName)->displayName;
 
-        qDebug() << "Display name for"<<pd->className<<pd->fieldName
-                 <<"="<<displayName;
-        model->setHeaderData(fieldIndex++,
-                             Qt::Horizontal,
-                             displayName);
+    if (d->fieldPhrase.data.count()) {
+        foreach (const PhraseData *pd, d->fieldPhrase.data) {
+            QString displayName = dbModel.tableByClassName(pd->className)
+                    ->field(pd->fieldName)->displayName;
+
+            qDebug() << "Display name for"<<pd->className<<pd->fieldName
+                     <<"="<<displayName;
+            model->setHeaderData(fieldIndex++,
+                                 Qt::Horizontal,
+                                 displayName);
+        }
+    } else {
+        TableModel *tbl = d->database->model().tableByName(d->tableName);
+        foreach (FieldModel *f, tbl->fields()) {
+            model->setHeaderData(fieldIndex++,
+                                 Qt::Horizontal,
+                                 f->displayName);
+        }
     }
 
     return model;
