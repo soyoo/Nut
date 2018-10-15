@@ -22,17 +22,20 @@
     .arg(timer.elapsed() / 1000.) \
     .arg(__func__)
 
+#define REGISTER(x) qDebug() << #x << "type id:" << qRegisterMetaType<x*>()
+
 MainTest::MainTest(QObject *parent) : QObject(parent)
 {
 }
 
 void MainTest::initTestCase()
 {
-    qDebug() << "User type id:" << qRegisterMetaType<User*>();
-    qDebug() << "Post type id:" << qRegisterMetaType<Post*>();
-    qDebug() << "Score type id:" << qRegisterMetaType<Score*>();
-    qDebug() << "Comment type id:" << qRegisterMetaType<Comment*>();
-    qDebug() << "DB type id:" << qRegisterMetaType<WeblogDatabase*>();
+    //register all entities with Qt-MetaType mechanism
+    REGISTER(User);
+    REGISTER(Post);
+    REGISTER(Score);
+    REGISTER(Comment);
+    REGISTER(WeblogDatabase);
 
     db.setDriver(DRIVER);
     db.setHostName(HOST);
@@ -41,11 +44,12 @@ void MainTest::initTestCase()
     db.setPassword(PASSWORD);
 
     bool ok = db.open();
+    QTEST_ASSERT(ok);
 
     db.comments()->query()->remove();
     db.posts()->query()->remove();
-
-    QTEST_ASSERT(ok);
+    db.users()->query()->remove();
+    db.scores()->query()->remove();
 }
 
 void MainTest::dataScheema()
@@ -61,6 +65,7 @@ void MainTest::dataScheema()
 void MainTest::createUser()
 {
     user = new User;
+    user->setId(QUuid::createUuid());
     user->setUsername("admin");
     user->setPassword("123456");
     db.users()->append(user);
@@ -73,11 +78,13 @@ void MainTest::createPost()
     Post *newPost = new Post;
     newPost->setTitle("post title");
     newPost->setSaveDate(QDateTime::currentDateTime());
+    newPost->setPublic(false);
 
     db.posts()->append(newPost);
 
     for(int i = 0 ; i < 3; i++){
         Comment *comment = new Comment;
+        comment->setId(QUuid::createUuid());
         comment->setMessage("comment #" + QString::number(i));
         comment->setSaveDate(QDateTime::currentDateTime());
         comment->setAuthorId(user->id());
@@ -100,25 +107,27 @@ void MainTest::createPost()
 
 void MainTest::createPost2()
 {
-    Post *newPost = new Post;
-    newPost->setTitle("post title");
-    newPost->setSaveDate(QDateTime::currentDateTime());
+    //create post on the fly
+    QVariant postIdVar = db.posts()->query()->insert(
+              (Post::titleField() = "This is a sample")
+                & (Post::isPublicField() = true));
 
-    db.posts()->append(newPost);
-    db.saveChanges();
+    QTEST_ASSERT(postIdVar.type() == QVariant::LongLong);
+    int postId = postIdVar.toInt();
 
     for(int i = 0 ; i < 3; i++){
         Comment *comment = new Comment;
+        comment->setId(QUuid::createUuid());
         comment->setMessage("comment #" + QString::number(i + 2));
         comment->setSaveDate(QDateTime::currentDateTime());
         comment->setAuthor(user);
-        comment->setPostId(newPost->id());
+        //join child to master by id
+        comment->setPostId(postId);
         db.comments()->append(comment);
     }
     db.saveChanges();
 
-    QTEST_ASSERT(newPost->id() != 0);
-    qDebug() << "New post2 inserted with id:" << newPost->id();
+    QTEST_ASSERT(postId != 0);
 }
 
 void MainTest::updatePostOnTheFly()
@@ -134,17 +143,20 @@ void MainTest::selectPublicts()
 {
     auto q = db.posts()->query()
             ->where(Post::isPublicField())
-            ->toList();
+            ->count();
 
     auto q2 = db.posts()->query()
             ->where(!Post::isPublicField())
-            ->toList();
+            ->count();
+
+    QTEST_ASSERT(q == 1);
+    QTEST_ASSERT(q2 == 1);
 }
 
 void MainTest::selectPosts()
 {
     auto q = db.posts()->query()
-        ->join<Comment>()//Comment::authorIdField() == Post::idField())
+        ->join<Comment>()
         ->orderBy(!Post::saveDateField() | Post::bodyField())
         ->setWhere(Post::idField() == postId);
 
@@ -155,6 +167,7 @@ void MainTest::selectPosts()
     PRINT(posts.length());
     PRINT(posts.at(0)->comments()->length());
     QTEST_ASSERT(posts.length() == 1);
+    qDebug() << posts.at(0)->comments()->length();
     QTEST_ASSERT(posts.at(0)->comments()->length() == 3);
     QTEST_ASSERT(posts.at(0)->title() == "post title");
 
@@ -193,7 +206,7 @@ void MainTest::selectPostIds()
 {
     auto q = db.posts()->query();
     auto ids = q->select(Post::idField());
-qDebug() << q->sqlCommand();
+qDebug() << ids.count();
     QTEST_ASSERT(ids.count() == 2);
 }
 
@@ -248,7 +261,7 @@ void MainTest::modifyPost()
 
     Post *post = q->first();
 
-    QTEST_ASSERT(post != 0);
+    QTEST_ASSERT(post != nullptr);
 
     post->setTitle("new name");
     db.saveChanges();
@@ -263,10 +276,10 @@ void MainTest::modifyPost()
 
 void MainTest::emptyDatabase()
 {
-    auto commentsCount = db.comments()->query()->remove();
-    auto postsCount = db.posts()->query()->remove();
-    QTEST_ASSERT(postsCount == 3);
-    QTEST_ASSERT(commentsCount == 6);
+//    auto commentsCount = db.comments()->query()->remove();
+//    auto postsCount = db.posts()->query()->remove();
+//    QTEST_ASSERT(postsCount == 3);
+//    QTEST_ASSERT(commentsCount == 6);
 }
 
 void MainTest::cleanupTestCase()
@@ -274,8 +287,10 @@ void MainTest::cleanupTestCase()
     post->deleteLater();
     user->deleteLater();
 
+    //release models before exiting
     qDeleteAll(TableModel::allModels());
-    DatabaseModel::deleteAllModels();
+
+    PRINT_FORM(db);
 }
 
 QTEST_MAIN(MainTest)

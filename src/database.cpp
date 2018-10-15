@@ -214,7 +214,10 @@ bool DatabasePrivate::getCurrectScheema()
             tables.insert(name, value);
 
             int typeId = QMetaType::type(name.toLocal8Bit() + "*");
-            qDebug() << type << name << value << typeId;
+
+            if (!typeId)
+                qFatal("The class %s is not registered with qt meta object", qPrintable(name));
+
             TableModel *sch = new TableModel(typeId, value);
             currentModel.append(sch);
         }

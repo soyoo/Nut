@@ -16,7 +16,7 @@ class Comment : public Table
 {
     Q_OBJECT
 
-    NUT_PRIMARY_AUTO_INCREMENT(id)
+    NUT_PRIMARY_KEY(id)
     NUT_DECLARE_FIELD(QUuid, id, id, setId)
     NUT_DECLARE_FIELD(QString, message, message, setMessage)
     NUT_DECLARE_FIELD(QDateTime, saveDate, saveDate, setSaveDate)
@@ -26,7 +26,7 @@ class Comment : public Table
     NUT_FOREGION_KEY(User, QUuid, author, author, setAuthor)
 
 public:
-    Q_INVOKABLE explicit Comment(QObject *parentTableSet = 0);
+    Q_INVOKABLE explicit Comment(QObject *parentTableSet = nullptr);
 };
 
 Q_DECLARE_METATYPE(Comment*)
