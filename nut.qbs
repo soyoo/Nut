@@ -1,39 +1,53 @@
 import qbs
 
-Product {
-    type: "staticlibrary"
-    name: "nut"
-    Depends { name: 'cpp' }
-    Depends { name: "Qt.core" }
-    Depends { name: "Qt.sql" }
+Project {
+//    StaticLibrary {
+//        name: "nut_static"
+//        files: [
+//            "src/*.h",
+//            "src/*.cpp",
+//            "src/generators/*.h",
+//            "src/generators/*.cpp"
+//        ]
+//        Depends { name: 'cpp' }
+//        Depends { name: "Qt.core" }
+//        Depends { name: "Qt.sql" }
+//        Group { qbs.install: true; fileTagsFilter: product.type;}
 
-    Export {
-        Depends { name: "cpp" }
+//        Export {
+//            Depends { name: "cpp" }
+//            Depends { name: "Qt.core" }
+//            Depends { name: "Qt.sql" }
+//            cpp.includePaths: [
+//                product.sourceDirectory + "/src",
+//                product.sourceDirectory + "/include"
+//            ]
+//        }
+//    }
+
+    DynamicLibrary {
+        name: "nut"
+        files: [
+            "src/*.h",
+            "src/*.cpp",
+            "src/generators/*.h",
+            "src/generators/*.cpp"
+        ]
+
+        Depends { name: 'cpp' }
         Depends { name: "Qt.core" }
         Depends { name: "Qt.sql" }
-        cpp.includePaths: [
-            product.sourceDirectory + "/src",
-            product.sourceDirectory + "/include"
-        ]
-    }
 
-    files: [
-        "src/tableset.cpp",
-        "src/query.cpp",
-        "src/databasemodel.cpp",
-        "src/tablesetbase.cpp",
-        "src/changelogtable.cpp",
-        "src/querybase.cpp",
-        "src/tablemodel.cpp",
-        "src/wherephrase.cpp",
-        "src/table.cpp",
-        "src/database.cpp",
-        "src/generators/sqlgeneratorbase.cpp",
-        "src/generators/postgresqlgenerator.cpp",
-        "src/generators/mysqlgenerator.cpp",
-        "src/generators/sqlitegenerator.cpp",
-        "src/generators/sqlservergenerator.cpp",
-        "src/types/dbgeography.cpp",
-        "src/serializableobject.cpp"
-    ]
+        Group { qbs.install: true; fileTagsFilter: product.type;}
+
+        Export {
+            Depends { name: "cpp" }
+            Depends { name: "Qt.core" }
+            Depends { name: "Qt.sql" }
+            cpp.includePaths: [
+                product.sourceDirectory + "/src",
+                product.sourceDirectory + "/include"
+            ]
+        }
+    }
 }

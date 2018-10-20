@@ -74,8 +74,9 @@ void Table::propertyChanged(QString propName)
     if (!myModel)
         qFatal ("model for this class not found");
 
-    if (propName == primaryKey())
-        return;
+    foreach (FieldModel *f, myModel->fields())
+        if(f->isPrimaryKey && propName == f->name && f->isAutoIncrement)
+            return;
 
     _changedProperties.insert(propName);
     if (_status == FeatchedFromDB)

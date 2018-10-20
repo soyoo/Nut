@@ -17,8 +17,8 @@ class User : public Nut::Table
 {
     Q_OBJECT
 
-    NUT_PRIMARY_AUTO_INCREMENT(id)
-    NUT_DECLARE_FIELD(int, id, id, setId)
+    NUT_PRIMARY_KEY(id)
+    NUT_DECLARE_FIELD(QUuid, id, id, setId)
 
     NUT_NOT_NULL(username)
     NUT_LEN(username, 50)
@@ -32,7 +32,7 @@ class User : public Nut::Table
     NUT_DECLARE_CHILD_TABLE(Score, scores)
 
 public:
-    Q_INVOKABLE User(QObject *parentTableSet = 0);
+    Q_INVOKABLE User(QObject *parentTableSet = nullptr);
 };
 
 Q_DECLARE_METATYPE(User*)

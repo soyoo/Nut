@@ -109,6 +109,9 @@ public:
     virtual QString updateCommand(const QString &tableName,
                                   const AssignmentPhraseList &assigments,
                                   const ConditionalPhrase &where);
+
+    virtual QString insertCommand(const QString &tableName,
+                                  const AssignmentPhraseList &assigments);
 //    virtual QString selectCommand(AgregateType t,
 //                                  QString agregateArg, QString tableName,
 //                                  QList<WherePhrase> &wheres,

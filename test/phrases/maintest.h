@@ -11,7 +11,7 @@ class MainTest : public QObject
     Q_OBJECT
 
 public:
-    explicit MainTest(QObject *parent = 0);
+    explicit MainTest(QObject *parent = nullptr);
 
 signals:
 
