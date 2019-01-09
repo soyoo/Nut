@@ -281,6 +281,7 @@ public:
 
     AbstractFieldPhrase operator !();
     AssignmentPhrase operator =(const QVariant &other);
+    AssignmentPhrase operator =(const ConditionalPhrase &other);
     AssignmentPhrase operator <<(const QVariant &other);
 };
 
@@ -334,6 +335,9 @@ class FieldPhrase<type> : public AbstractFieldPhrase \
     SPECIALIZATION_NUMERIC_MEMBER(type, /,  PhraseData::Divide) \
     AssignmentPhrase operator =(const QVariant &other) { \
         return AssignmentPhrase(this, other); \
+    } \
+    AssignmentPhrase operator =(const ConditionalPhrase &other) { \
+        return AssignmentPhrase(new PhraseData(data, PhraseData::Equal, other.data)); \
     } \
     ConditionalPhrase between(const QVariant &min, const QVariant &max) \
     { \

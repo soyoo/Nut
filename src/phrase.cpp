@@ -180,6 +180,11 @@ AssignmentPhrase AbstractFieldPhrase::operator =(const QVariant &other)
     return AssignmentPhrase(this, other);
 }
 
+AssignmentPhrase AbstractFieldPhrase::operator =(const ConditionalPhrase &other)
+{
+    return AssignmentPhrase(new PhraseData(data, PhraseData::Equal, other.data));
+}
+
 AssignmentPhrase AbstractFieldPhrase::operator <<(const QVariant &other)
 {
     return AssignmentPhrase(this, other);

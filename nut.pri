@@ -27,7 +27,8 @@ HEADERS += \
     $$PWD/src/serializableobject.h \
     $$PWD/src/sqlmodel.h \
     $$PWD/src/sqlmodel_p.h \
-    $$PWD/src/phrase.h
+    $$PWD/src/phrase.h \
+    $$PWD/src/tuple.h
 
 SOURCES += \
     $$PWD/src/generators/sqlgeneratorbase.cpp \
@@ -47,4 +48,5 @@ SOURCES += \
     $$PWD/src/database.cpp \
     $$PWD/src/serializableobject.cpp \
     $$PWD/src/sqlmodel.cpp \
-    $$PWD/src/phrase.cpp
+    $$PWD/src/phrase.cpp \
+    $$PWD/src/tuple.cpp

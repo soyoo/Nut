@@ -94,7 +94,7 @@ Q_OUTOFLINE_TEMPLATE int TableSet<T>::length() const
 template<class T>
 Q_OUTOFLINE_TEMPLATE T *TableSet<T >::at(int i) const
 {
-    return (T*)_tablesList.at(i);
+    return reinterpret_cast<T*>(_tablesList.at(i));
 }
 
 template<class T>

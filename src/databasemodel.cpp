@@ -86,7 +86,7 @@ TableModel *DatabaseModel::tableByClassName(QString className) const
             return s;
     }
 
-    return 0;
+    return nullptr;
 }
 
 bool DatabaseModel::operator ==(const DatabaseModel &other) const

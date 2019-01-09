@@ -39,7 +39,7 @@ NUT_BEGIN_NAMESPACE
  *  This should be fixed to v1.2
  */
 
-Table::Table(QObject *parent) : QObject(parent), myModel(0), _parentTableSet(0)
+Table::Table(QObject *parent) : QObject(parent), myModel(nullptr), _parentTableSet(nullptr)
 {
     setStatus(NewCreated);
 }
@@ -57,7 +57,10 @@ QString Table::primaryKey() const
 
 bool Table::isPrimaryKeyAutoIncrement() const
 {
-    return myModel->field(myModel->primaryKey())->isAutoIncrement;
+    FieldModel *pk = myModel->field(myModel->primaryKey());
+    if (!pk)
+        return false;
+    return pk->isAutoIncrement;
 }
 
 
@@ -72,7 +75,7 @@ void Table::propertyChanged(QString propName)
          myModel = TableModel::findByClassName(metaObject()->className());
 
     if (!myModel)
-        qFatal ("model for this class not found");
+        qFatal ("model for class '%s' not found", qPrintable(metaObject()->className()));
 
     foreach (FieldModel *f, myModel->fields())
         if(f->isPrimaryKey && propName == f->name && f->isAutoIncrement)

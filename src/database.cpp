@@ -116,10 +116,10 @@ bool DatabasePrivate::open(bool update)
         return false;
     }
 
-    if(update)
+//    if(update)
         return updateDatabase();
-    else
-        return true;
+//    else
+//        return true;
 }
 
 bool DatabasePrivate::updateDatabase()
@@ -202,7 +202,7 @@ bool DatabasePrivate::getCurrectScheema()
         QString type;
         QString name;
         QString value;
-
+qDebug()<<q->metaObject()->className();
         if (!nutClassInfoString(q->metaObject()->classInfo(i),
                                 type, name, value)) {
             qDebug() << "No valid table in" << q->metaObject()->classInfo(i).value();

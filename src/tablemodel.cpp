@@ -69,7 +69,7 @@ void TableModel::setTypeId(const int &typeId)
 FieldModel *TableModel::field(int n) const
 {
     if (n < 0 || n >= _fields.count())
-        return 0;
+        return nullptr;
 
     return _fields.at(n);
 }
@@ -80,7 +80,7 @@ FieldModel *TableModel::field(QString name) const
         if(f->name == name)
             return f;
     
-    return 0;
+    return nullptr;
 }
 
 QList<FieldModel *> TableModel::fields() const
@@ -114,7 +114,7 @@ TableModel *TableModel::findByTypeId(int typeId)
     foreach (TableModel *model, _allModels)
         if(model->typeId() == typeId)
             return model;
-    return 0;
+    return nullptr;
 }
 
 /**
@@ -125,11 +125,13 @@ TableModel *TableModel::findByTypeId(int typeId)
  */
 TableModel *TableModel::findByClassName(QString className)
 {
-    foreach (TableModel *model, _allModels)
+    foreach (TableModel *model, _allModels){
+        qDebug() << model->className();
         if(model->className() == className)
             return model;
+    }
 
-    return 0;
+    return nullptr;
 }
 
 bool TableModel::operator ==(const TableModel &t) const{
@@ -377,7 +379,7 @@ RelationModel *TableModel::foregionKey(const QString &otherTable) const
         if(fk->masterClassName == otherTable)
             return fk;
 
-    return 0;
+    return nullptr;
 }
 
 RelationModel *TableModel::foregionKeyByField(const QString &fieldName) const
@@ -386,7 +388,7 @@ RelationModel *TableModel::foregionKeyByField(const QString &fieldName) const
         if(fk->localColumn == fieldName)
             return fk;
 
-    return 0;
+    return nullptr;
 }
 
 QString TableModel::toString() const
@@ -440,7 +442,7 @@ RelationModel::RelationModel(const QJsonObject &obj)
     localProperty = obj.value("localProperty").toString();
     masterClassName = obj.value("masterClassName").toString();
     foreignColumn = obj.value("foreignColumn").toString();
-    slaveTable = masterTable = 0;
+    slaveTable = masterTable = nullptr;
 }
 
 QJsonObject RelationModel::toJson() const

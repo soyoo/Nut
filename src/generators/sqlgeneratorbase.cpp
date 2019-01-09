@@ -52,7 +52,7 @@ NUT_BEGIN_NAMESPACE
  *      INNER JOIN dbo.Entities ON dbo.GiftCards.GiftCardID = dbo.Entities.GiftCardID
  */
 SqlGeneratorBase::SqlGeneratorBase(Database *parent)
-    : QObject((QObject *)parent)
+    : QObject(parent)
 {
     if (parent)
         _database = parent;
@@ -251,7 +251,7 @@ QString SqlGeneratorBase::diffRelation(TableModel *oldTable, TableModel *newTabl
     QStringList columnSql;
     foreach (QString fieldName, relations) {
         RelationModel *newRelation = newTable->foregionKeyByField(fieldName);
-        RelationModel *oldRelation = 0;
+        RelationModel *oldRelation = nullptr;
         if (oldTable)
             oldRelation = oldTable->foregionKeyByField(fieldName);
 
@@ -457,26 +457,18 @@ QString SqlGeneratorBase::agregateText(const AgregateType &t,
     switch (t) {
     case Min:
         return "MIN(" + arg + ")";
-        break;
 
     case Max:
         return "MAX(" + arg + ")";
-        break;
 
     case Average:
         return "AVERAGE(" + arg + ")";
-        break;
 
     case Count:
         return "COUNT(" + arg + ")";
-        break;
 
     case SignleField:
         return arg;
-        break;
-
-    default:
-        return QString();
     }
 }
 
@@ -795,7 +787,6 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
     switch (v.type()) {
     case QVariant::Bool:
         return v.toBool() ? "1" : "0";
-        break;
 
     case QVariant::Int:
     case QVariant::UInt:
@@ -803,11 +794,9 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
     case QVariant::LongLong:
     case QVariant::Double:
         return v.toString();
-        break;
 
     case QVariant::Uuid:
         return "'" + v.toUuid().toString() + "'";
-        break;
 
     case QVariant::Char:
     case QVariant::String:
@@ -838,9 +827,10 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
 
     case QVariant::Invalid:
         qFatal("Invalud field value");
-        return "<FAIL>";
 
     default:
+        qDebug() << v.type();
+        qWarning("No field escape rule for: %s", v.typeName());
         Q_UNREACHABLE();
         return QString();
     }
@@ -875,9 +865,6 @@ QString SqlGeneratorBase::phrase(const PhraseData *d) const
     case PhraseData::WithoutOperand:
         ret = phrase(d->left) + " " + operatorString(d->operatorCond);
         break;
-
-    default:
-        ret = "<FAIL>";
     }
 
     if (d->operatorCond == PhraseData::And || d->operatorCond == PhraseData::Or)
@@ -968,7 +955,7 @@ QString SqlGeneratorBase::createConditionalPhrase(const PhraseData *d) const
     //apply not (!)
     if (d->isNot) {
         if (op < 20)
-            op = (PhraseData::Condition)((op + 10) % 20);
+            op = static_cast<PhraseData::Condition>((op + 10) % 20);
     }
     switch (d->type) {
     case PhraseData::Field:
@@ -1007,9 +994,6 @@ QString SqlGeneratorBase::createConditionalPhrase(const PhraseData *d) const
     case PhraseData::WithoutOperand:
         ret = createConditionalPhrase(d->left) + " " + operatorString(op);
         break;
-
-    default:
-        ret = "<FAIL phrase>";
     }
 
     if (d->operatorCond == PhraseData::And || d->operatorCond == PhraseData::Or)
@@ -1069,7 +1053,6 @@ void SqlGeneratorBase::createInsertPhrase(const AssignmentPhraseList &ph, QStrin
 
         case PhraseData::Field:
         case PhraseData::WithoutOperand:
-        default:
             qFatal("Invalid insert command");
         }
     }
