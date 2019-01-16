@@ -33,7 +33,9 @@ public:
 
     QString fieldType(FieldModel *field);
 
-    QString diff(FieldModel *oldField, FieldModel *newField);
+    QString diff(FieldModel *oldField, FieldModel *newField);    
+
+    void replaceTableNames(QString &command);
 };
 
 NUT_END_NAMESPACE

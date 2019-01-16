@@ -128,6 +128,11 @@ public:
     virtual QString phrase(const PhraseData *d) const;
     virtual QString operatorString(const PhraseData::Condition &cond) const;
     virtual void appendSkipTake(QString &sql, int skip = -1, int take = -1);
+
+
+    virtual void replaceTableNames(QString &command);
+    virtual void removeTableNames(QString &command);
+
 protected:
     QString createConditionalPhrase(const PhraseData *d) const;
     QString createFieldPhrase(const PhraseList &ph);
@@ -137,8 +142,6 @@ protected:
     QString agregateText(const AgregateType &t, const QString &arg = QString()) const;
     QString fromTableText(const QString &tableName, QString &joinClassName, QString &orderBy) const;
 //    QString createWhere(QList<WherePhrase> &wheres);
-    void replaceTableNames(QString &command);
-    void removeTableNames(QString &command);
 };
 
 NUT_END_NAMESPACE

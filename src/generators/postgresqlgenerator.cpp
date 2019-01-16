@@ -122,5 +122,11 @@ QString PostgreSqlGenerator::diff(FieldModel *oldField, FieldModel *newField)
     return sql;
 }
 
+void PostgreSqlGenerator::replaceTableNames(QString &command)
+{
+    foreach (TableModel *m, TableModel::allModels())
+        command = command
+                .replace("[" + m->className() + "]", m->name() );
+}
 
 NUT_END_NAMESPACE
