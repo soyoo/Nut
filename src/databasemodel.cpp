@@ -233,7 +233,7 @@ void DatabaseModel::deleteAllModels()
      while (i.hasNext()) {
          i.next();
 //         cout << i.key() << ": " << i.value() << endl;
-         delete i.value();
+//         qDeleteAll(i.value());
      }
 //    qDeleteAll(_models.values());
     _models.clear();

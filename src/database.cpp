@@ -203,13 +203,24 @@ bool DatabasePrivate::getCurrectScheema()
         QString name;
         QString value;
 
-        if (!checkClassInfo(q->metaObject()->classInfo(i),
-                            type, name, value)) {
+        if (!nutClassInfoString(q->metaObject()->classInfo(i),
+                                type, name, value)) {
+            qDebug() << "No valid table in" << q->metaObject()->classInfo(i).value();
             continue;
         }
-
-        if (type == __nut_TABLE)
+        if (type == __nut_TABLE) {
+            //name: table class name
+            //value: table variable name (table name in db)
             tables.insert(name, value);
+
+            int typeId = QMetaType::type(name.toLocal8Bit() + "*");
+
+            if (!typeId)
+                qFatal("The class %s is not registered with qt meta object", qPrintable(name));
+
+            TableModel *sch = new TableModel(typeId, value);
+            currentModel.append(sch);
+        }
 
         if (type == __nut_DB_VERSION)
             currentModel.setVersion(name);
@@ -249,21 +260,21 @@ bool DatabasePrivate::getCurrectScheema()
     return true;
 }
 
-bool DatabasePrivate::checkClassInfo(const QMetaClassInfo &classInfo, QString &type, QString &name, QString &value)
-{
-    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
-        return false;
-    } else {
-        QStringList parts = QString(classInfo.value()).split("\n");
-        if (parts.count() != 3)
-            return false;
+//bool DatabasePrivate::checkClassInfo(const QMetaClassInfo &classInfo, QString &type, QString &name, QString &value)
+//{
+//    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
+//        return false;
+//    } else {
+//        QStringList parts = QString(classInfo.value()).split("\n");
+//        if (parts.count() != 3)
+//            return false;
 
-        type = parts[0];
-        name = parts[1];
-        value = parts[2];
-        return true;
-    }
-}
+//        type = parts[0];
+//        name = parts[1];
+//        value = parts[2];
+//        return true;
+//    }
+//}
 
 DatabaseModel DatabasePrivate::getLastScheema()
 {

@@ -61,4 +61,10 @@ if(post) {
 }
 ```
 
+### Donate
+Butcoin address: 1Dn1WHKkaxanXe4cTGDk4cFRRABxLUpEVj
+
+
+![Wallet addresst](btc-qr.png)
+
 For more information read [Wiki](wiki).

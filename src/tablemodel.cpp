@@ -156,22 +156,22 @@ bool TableModel::operator !=(const TableModel &t) const
     return !(*this == t);
 }
 
-bool TableModel::checkClassInfo(const QMetaClassInfo &classInfo,
-                                QString &type, QString &name, QString &value)
-{
-    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
-        return false;
-    } else {
-        QStringList parts = QString(classInfo.value()).split("\n");
-        if (parts.count() != 3)
-            return false;
+//bool TableModel::checkClassInfo(const QMetaClassInfo &classInfo,
+//                                QString &type, QString &name, QString &value)
+//{
+//    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
+//        return false;
+//    } else {
+//        QStringList parts = QString(classInfo.value()).split("\n");
+//        if (parts.count() != 3)
+//            return false;
 
-        type = parts[0];
-        name = parts[1];
-        value = parts[2];
-        return true;
-    }
-}
+//        type = parts[0];
+//        name = parts[1];
+//        value = parts[2];
+//        return true;
+//    }
+//}
 
 TableModel::TableModel(int typeId, QString tableName)
 {
@@ -196,7 +196,7 @@ TableModel::TableModel(int typeId, QString tableName)
         QString name;
         QString value;
 
-        if (!checkClassInfo(tableMetaObject->classInfo(j),
+        if (!nutClassInfoString(tableMetaObject->classInfo(j),
                             type, name, value)) {
             continue;
         }
@@ -227,7 +227,7 @@ TableModel::TableModel(int typeId, QString tableName)
         QString name;
         QString value;
 
-        if (!checkClassInfo(tableMetaObject->classInfo(j),
+        if (!nutClassInfoString(tableMetaObject->classInfo(j),
                             type, name, value)) {
             continue;
         }
@@ -248,23 +248,27 @@ TableModel::TableModel(int typeId, QString tableName)
 
 
         FieldModel *f = field(name);
-        if(!f)
+        if (!f)
             continue;
 
-        if(type == __nut_LEN)
+        if (type == __nut_LEN)
             f->length = value.toInt();
-        else if(type == __nut_NOT_NULL)
+        else if (type == __nut_NOT_NULL)
             f->notNull = true;
-        else if(type == __nut_DEFAULT_VALUE)
+        else if (type == __nut_DEFAULT_VALUE)
             f->defaultValue = value;
-        else if(type == __nut_PRIMARY_KEY)
+        else if (type == __nut_PRIMARY_KEY)
             f->isPrimaryKey = true;
-        else if(type == __nut_AUTO_INCREMENT)
+        else if (type == __nut_AUTO_INCREMENT)
             f->isAutoIncrement = true;
-        else if(type == __nut_UNIQUE)
+        else if (type == __nut_UNIQUE)
             f->isUnique = true;
-        else if(type == __nut_DISPLAY)
+        else if (type == __nut_DISPLAY)
             f->displayName = value.mid(1, value.length() - 2);
+        else if (type == __nut_PRIMARY_KEY_AI) {
+            f->isPrimaryKey = true;
+            f->isAutoIncrement = true;
+        }
     }
 
     if(!findByTypeId(typeId) && !tableName.isNull())

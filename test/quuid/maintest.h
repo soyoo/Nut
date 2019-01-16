@@ -4,26 +4,23 @@
 #include <QtCore/QObject>
 #include <QtCore/qglobal.h>
 
-#include "weblogdatabase.h"
-class Post;
+#include "testdatabase.h"
+class Test;
 class MainTest : public QObject
 {
     Q_OBJECT
-    WeblogDatabase db;
-    int postId;
-    Post *post;
-    Query<Post> *q;
+    TestDatabase db;
+
 public:
-    explicit MainTest(QObject *parent = nullptr);
+    explicit MainTest(QObject *parent = 0);
 
 signals:
 
 private slots:
     void initTestCase();
+    void add();
 
-    void cmd1();
-    void cmd2();
-    void join();
+    void cleanupTestCase();
 };
 
 #endif // MAINTEST_H
