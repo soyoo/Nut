@@ -15,7 +15,7 @@ class Score : public Nut::Table
     NUT_DECLARE_FIELD(int, score, score, setScore)
 
     NUT_FOREGION_KEY(Post, int, post, post, setPost)
-    NUT_FOREGION_KEY(User, int, user, user, setUser)
+    NUT_FOREGION_KEY(User, QUuid, author, author, setAuthor)
 
 public:
     Q_INVOKABLE Score(QObject *parent = Q_NULLPTR);
