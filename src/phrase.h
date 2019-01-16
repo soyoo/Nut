@@ -270,6 +270,7 @@ public:
 
     ConditionalPhrase operator ==(const QVariant &other);
     ConditionalPhrase operator ==(const ConditionalPhrase &other);
+    //why?
     ConditionalPhrase operator !=(const QVariant &other);
 
     ConditionalPhrase operator ==(const AbstractFieldPhrase &other);

@@ -53,8 +53,7 @@ public:
     T *at(int i) const;
     const T &operator[](int i) const;
 
-    Query<T> *query();
-    Query<T> *query(bool autoDelete);
+    Query<T> *query(bool autoDelete = true);
 };
 
 template<class T>
@@ -67,14 +66,6 @@ template<class T>
 Q_OUTOFLINE_TEMPLATE TableSet<T>::TableSet(Table *parent) : TableSetBase(parent)
 {
     _childClassName = T::staticMetaObject.className();
-}
-
-template<class T>
-Q_OUTOFLINE_TEMPLATE Query<T> *TableSet<T>::query()
-{
-    Query<T> *q = new Query<T>(_database, this, true);
-
-    return q;
 }
 
 template<class T>

@@ -800,7 +800,8 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
 
     case QVariant::Char:
     case QVariant::String:
-        return "'" + v.toString() + "'";
+        qDebug() << v.toString();
+        return "'" + v.toString().replace("'", "''") + "'";
 
     case QVariant::DateTime:
         return "'" + v.toDateTime().toString(Qt::ISODate) + "'";
