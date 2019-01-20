@@ -34,44 +34,40 @@ QString SqliteGenerator::fieldType(FieldModel *field)
     QString ret = field->name + " ";
     QString dbType;
 
-    switch (field->type) {
-    case QVariant::Bool:
-        dbType = "int";
-        break;
-    case QVariant::ByteArray:
-        dbType = "blob";
-        break;
-    case QVariant::Date:
-        dbType = "date";
-        break;
-    case QVariant::DateTime:
-        dbType = "datetime";
-        break;
-    case QVariant::Time:
-        dbType = "time";
-        break;
-    case QVariant::Double:
-        dbType = "real";
-        break;
-    case QVariant::Int:
-        dbType = "integer";
+    switch (static_cast<QMetaType::Type>(field->type)) {
+    case QMetaType::Bool:           return "BOOLEAN";
+    case QMetaType::QByteArray:     return "BLOB";
+    case QMetaType::QDate:          return "DATE";
+    case QMetaType::QDateTime:      return "DATETIME";
+    case QMetaType::QTime:          return "TIME";
+    case QMetaType::Double:         return "DOUBLE";
+    case QMetaType::Float:          return "FLOAT";
+
+    case QMetaType::SChar:
+    case QMetaType::Char:           return "TINYINT";
+    case QMetaType::UChar:          return "TINYINT UNSIGNED";
+    case QMetaType::Short:          return "SMALLINT";
+    case QMetaType::UShort:         return "SMALLINT UNSIGNED";
+    case QMetaType::Int:            return "INT";
+    case QMetaType::UInt:           return "INT UNSIGNED";
+    case QMetaType::Long:           return "MEDIUMINT";
+    case QMetaType::ULong:          return "MEDIUMINT UNSIGNED";
+    case QMetaType::LongLong:       return "BIGINT";
+    case QMetaType::ULongLong:      return "BIGINT UNSIGNED";
+
+    case QMetaType::QUuid:          return "text";
+
 //        if (field->isAutoIncrement)
 //            dbType.append(" PRIMARY KEY AUTOINCREMENT");
-        break;
-    case QVariant::String:
+    case QMetaType::QString:
         if(field->length)
-            dbType = QString("varchar(%1)").arg(field->length);
+            return QString("VARCHAR(%1)").arg(field->length);
         else
-            dbType = "text";
-        break;
-    case QVariant::Uuid:
-        dbType = "text";
-        break;
+            return "TEXT";
     default:
-        dbType = QString();
+        qDebug() << "The type (" << field->type << ") does not supported";
+        return QString();
     }
-
-    return dbType;
 }
 
 void SqliteGenerator::appendSkipTake(QString &sql, int skip, int take)

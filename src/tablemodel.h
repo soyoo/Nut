@@ -70,8 +70,9 @@ struct FieldModel{
 };
 
 struct RelationModel{
-    RelationModel() : localColumn(QString()), localProperty(QString()), slaveTable(0),
-        foreignColumn(QString()), masterTable(0), masterClassName(QString())
+    RelationModel() : localColumn(QString()), localProperty(QString()),
+        slaveTable(nullptr), foreignColumn(QString()), masterTable(nullptr),
+        masterClassName(QString())
     {}
     explicit RelationModel(const QJsonObject &obj);
 
