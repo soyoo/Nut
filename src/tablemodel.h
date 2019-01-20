@@ -40,8 +40,7 @@ struct FieldModel{
     explicit FieldModel(const QJsonObject &json);
 
     QString name;
-    //TODO: QMetaType::Type??
-    QVariant::Type type;
+    QMetaType::Type type;
     QString typeName;
     int length;
     QString defaultValue;

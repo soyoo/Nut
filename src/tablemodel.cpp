@@ -219,7 +219,7 @@ TableModel::TableModel(int typeId, QString tableName)
                 f = fieldObj;
         if(!fieldObj)
             continue;
-        fieldObj->type = fieldProperty.type();
+        fieldObj->type = static_cast<QMetaType::Type>(fieldProperty.type());
         fieldObj->typeName = QString(fieldProperty.typeName());
     }
 
@@ -303,7 +303,8 @@ TableModel::TableModel(QJsonObject json, QString tableName)
         QJsonObject fieldObject = fields.value(key).toObject();
         FieldModel *f = new FieldModel;
         f->name = fieldObject.value(__NAME).toString();
-        f->type = QVariant::nameToType(fieldObject.value(__TYPE).toString().toLatin1().data());
+        f->type = static_cast<QMetaType::Type>(QMetaType::type(fieldObject.value(__TYPE).toString().toLatin1().data()));
+        f->typeName = QMetaType::typeName(f->type);
 
         if(fieldObject.contains(__nut_NOT_NULL))
             f->notNull = fieldObject.value(__nut_NOT_NULL).toBool();
@@ -414,7 +415,7 @@ QString TableModel::primaryKey() const
 FieldModel::FieldModel(const QJsonObject &json)
 {
     name = json.value(__NAME).toString();
-    type = static_cast<QVariant::Type>(json.value(__TYPE).toInt());
+    type = static_cast<QMetaType::Type>(json.value(__TYPE).toInt());
     length = json.value(__nut_LEN).toInt();
     notNull = json.value(__nut_NOT_NULL).toBool();
     isAutoIncrement = json.value(__nut_AUTO_INCREMENT).toBool();

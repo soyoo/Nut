@@ -13,6 +13,9 @@
 
 #include "sampletable.h"
 
+#include "generators/sqlitegenerator.h"
+#include "generators/sqlservergenerator.h"
+
 #define PRINT(x) qDebug() << #x "=" << x;
 #define TIC()  QElapsedTimer timer; timer.start()
 #define TOC()  qDebug() << QString("Elapsed time: %1ms for %2") \
@@ -43,7 +46,66 @@ void MainTest::initTestCase()
 
 void MainTest::types()
 {
-//    QMetaEnum en = QMetaEnum::fromType<QMetaType::Type>();
+    QList<QMetaType::Type> types;
+    types
+             << QMetaType::Bool
+             << QMetaType::Int
+             << QMetaType::UInt
+             << QMetaType::Double
+             << QMetaType::QChar
+             << QMetaType::QString
+             << QMetaType::QByteArray
+             << QMetaType::Long
+             << QMetaType::LongLong
+             << QMetaType::Short
+             << QMetaType::Char
+             << QMetaType::ULong
+             << QMetaType::ULongLong
+             << QMetaType::UShort
+             << QMetaType::SChar
+             << QMetaType::UChar
+             << QMetaType::Float
+             << QMetaType::QDate
+//             << QMetaType::QSize
+             << QMetaType::QTime
+//             << QMetaType::QPolygon
+//             << QMetaType::QPolygonF
+//             << QMetaType::QColor
+//             << QMetaType::QSizeF
+//             << QMetaType::QRectF
+//             << QMetaType::QLine
+//             << QMetaType::QStringList
+//             << QMetaType::QLineF
+//             << QMetaType::QRect
+//             << QMetaType::QPoint
+             << QMetaType::QUrl
+             << QMetaType::QDateTime
+//             << QMetaType::QPointF
+//             << QMetaType::QRegion
+//             << QMetaType::QBitArray
+//             << QMetaType::QImage
+//             << QMetaType::QPixmap
+//             << QMetaType::QLocale
+//             << QMetaType::QMatrix
+//             << QMetaType::QMatrix4x4
+//             << QMetaType::QVector2D
+//             << QMetaType::QVector3D
+//             << QMetaType::QVector4D
+             << QMetaType::QJsonValue
+             << QMetaType::QJsonObject
+             << QMetaType::QJsonArray
+             << QMetaType::QJsonDocument
+             << QMetaType::QUuid
+//             << QMetaType::QByteArrayList
+                ;
+
+    Nut::SqlServerGenerator g;
+    Nut::FieldModel m;
+    foreach (QMetaType::Type t, types) {
+        m.type = t;
+        QString fn = g.fieldType(&m);
+        Q_ASSERT(!fn.isEmpty());
+    }
 //    for (int i = 0; i < en.keyCount(); i++)
 //        qDebug() << en.value(i);
 }

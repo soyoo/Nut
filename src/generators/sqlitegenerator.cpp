@@ -34,7 +34,7 @@ QString SqliteGenerator::fieldType(FieldModel *field)
     QString ret = field->name + " ";
     QString dbType;
 
-    switch (static_cast<QMetaType::Type>(field->type)) {
+    switch (field->type) {
     case QMetaType::Bool:           return "BOOLEAN";
     case QMetaType::QByteArray:     return "BLOB";
     case QMetaType::QDate:          return "DATE";
@@ -55,17 +55,26 @@ QString SqliteGenerator::fieldType(FieldModel *field)
     case QMetaType::LongLong:       return "BIGINT";
     case QMetaType::ULongLong:      return "BIGINT UNSIGNED";
 
+    case QMetaType::QChar:          return "NCHAR(1)";
+
+    case QMetaType::QUrl:
+    case QMetaType::QJsonArray:
+    case QMetaType::QJsonValue:
+    case QMetaType::QJsonObject:
+    case QMetaType::QJsonDocument:
     case QMetaType::QUuid:          return "text";
 
 //        if (field->isAutoIncrement)
 //            dbType.append(" PRIMARY KEY AUTOINCREMENT");
+
     case QMetaType::QString:
         if(field->length)
             return QString("VARCHAR(%1)").arg(field->length);
         else
             return "TEXT";
     default:
-        qDebug() << "The type (" << field->type << ") does not supported";
+        qWarning("The type (%s) does not supported",
+                 QMetaType::typeName(field->type));
         return QString();
     }
 }

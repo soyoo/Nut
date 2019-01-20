@@ -10,6 +10,7 @@ class MainTest : public QObject
     Q_OBJECT
     DB db;
 
+//    void test_generator();
 public:
     explicit MainTest(QObject *parent = nullptr);
 
