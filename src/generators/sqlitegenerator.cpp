@@ -33,6 +33,9 @@ QString SqliteGenerator::fieldType(FieldModel *field)
 {
     QString ret = field->name + " ";
     QString dbType;
+    QString primaryKeyPerfix;
+    if (field->isPrimaryKey)
+        primaryKeyPerfix = " PRIMARY KEY";
 
     switch (field->type) {
     case QMetaType::Bool:           return "BOOLEAN";
@@ -44,16 +47,16 @@ QString SqliteGenerator::fieldType(FieldModel *field)
     case QMetaType::Float:          return "FLOAT";
 
     case QMetaType::SChar:
-    case QMetaType::Char:           return "TINYINT";
-    case QMetaType::UChar:          return "TINYINT UNSIGNED";
-    case QMetaType::Short:          return "SMALLINT";
-    case QMetaType::UShort:         return "SMALLINT UNSIGNED";
-    case QMetaType::Int:            return "INT";
-    case QMetaType::UInt:           return "INT UNSIGNED";
-    case QMetaType::Long:           return "MEDIUMINT";
-    case QMetaType::ULong:          return "MEDIUMINT UNSIGNED";
-    case QMetaType::LongLong:       return "BIGINT";
-    case QMetaType::ULongLong:      return "BIGINT UNSIGNED";
+    case QMetaType::Char:           return "TINYINT" + primaryKeyPerfix;
+    case QMetaType::UChar:          return "TINYINT UNSIGNED" + primaryKeyPerfix;
+    case QMetaType::Short:          return "SMALLINT" + primaryKeyPerfix;
+    case QMetaType::UShort:         return "SMALLINT UNSIGNED" + primaryKeyPerfix;
+    case QMetaType::Int:            return "INT" + primaryKeyPerfix;
+    case QMetaType::UInt:           return "INT UNSIGNED" + primaryKeyPerfix;
+    case QMetaType::Long:           return "MEDIUMINT" + primaryKeyPerfix;
+    case QMetaType::ULong:          return "MEDIUMINT UNSIGNED" + primaryKeyPerfix;
+    case QMetaType::LongLong:       return "BIGINT" + primaryKeyPerfix;
+    case QMetaType::ULongLong:      return "BIGINT UNSIGNED" + primaryKeyPerfix;
 
     case QMetaType::QChar:          return "NCHAR(1)";
 
