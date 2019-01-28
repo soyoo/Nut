@@ -33,10 +33,12 @@ QString SqliteGenerator::fieldType(FieldModel *field)
 {
     QString ret = field->name + " ";
     QString dbType;
-    QString primaryKeyPerfix;
-    if (field->isPrimaryKey)
-        primaryKeyPerfix = " PRIMARY KEY";
-
+    if (field->isPrimaryKey) {
+        QString primaryKeyPerfix = " PRIMARY KEY";
+        if (field->isAutoIncrement)
+            primaryKeyPerfix += " AUTOINCREMENT";
+        return "INTEGER" + primaryKeyPerfix;
+    }
     switch (field->type) {
     case QMetaType::Bool:           return "BOOLEAN";
     case QMetaType::QByteArray:     return "BLOB";
@@ -47,16 +49,16 @@ QString SqliteGenerator::fieldType(FieldModel *field)
     case QMetaType::Float:          return "FLOAT";
 
     case QMetaType::SChar:
-    case QMetaType::Char:           return "TINYINT" + primaryKeyPerfix;
-    case QMetaType::UChar:          return "TINYINT UNSIGNED" + primaryKeyPerfix;
-    case QMetaType::Short:          return "SMALLINT" + primaryKeyPerfix;
-    case QMetaType::UShort:         return "SMALLINT UNSIGNED" + primaryKeyPerfix;
-    case QMetaType::Int:            return "INT" + primaryKeyPerfix;
-    case QMetaType::UInt:           return "INT UNSIGNED" + primaryKeyPerfix;
-    case QMetaType::Long:           return "MEDIUMINT" + primaryKeyPerfix;
-    case QMetaType::ULong:          return "MEDIUMINT UNSIGNED" + primaryKeyPerfix;
-    case QMetaType::LongLong:       return "BIGINT" + primaryKeyPerfix;
-    case QMetaType::ULongLong:      return "BIGINT UNSIGNED" + primaryKeyPerfix;
+    case QMetaType::Char:           return "TINYINT";
+    case QMetaType::UChar:          return "TINYINT UNSIGNED";
+    case QMetaType::Short:          return "SMALLINT";
+    case QMetaType::UShort:         return "SMALLINT UNSIGNED";
+    case QMetaType::Int:            return "INT";
+    case QMetaType::UInt:           return "INT UNSIGNED";
+    case QMetaType::Long:           return "MEDIUMINT";
+    case QMetaType::ULong:          return "MEDIUMINT UNSIGNED";
+    case QMetaType::LongLong:       return "BIGINT";
+    case QMetaType::ULongLong:      return "BIGINT UNSIGNED";
 
     case QMetaType::QChar:          return "NCHAR(1)";
 
@@ -87,7 +89,19 @@ void SqliteGenerator::appendSkipTake(QString &sql, int skip, int take)
     if (take != -1 && skip != -1)
         sql.append(QString(" LIMIT %1 OFFSET %2")
                        .arg(take)
-                       .arg(skip));
+                   .arg(skip));
+}
+
+QString SqliteGenerator::primaryKeyConstraint(const TableModel *table) const
+{
+    Q_UNUSED(table);
+    return QString();
+//    QString sql = QString("CONSTRAINT pk_%1 PRIMARY KEY (%2)")
+//            .arg(table->name())
+//            .arg(table->primaryKey());
+//    if (table->field(table->primaryKey())->isAutoIncrement)
+//        sql += " AUTOINCREMENT";
+//    return sql;
 }
 
 NUT_END_NAMESPACE

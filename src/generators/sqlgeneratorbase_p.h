@@ -128,6 +128,8 @@ public:
     virtual QString phrase(const PhraseData *d) const;
     virtual QString operatorString(const PhraseData::Condition &cond) const;
     virtual void appendSkipTake(QString &sql, int skip = -1, int take = -1);
+    virtual QString primaryKeyConstraint(const TableModel *table) const;
+
 protected:
     QString createConditionalPhrase(const PhraseData *d) const;
     QString createFieldPhrase(const PhraseList &ph);

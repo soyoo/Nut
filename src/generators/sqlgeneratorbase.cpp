@@ -220,10 +220,11 @@ QString SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
                 .arg(newTable->name())
                 .arg(columnSql.join(",\n"));
     } else {
-        if (!newTable->primaryKey().isNull())
-            columnSql << QString("CONSTRAINT pk_%1 PRIMARY KEY (%2)")
-                             .arg(newTable->name())
-                             .arg(newTable->primaryKey());
+        if (!newTable->primaryKey().isNull()) {
+            QString pkCon = primaryKeyConstraint(newTable);
+            if (!pkCon.isEmpty())
+                columnSql << pkCon;
+        }
 
         sql = QString("CREATE TABLE %1 \n(%2)")
                 .arg(newTable->name())
@@ -943,6 +944,13 @@ void SqlGeneratorBase::appendSkipTake(QString &sql, int skip, int take)
     Q_UNUSED(sql);
     Q_UNUSED(skip);
     Q_UNUSED(take);
+}
+
+QString SqlGeneratorBase::primaryKeyConstraint(const TableModel *table) const
+{
+    return  QString("CONSTRAINT pk_%1 PRIMARY KEY (%2)")
+            .arg(table->name())
+            .arg(table->primaryKey());
 }
 
 QString SqlGeneratorBase::createConditionalPhrase(const PhraseData *d) const

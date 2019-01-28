@@ -34,6 +34,8 @@ public:
     QString fieldType(FieldModel *field);
 
     void appendSkipTake(QString &sql, int skip, int take);
+
+    QString primaryKeyConstraint(const TableModel *table) const;
 };
 
 NUT_END_NAMESPACE
