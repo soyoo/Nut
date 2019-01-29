@@ -217,7 +217,6 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
 
         int p = levels.count();
         int n = -1;
-        int lastP = p;
 
         while (p) {
             //            Q_ASSERT(p != lastP);
@@ -287,8 +286,6 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
 
             //set last created row
             data.lastRow = table;
-
-            lastP = p;
         } //while
     } // while
     if (m_autoDelete)
