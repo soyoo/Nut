@@ -111,7 +111,10 @@ QString SqlGeneratorBase::recordsPhrase(TableModel *table)
 
 QString SqlGeneratorBase::fieldDeclare(FieldModel *field)
 {
-    return field->name + " " + fieldType(field) + (field->notNull ? " NOT NULL" : "");
+    QString type = fieldType(field);
+    if (type.isEmpty())
+        return type;
+    return field->name + " " + type + (field->notNull ? " NOT NULL" : "");
 }
 
 QString SqlGeneratorBase::relationDeclare(const RelationModel *relation)
@@ -199,7 +202,10 @@ QString SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
             if (!buffer.isNull())
                 columnSql << buffer;
         } else {
-            columnSql << fieldDeclare(newField);
+            QString declare = fieldDeclare(newField);
+            if (declare.isEmpty())
+                return declare;
+            columnSql << declare;
         }
     }
 //    foreach (QString fieldName, relations) {
@@ -471,6 +477,7 @@ QString SqlGeneratorBase::agregateText(const AgregateType &t,
     case SignleField:
         return arg;
     }
+    return QString(); // never reach
 }
 
 QString SqlGeneratorBase::fromTableText(const QString &tableName,
@@ -801,7 +808,6 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
 
     case QVariant::Char:
     case QVariant::String:
-        qDebug() << v.toString();
         return "'" + v.toString().replace("'", "''") + "'";
 
     case QVariant::DateTime:

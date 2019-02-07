@@ -143,15 +143,17 @@ bool DatabasePrivate::updateDatabase()
         qDebug("Databse is changed");
 
     QStringList sql = sqlGenertor->diff(last, current);
-qDebug()<<"database Sql =\n"<<sql;
+
     db.transaction();
     foreach (QString s, sql) {
         db.exec(s);
 
-        if (db.lastError().type() != QSqlError::NoError)
+        if (db.lastError().type() != QSqlError::NoError) {
             qWarning("Error executing sql command `%s`, %s",
                      qPrintable(s),
                      db.lastError().text().toLatin1().data());
+            return false;
+        }
     }
     putModelToDatabase();
     bool ok = db.commit();
@@ -160,6 +162,7 @@ qDebug()<<"database Sql =\n"<<sql;
 
         q->databaseUpdated(last.version(), current.version());
 
+        //TODO: remove this
         for (int i = 0; i < q->metaObject()->methodCount(); i++) {
             QMetaMethod m = q->metaObject()->method(i);
             if (m.name() == "update" + current.version()) {
@@ -202,7 +205,7 @@ bool DatabasePrivate::getCurrectScheema()
         QString type;
         QString name;
         QString value;
-qDebug()<<q->metaObject()->className();
+
         if (!nutClassInfoString(q->metaObject()->classInfo(i),
                                 type, name, value)) {
             qDebug() << "No valid table in" << q->metaObject()->classInfo(i).value();

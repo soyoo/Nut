@@ -1,6 +1,8 @@
 #ifndef SAMPLETABLE_H
 #define SAMPLETABLE_H
 
+#include <QPoint>
+#include <QPolygon>
 #include "table.h"
 
 #define FIELD_Q(type) NUT_DECLARE_FIELD(q##type, f##type, f##type, setF##type)
@@ -24,7 +26,10 @@ class SampleTable : public Nut::Table
 
     NUT_DECLARE_FIELD(qreal, freal, freal, setFreal)
     NUT_DECLARE_FIELD(float, ffloat, ffloat, setFfloat)
-//    NUT_DECLARE_FIELD(long double, fldouble, fldouble, setFldouble)
+    NUT_DECLARE_FIELD(long double, fldouble, fldouble, setFldouble)
+    NUT_DECLARE_FIELD(QString, string, string, setString)
+    NUT_DECLARE_FIELD(QPoint, point, point, setPoint)
+    NUT_DECLARE_FIELD(QPolygon, polygon, polygon, setPolygon)
 
 public:
     Q_INVOKABLE SampleTable(QObject *parent = Q_NULLPTR);

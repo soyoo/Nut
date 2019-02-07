@@ -3,6 +3,7 @@ QT += core sql
 CONFIG += c++11
 
 INCLUDEPATH += $$PWD/include
+include(3rdparty/serializer/src/src.pri)
 
 HEADERS += \
     $$PWD/src/generators/sqlgeneratorbase_p.h \

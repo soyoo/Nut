@@ -17,10 +17,6 @@
 #include "generators/sqlservergenerator.h"
 
 #define PRINT(x) qDebug() << #x "=" << x;
-#define TIC()  QElapsedTimer timer; timer.start()
-#define TOC()  qDebug() << QString("Elapsed time: %1ms for %2") \
-    .arg(timer.elapsed() / 1000.) \
-    .arg(__func__)
 
 #define REGISTER(x) qDebug() << #x << "type id:" << qRegisterMetaType<x*>()
 
@@ -37,8 +33,8 @@ void MainTest::initTestCase()
     db.setDriver(DRIVER);
     db.setHostName(HOST);
     db.setDatabaseName("nut_tst_basic");
-    db.setUserName(USERNAME);
-    db.setPassword(PASSWORD);
+//    db.setUserName(USERNAME);
+//    db.setPassword(PASSWORD);
 
     bool ok = db.open();
     QTEST_ASSERT(ok);
@@ -99,7 +95,7 @@ void MainTest::types()
 //             << QMetaType::QByteArrayList
                 ;
 
-    Nut::SqlServerGenerator g;
+    Nut::SqliteGenerator g;
     Nut::FieldModel m;
     foreach (QMetaType::Type t, types) {
         m.type = t;

@@ -92,11 +92,12 @@ public:
 
     Type type;
 
+    Condition operatorCond;
+
     PhraseData *left;
     PhraseData *right;
 
     QVariant operand;
-    Condition operatorCond;
     bool isNot;
     quint16 parents;
 

@@ -48,9 +48,9 @@ public:
 protected:
     QSet<Table*> _tables;
     QList<Table*> _tablesList;
-    QString _tableName;
     Database *_database;
     Table *_table;
+    QString _tableName;
     QString _childClassName;
 
 private:

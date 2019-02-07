@@ -115,7 +115,7 @@ AbstractFieldPhrase::AbstractFieldPhrase(AbstractFieldPhrase &&other)
 {
     data = other.data;
     data->parents++;
-    other.data = 0;
+    other.data = nullptr;
 }
 
 AbstractFieldPhrase::~AbstractFieldPhrase()

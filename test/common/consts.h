@@ -16,8 +16,8 @@
 #define DRIVER "QSQLITE"
 #define HOST "127.0.0.1"
 #define DATABASE "nutdb1"
-#define USERNAME "root"
-#define PASSWORD "onlyonlyi"
+//#define USERNAME "root"
+//#define PASSWORD "onlyonlyi"
 
 //#define DRIVER "QODBC"
 //#define HOST "127.0.0.1"
@@ -45,5 +45,10 @@
              << "\n\tQt version: " QT_VERSION_STR                              \
              << "\n\tTest:" << metaObject()->className()                       \
              << "\n****************************\n";
+
+#define TIC()  QElapsedTimer timer; timer.start()
+#define TOC()  qDebug() << QString("Elapsed time: %1ms for %2") \
+    .arg(timer.elapsed() / 1000.) \
+    .arg(__func__)
 
 #endif // CONSTS_H
