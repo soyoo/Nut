@@ -30,7 +30,7 @@ void MainTest::initTestCase()
 
     db.setDriver(DRIVER);
     db.setHostName(HOST);
-    db.setDatabaseName(DATABASE);
+    db.setDatabaseName("tst_benchmark_db");
     db.setUserName(USERNAME);
     db.setPassword(PASSWORD);
 
@@ -44,16 +44,16 @@ void MainTest::insert1kPost()
     QTime t;
     t.start();
 
-    for (int i = 0; i < 1000; ++i) {
+    for (int i = 0; i < 100; ++i) {
         Post *newPost = new Post;
         newPost->setTitle("post title");
         newPost->setSaveDate(QDateTime::currentDateTime());
 
         db.posts()->append(newPost);
     }
+    qDebug("1k post inserted in %d ms", t.elapsed());
     db.saveChanges();
 
-    qDebug("1k post inserted in %d ms", t.elapsed());
 }
 
 QTEST_MAIN(MainTest)
