@@ -1,7 +1,7 @@
 QT       += qml quick testlib sql
 QT       -= gui
 
-TARGET = tst_nut
+TARGET = tst_datatypes
 TEMPLATE = app
 
 CONFIG   += warn_on qmltestcase c++11

@@ -10,8 +10,10 @@
 #include "tablemodel.h"
 #include "databasemodel.h"
 
+#include "user.h"
 #include "post.h"
 #include "comment.h"
+#include "score.h"
 
 MainTest::MainTest(QObject *parent) : QObject(parent)
 {
@@ -20,9 +22,11 @@ MainTest::MainTest(QObject *parent) : QObject(parent)
 
 void MainTest::initTestCase()
 {
-    qDebug() << "User type id:" << qRegisterMetaType<Post*>();
-    qDebug() << "Comment type id:" << qRegisterMetaType<Comment*>();
-    qDebug() << "DB type id:" << qRegisterMetaType<WeblogDatabase*>();
+    REGISTER(User);
+    REGISTER(Post);
+    REGISTER(Score);
+    REGISTER(Comment);
+    REGISTER(WeblogDatabase);
 
     db.setDriver(DRIVER);
     db.setHostName(HOST);

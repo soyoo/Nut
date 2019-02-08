@@ -16,14 +16,6 @@
 #include "comment.h"
 #include "score.h"
 
-#define PRINT(x) qDebug() << #x "=" << x;
-#define TIC()  QElapsedTimer timer; timer.start()
-#define TOC()  qDebug() << QString("Elapsed time: %1ms for %2") \
-    .arg(timer.elapsed() / 1000.) \
-    .arg(__func__)
-
-#define REGISTER(x) qDebug() << #x << "type id:" << qRegisterMetaType<x*>()
-
 MainTest::MainTest(QObject *parent) : QObject(parent)
 {
 }
@@ -65,7 +57,6 @@ void MainTest::dataScheema()
 void MainTest::createUser()
 {
     user = new User;
-    user->setId(QUuid::createUuid());
     user->setUsername("admin");
     user->setPassword("123456");
     db.users()->append(user);
@@ -84,7 +75,6 @@ void MainTest::createPost()
 
     for(int i = 0 ; i < 3; i++){
         Comment *comment = new Comment;
-        comment->setId(QUuid::createUuid());
         comment->setMessage("comment #" + QString::number(i));
         comment->setSaveDate(QDateTime::currentDateTime());
         comment->setAuthorId(user->id());
@@ -117,7 +107,6 @@ void MainTest::createPost2()
 
     for(int i = 0 ; i < 3; i++){
         Comment *comment = new Comment;
-        comment->setId(QUuid::createUuid());
         comment->setMessage("comment #" + QString::number(i + 2));
         comment->setSaveDate(QDateTime::currentDateTime());
         comment->setAuthor(user);
@@ -289,6 +278,9 @@ void MainTest::cleanupTestCase()
 
     //release models before exiting
     qDeleteAll(TableModel::allModels());
+
+    if (QFile::remove("nut_tst_basic"))
+        qDebug() << "database removed";
 
     PRINT_FORM(db);
 }

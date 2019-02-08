@@ -126,7 +126,6 @@ TableModel *TableModel::findByTypeId(int typeId)
 TableModel *TableModel::findByClassName(QString className)
 {
     foreach (TableModel *model, _allModels){
-        qDebug() << model->className();
         if(model->className() == className)
             return model;
     }

@@ -795,6 +795,9 @@ void SqlGeneratorBase::removeTableNames(QString &command)
 
 QString SqlGeneratorBase::escapeValue(const QVariant &v) const
 {
+    if (v.type() == QVariant::String && v.toString().isEmpty())
+        return "''";
+
     QString serialized = _serializer->toString(v);
     if (serialized.isEmpty()) {
          qWarning("No field escape rule for: %s", v.typeName());
@@ -843,7 +846,6 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
         qFatal("Invalud field value");
 
     default:
-        qDebug() << v.type();
         qWarning("No field escape rule for: %s", v.typeName());
         Q_UNREACHABLE();
         return QString();
