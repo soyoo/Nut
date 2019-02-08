@@ -20,7 +20,7 @@ private slots:
     void initTestCase();
 
     void types();
-
+    void insert();
     void cleanupTestCase();
 };
 

@@ -31,6 +31,7 @@
 #include "../table.h"
 #include "../databasemodel.h"
 #include "../tablemodel.h"
+#include "stringserializer.h"
 
 NUT_BEGIN_NAMESPACE
 
@@ -56,6 +57,8 @@ SqlGeneratorBase::SqlGeneratorBase(Database *parent)
 {
     if (parent)
         _database = parent;
+
+    _serializer = new StringSerializer;
 }
 
 SqlGeneratorBase::~SqlGeneratorBase()
@@ -792,6 +795,13 @@ void SqlGeneratorBase::removeTableNames(QString &command)
 
 QString SqlGeneratorBase::escapeValue(const QVariant &v) const
 {
+    QString serialized = _serializer->toString(v);
+    if (serialized.isEmpty()) {
+         qWarning("No field escape rule for: %s", v.typeName());
+         return QString();
+    }
+    return "'" + serialized + "'";
+
     switch (v.type()) {
     case QVariant::Bool:
         return v.toBool() ? "1" : "0";
@@ -823,15 +833,11 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
     case QVariant::List:
         return "('" + v.toStringList().join("', '") + "')";
 
-    case QVariant::Point: {
-        QPoint pt = v.toPoint();
-        return QString("POINT(%1 %2)").arg(pt.x()).arg(pt.y());
-    }
-
-    case QVariant::PointF: {
-        QPointF pt = v.toPointF();
-        return QString("POINT(%1 %2)").arg(pt.x()).arg(pt.y());
-    }
+    case QVariant::Point:
+    case QVariant::PointF:
+    case QVariant::Polygon:
+    case QVariant::PolygonF:
+        return "'" + _serializer->toString(v) + "'";
 
     case QVariant::Invalid:
         qFatal("Invalud field value");

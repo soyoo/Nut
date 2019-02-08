@@ -26,7 +26,7 @@ class SampleTable : public Nut::Table
 
     NUT_DECLARE_FIELD(qreal, freal, freal, setFreal)
     NUT_DECLARE_FIELD(float, ffloat, ffloat, setFfloat)
-    NUT_DECLARE_FIELD(long double, fldouble, fldouble, setFldouble)
+//    NUT_DECLARE_FIELD(long double, fldouble, fldouble, setFldouble)
     NUT_DECLARE_FIELD(QString, string, string, setString)
     NUT_DECLARE_FIELD(QPoint, point, point, setPoint)
     NUT_DECLARE_FIELD(QPolygon, polygon, polygon, setPolygon)

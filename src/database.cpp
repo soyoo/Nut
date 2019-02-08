@@ -137,6 +137,17 @@ bool DatabasePrivate::updateDatabase()
         return true;
     }
 
+    foreach (TableModel *tm, current) {
+        foreach (FieldModel *fm, tm->fields()) {
+            if (sqlGenertor->fieldType(fm).isEmpty()) {
+                qWarning("The type (%s) is not supported for field %s::%s",
+                         QMetaType::typeName(fm->type),
+                         qPrintable(tm->className()),
+                         qPrintable(fm->name));
+                return false;
+            }
+        }
+    }
     if (!last.count())
         qDebug("Databse is new");
     else

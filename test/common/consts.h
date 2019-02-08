@@ -16,8 +16,8 @@
 #define DRIVER "QSQLITE"
 #define HOST "127.0.0.1"
 #define DATABASE "nutdb1"
-//#define USERNAME "root"
-//#define PASSWORD "onlyonlyi"
+#define USERNAME "root"
+#define PASSWORD "onlyonlyi"
 
 //#define DRIVER "QODBC"
 //#define HOST "127.0.0.1"

@@ -27,6 +27,8 @@
 #include "../phrase.h"
 //#include "../wherephrase.h"
 
+class StringSerializer;
+
 NUT_BEGIN_NAMESPACE
 
 class Table;
@@ -40,6 +42,8 @@ class SqlGeneratorBase : public QObject
 //    Q_OBJECT
 
     Database *_database;
+    StringSerializer *_serializer;
+
 public:
     //TODO: remove this enum
     enum CommandType{

@@ -103,7 +103,24 @@ void MainTest::types()
         Q_ASSERT(!fn.isEmpty());
     }
 //    for (int i = 0; i < en.keyCount(); i++)
-//        qDebug() << en.value(i);
+    //        qDebug() << en.value(i);
+}
+
+void MainTest::insert()
+{
+    SampleTable t;
+    t.setFint8(1);
+    t.setFreal(1.2);
+    t.setFfloat(4.5f);
+    t.setFint16(16);
+    t.setFint32(65000);
+    t.setFint64(3255465232);
+    t.setFuint8(2);
+    t.setPoint(QPoint(1, 2));
+    t.setPolygon(QPolygon() << QPoint(1, 2) << QPoint(3, 4) << QPoint(5, 6));
+
+    db.sampleTables()->append(&t);
+    db.saveChanges();
 }
 
 void MainTest::cleanupTestCase()

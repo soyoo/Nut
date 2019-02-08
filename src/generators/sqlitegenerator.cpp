@@ -67,6 +67,10 @@ QString SqliteGenerator::fieldType(FieldModel *field)
     case QMetaType::QJsonValue:
     case QMetaType::QJsonObject:
     case QMetaType::QJsonDocument:
+    case QMetaType::QPoint:
+    case QMetaType::QPointF:
+    case QMetaType::QPolygon:
+    case QMetaType::QPolygonF:
     case QMetaType::QUuid:          return "text";
 
 //        if (field->isAutoIncrement)
@@ -78,8 +82,8 @@ QString SqliteGenerator::fieldType(FieldModel *field)
         else
             return "TEXT";
     default:
-        qWarning("The type (%s) does not supported",
-                 QMetaType::typeName(field->type));
+//        qWarning("The type (%s) does not supported",
+//                 QMetaType::typeName(field->type));
         return QString();
     }
 }
