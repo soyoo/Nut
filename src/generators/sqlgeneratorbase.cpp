@@ -472,7 +472,7 @@ QString SqlGeneratorBase::agregateText(const AgregateType &t,
         return "MAX(" + arg + ")";
 
     case Average:
-        return "AVERAGE(" + arg + ")";
+        return "AVG(" + arg + ")";
 
     case Count:
         return "COUNT(" + arg + ")";
