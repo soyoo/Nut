@@ -14,7 +14,7 @@
 #include <QUuid>
 
 #include "db.h"
-class MainTest : public QObject
+class DataTypesTest : public QObject
 {
     Q_OBJECT
     DB db;
@@ -52,7 +52,7 @@ class MainTest : public QObject
     QColor color;
 
 public:
-    explicit MainTest(QObject *parent = nullptr);
+    explicit DataTypesTest(QObject *parent = nullptr);
 
 signals:
 

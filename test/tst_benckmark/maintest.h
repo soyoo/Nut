@@ -6,7 +6,7 @@
 
 #include "weblogdatabase.h"
 class Post;
-class MainTest : public QObject
+class BenchmarkTest : public QObject
 {
     Q_OBJECT
     WeblogDatabase db;
@@ -14,7 +14,7 @@ class MainTest : public QObject
     Post *post;
     Query<Post> *q;
 public:
-    explicit MainTest(QObject *parent = nullptr);
+    explicit BenchmarkTest(QObject *parent = nullptr);
 
 signals:
 

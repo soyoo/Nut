@@ -9,9 +9,9 @@ INCLUDEPATH += $$PWD/../../src $$PWD/../common
 include(../../nut.pri)
 IMPORTPATH += $$OUT_PWD/../src/imports
 SOURCES += \
-    maintest.cpp \
     db.cpp \
-    sampletable.cpp
+    sampletable.cpp \
+    tst_datatypes.cpp
 
 HEADERS += \
     maintest.h \

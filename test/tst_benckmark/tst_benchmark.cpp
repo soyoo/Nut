@@ -15,12 +15,12 @@
 #include "comment.h"
 #include "score.h"
 
-MainTest::MainTest(QObject *parent) : QObject(parent)
+BenchmarkTest::BenchmarkTest(QObject *parent) : QObject(parent)
 {
 
 }
 
-void MainTest::initTestCase()
+void BenchmarkTest::initTestCase()
 {
     REGISTER(User);
     REGISTER(Post);
@@ -39,7 +39,7 @@ void MainTest::initTestCase()
     QTEST_ASSERT(ok);
 }
 
-void MainTest::insert1kPost()
+void BenchmarkTest::insert1kPost()
 {
     QTime t;
     t.start();
@@ -56,4 +56,4 @@ void MainTest::insert1kPost()
 
 }
 
-QTEST_MAIN(MainTest)
+QTEST_MAIN(BenchmarkTest)

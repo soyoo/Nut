@@ -12,6 +12,7 @@
 
 #include "post.h"
 #include "comment.h"
+#include "user.h"
 
 MainTest::MainTest(QObject *parent) : QObject(parent)
 {

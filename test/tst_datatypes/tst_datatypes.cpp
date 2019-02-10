@@ -16,11 +16,11 @@
 #include "generators/sqlitegenerator.h"
 #include "generators/sqlservergenerator.h"
 
-MainTest::MainTest(QObject *parent) : QObject(parent)
+DataTypesTest::DataTypesTest(QObject *parent) : QObject(parent)
 {
 }
 
-void MainTest::initTestCase()
+void DataTypesTest::initTestCase()
 {
     //register all entities with Qt-MetaType mechanism
     REGISTER(SampleTable);
@@ -76,7 +76,7 @@ void MainTest::initTestCase()
     QTEST_ASSERT(ok);
 }
 
-void MainTest::types()
+void DataTypesTest::types()
 {
     QList<QMetaType::Type> types;
     types
@@ -141,7 +141,7 @@ void MainTest::types()
     //        qDebug() << en.value(i);
 }
 
-void MainTest::insert()
+void DataTypesTest::insert()
 {
     SampleTable t;
     t.setInt8(n8);
@@ -184,7 +184,7 @@ void MainTest::insert()
     db.saveChanges();
 }
 
-void MainTest::retrive()
+void DataTypesTest::retrive()
 {
     QList<SampleTable*> list = db.sampleTables()->query()->toList();
     QTEST_ASSERT(list.count() == 1);
@@ -228,7 +228,7 @@ void MainTest::retrive()
     QTEST_ASSERT(t->f_color() == color);
 }
 
-void MainTest::cleanupTestCase()
+void DataTypesTest::cleanupTestCase()
 {
     db.sampleTables()->query()->remove();
     db.close();
@@ -236,4 +236,4 @@ void MainTest::cleanupTestCase()
     PRINT_FORM(db);
 }
 
-QTEST_MAIN(MainTest)
+QTEST_MAIN(DataTypesTest)
