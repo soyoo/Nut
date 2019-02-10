@@ -6,58 +6,65 @@
 
 #include "consts.h"
 
-#include "maintest.h"
+#include "tst_uuid.h"
 #include "query.h"
 #include "tableset.h"
 #include "tablemodel.h"
 
 #include "test.h"
 
-MainTest::MainTest(QObject *parent) : QObject(parent)
+UuidTest::UuidTest(QObject *parent) : QObject(parent)
 {
 }
 
-void MainTest::initTestCase()
+void UuidTest::initTestCase()
 {
     qDebug() << "Test type id:" << qRegisterMetaType<Test*>();
     qDebug() << "DB type id:" << qRegisterMetaType<TestDatabase*>();
 
+    QFile::remove(DATABASE);
+
     db.setDriver(DRIVER);
     db.setHostName(HOST);
-    db.setDatabaseName("nut_tst_quuid");
+    db.setDatabaseName(DATABASE);
     db.setUserName(USERNAME);
     db.setPassword(PASSWORD);
 
     bool ok = db.open();
 
     db.tests()->query()->remove();
+    uuid = QUuid::createUuid();
 
     QTEST_ASSERT(ok);
 }
 
-void MainTest::add()
+void UuidTest::save()
 {
     TIC();
-    QUuid uuid = QUuid::createUuid();
     Test t;
-    t.setId(uuid);
-    t.setUsername("test username");
+    t.setId(QUuid::createUuid());
+    t.setUuid(uuid);
     db.tests()->append(&t);
-    db.saveChanges();
+    int n = db.saveChanges();
     TOC();
 
-    Test *t2 = db.tests()->query()
-            ->where(Test::idField() == uuid)
-            ->first();
-
     TOC();
-    QTEST_ASSERT(t2->id() == uuid);
+    QTEST_ASSERT(n == 1);
 }
 
-void MainTest::cleanupTestCase()
+void UuidTest::restore()
+{
+    TIC();
+    auto test = db.tests()->query()->first();
+    TOC();
+    QTEST_ASSERT(!test->id().isNull());
+    QTEST_ASSERT(test->uuid() == uuid);
+}
+
+void UuidTest::cleanupTestCase()
 {
     qDeleteAll(Nut::TableModel::allModels());
 //    Nut::DatabaseModel::deleteAllModels();
 }
 
-QTEST_MAIN(MainTest)
+QTEST_MAIN(UuidTest)

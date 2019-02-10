@@ -13,6 +13,7 @@
 #include "post.h"
 #include "comment.h"
 #include "user.h"
+#include "score.h"
 
 MainTest::MainTest(QObject *parent) : QObject(parent)
 {

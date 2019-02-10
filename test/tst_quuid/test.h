@@ -11,13 +11,10 @@ class Test : public Nut::Table
 
     NUT_PRIMARY_KEY(id)
     NUT_DECLARE_FIELD(QUuid, id, id, setId)
-
-    NUT_NOT_NULL(username)
-    NUT_LEN(username, 50)
-    NUT_DECLARE_FIELD(QString, username, username, setUsername)
+    NUT_DECLARE_FIELD(QUuid, uuid, uuid, setUuid)
 
 public:
-    Q_INVOKABLE Test(QObject *parentTableSet = 0);
+    Q_INVOKABLE Test(QObject *parentTableSet = nullptr);
 };
 
 Q_DECLARE_METATYPE(Test*)

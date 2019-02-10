@@ -4,21 +4,25 @@
 #include <QtCore/QObject>
 #include <QtCore/qglobal.h>
 
+#include <QUuid>
+
 #include "testdatabase.h"
 class Test;
-class MainTest : public QObject
+class UuidTest : public QObject
 {
     Q_OBJECT
     TestDatabase db;
+    QUuid uuid;
 
 public:
-    explicit MainTest(QObject *parent = 0);
+    explicit UuidTest(QObject *parent = nullptr);
 
 signals:
 
 private slots:
     void initTestCase();
-    void add();
+    void save();
+    void restore();
 
     void cleanupTestCase();
 };
