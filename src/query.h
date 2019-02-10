@@ -262,13 +262,14 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
                     qFatal("Could not create instance of %s",
                            qPrintable(data.table->name()));
 
-                qDebug() << data.table->name() << "created";
             }
 
-            QStringList childFields = data.table->fieldsNames();
-            foreach (QString field, childFields)
-                table->setProperty(field.toLatin1().data(),
-                                   q.value(data.table->name() + "." + field));
+            QList<FieldModel*> childFields = data.table->fields();
+            foreach (FieldModel *field, childFields)
+                table->setProperty(field->name.toLatin1().data(),
+                                   d->database->sqlGenertor()->readValue(
+                                       field->type,
+                                       q.value(data.table->name() + "." + field->name)));
 
             for (int i = 0; i < data.masters.count(); ++i) {
                 int master = data.masters[i];
@@ -548,7 +549,7 @@ Q_OUTOFLINE_TEMPLATE QSqlQueryModel *Query<T>::toModel()
                 d->fieldPhrase,
                 d->wherePhrase, d->orderPhrase, d->relations,
                 d->skip, d->take);
-qDebug() << d->sql;
+
     DatabaseModel dbModel = d->database->model();
     QSqlQueryModel *model = new QSqlQueryModel;
     model->setQuery(d->sql, d->database->database());
@@ -560,8 +561,6 @@ qDebug() << d->sql;
             QString displayName = dbModel.tableByClassName(pd->className)
                     ->field(pd->fieldName)->displayName;
 
-            qDebug() << "Display name for"<<pd->className<<pd->fieldName
-                     <<"="<<displayName;
             model->setHeaderData(fieldIndex++,
                                  Qt::Horizontal,
                                  displayName);

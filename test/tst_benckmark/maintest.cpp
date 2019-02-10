@@ -51,8 +51,8 @@ void MainTest::insert1kPost()
 
         db.posts()->append(newPost);
     }
-    qDebug("1k post inserted in %d ms", t.elapsed());
     db.saveChanges();
+    qDebug("1k post inserted in %d ms", t.elapsed());
 
 }
 

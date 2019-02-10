@@ -27,7 +27,7 @@
 #include "../phrase.h"
 //#include "../wherephrase.h"
 
-class StringSerializer;
+class SqlSerializer;
 
 NUT_BEGIN_NAMESPACE
 
@@ -42,7 +42,7 @@ class SqlGeneratorBase : public QObject
 //    Q_OBJECT
 
     Database *_database;
-    StringSerializer *_serializer;
+    SqlSerializer *_serializer;
 
 public:
     //TODO: remove this enum
@@ -128,7 +128,7 @@ public:
 //    virtual QString updateCommand(WherePhrase &phrase, QList<WherePhrase> &wheres, QString tableName);
 
     virtual QString escapeValue(const QVariant &v) const;
-    virtual QVariant readValue(const QVariant::Type &type, const QVariant &dbValue);
+    virtual QVariant readValue(const QMetaType::Type &type, const QVariant &dbValue);
     virtual QString phrase(const PhraseData *d) const;
     virtual QString operatorString(const PhraseData::Condition &cond) const;
     virtual void appendSkipTake(QString &sql, int skip = -1, int take = -1);

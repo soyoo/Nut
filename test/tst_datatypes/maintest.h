@@ -4,13 +4,53 @@
 #include <QtCore/QObject>
 #include <QtCore/qglobal.h>
 
+#include <QColor>
+#include <QDateTime>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QPolygonF>
+#include <QUrl>
+#include <QUuid>
+
 #include "db.h"
 class MainTest : public QObject
 {
     Q_OBJECT
     DB db;
 
-//    void test_generator();
+    qint8 n8;
+    qint16 n16;
+    qint32 n32;
+    qint64 n64;
+    quint8 nu8;
+    quint16 nu16;
+    quint32 nu32;
+    quint64 nu64;
+    qreal r;
+    float f;
+    QPoint point;
+    QPointF pointf;
+    QPolygon polygon;
+    QPolygonF polygonf;
+    QUrl url;
+
+    QTime time;
+    QDate date;
+    QDateTime dateTime;
+
+    QUuid uuid;
+    QJsonDocument jsonDoc;
+    QJsonObject jsonObj;
+    QJsonArray jsonArr;
+    QJsonValue jsonValue;
+
+    QString string;
+    QStringList stringList;
+
+    QChar qchar;
+    QColor color;
+
 public:
     explicit MainTest(QObject *parent = nullptr);
 
@@ -21,6 +61,7 @@ private slots:
 
     void types();
     void insert();
+    void retrive();
     void cleanupTestCase();
 };
 

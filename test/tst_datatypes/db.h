@@ -16,4 +16,6 @@ public:
     DB();
 };
 
+Q_DECLARE_METATYPE(DB*)
+
 #endif // DB_H

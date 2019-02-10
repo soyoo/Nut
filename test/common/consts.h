@@ -8,23 +8,11 @@
     .arg(timer.elapsed() / 1000.) \
     .arg(__func__)
 
-//#define DRIVER "QPSQL"
-//#define HOST "127.0.0.1"
-//#define DATABASE "nutdb2"
-//#define USERNAME "postgres"
-//#define PASSWORD "856856"
-
 #define DRIVER "QSQLITE"
-#define HOST "127.0.0.1"
-#define DATABASE "nutdb1"
-#define USERNAME "root"
-#define PASSWORD "onlyonlyi"
-
-//#define DRIVER "QODBC"
-//#define HOST "127.0.0.1"
-//#define DATABASE "DRIVER={SQL Server};Server=.;Database=Nut2;Uid=sa;Port=1433;Pwd=qwe123!@#;WSID=."
-//#define USERNAME "sa"
-//#define PASSWORD "qwe123!@#"
+#define DATABASE QString(typeid(*this).name()) + ".db"
+#define HOST ""
+#define USERNAME ""
+#define PASSWORD ""
 
 #ifdef Q_OS_LINUX
 #   define OS "Linux"

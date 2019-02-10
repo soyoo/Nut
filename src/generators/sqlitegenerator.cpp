@@ -71,6 +71,8 @@ QString SqliteGenerator::fieldType(FieldModel *field)
     case QMetaType::QPointF:
     case QMetaType::QPolygon:
     case QMetaType::QPolygonF:
+    case QMetaType::QStringList:
+    case QMetaType::QColor:
     case QMetaType::QUuid:          return "text";
 
 //        if (field->isAutoIncrement)

@@ -115,9 +115,9 @@ QString MySqlGenerator::escapeValue(const QVariant &v) const
     }
 }
 
-QVariant MySqlGenerator::readValue(const QVariant::Type &type, const QVariant &dbValue)
+QVariant MySqlGenerator::readValue(const QMetaType::Type &type, const QVariant &dbValue)
 {
-    if (type == QVariant::PointF) {
+    if (type == QMetaType::QPointF) {
         qDebug() << "QVariant::PointF" << dbValue;
     }
     return SqlGeneratorBase::readValue(type, dbValue);

@@ -31,7 +31,7 @@
 #include "../table.h"
 #include "../databasemodel.h"
 #include "../tablemodel.h"
-#include "stringserializer.h"
+#include "sqlserializer.h"
 
 NUT_BEGIN_NAMESPACE
 
@@ -58,7 +58,7 @@ SqlGeneratorBase::SqlGeneratorBase(Database *parent)
     if (parent)
         _database = parent;
 
-    _serializer = new StringSerializer;
+    _serializer = new SqlSerializer;
 }
 
 SqlGeneratorBase::~SqlGeneratorBase()
@@ -798,7 +798,7 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
     if (v.type() == QVariant::String && v.toString().isEmpty())
         return "''";
 
-    QString serialized = _serializer->toString(v);
+    QString serialized = _serializer->serialize(v);
     if (serialized.isEmpty()) {
          qWarning("No field escape rule for: %s", v.typeName());
          return QString();
@@ -840,7 +840,7 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
     case QVariant::PointF:
     case QVariant::Polygon:
     case QVariant::PolygonF:
-        return "'" + _serializer->toString(v) + "'";
+        return "'" + _serializer->serialize(v) + "'";
 
     case QVariant::Invalid:
         qFatal("Invalud field value");
@@ -852,11 +852,10 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
     }
 }
 
-QVariant SqlGeneratorBase::readValue(const QVariant::Type &type,
+QVariant SqlGeneratorBase::readValue(const QMetaType::Type &type,
                                      const QVariant &dbValue)
 {
-    Q_UNUSED(type);
-    return dbValue;
+    return _serializer->deserialize(dbValue.toString(), type);
 }
 
 QString SqlGeneratorBase::phrase(const PhraseData *d) const
