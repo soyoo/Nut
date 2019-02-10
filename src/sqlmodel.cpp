@@ -85,9 +85,4 @@ QVariant SqlModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-SqlModelPrivate::SqlModelPrivate()
-{
-
-}
-
 NUT_END_NAMESPACE

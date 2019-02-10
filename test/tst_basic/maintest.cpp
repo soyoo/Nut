@@ -74,14 +74,14 @@ void MainTest::createPost()
     db.posts()->append(newPost);
 
     for(int i = 0 ; i < 3; i++){
-        Comment *comment = new Comment;
+        auto *comment = new Comment;
         comment->setMessage("comment #" + QString::number(i));
         comment->setSaveDate(QDateTime::currentDateTime());
         comment->setAuthorId(user->id());
         newPost->comments()->append(comment);
     }
     for (int i = 0; i < 10; ++i) {
-        Score *score = new Score;
+        auto *score = new Score;
         score->setScore(i % 5);
         newPost->scores()->append(score);
     }
@@ -106,7 +106,7 @@ void MainTest::createPost2()
     int postId = postIdVar.toInt();
 
     for(int i = 0 ; i < 3; i++){
-        Comment *comment = new Comment;
+        auto *comment = new Comment;
         comment->setMessage("comment #" + QString::number(i + 2));
         comment->setSaveDate(QDateTime::currentDateTime());
         comment->setAuthor(user);

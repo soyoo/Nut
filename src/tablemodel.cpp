@@ -1,4 +1,4 @@
-/**************************************************************************
+﻿/**************************************************************************
 **
 ** This file is part of Nut project.
 ** https://github.com/HamedMasafi/Nut
@@ -74,7 +74,7 @@ FieldModel *TableModel::field(int n) const
     return _fields.at(n);
 }
 
-FieldModel *TableModel::field(QString name) const
+FieldModel *TableModel::field(const QString &name) const
 {
     foreach (FieldModel *f, _fields)
         if(f->name == name)
@@ -123,7 +123,7 @@ TableModel *TableModel::findByTypeId(int typeId)
  * @param className
  * @return
  */
-TableModel *TableModel::findByClassName(QString className)
+TableModel *TableModel::findByClassName(const QString &className)
 {
     foreach (TableModel *model, _allModels){
         if(model->className() == className)
@@ -174,7 +174,7 @@ bool TableModel::operator !=(const TableModel &t) const
 //    }
 //}
 
-TableModel::TableModel(int typeId, QString tableName)
+TableModel::TableModel(int typeId, const QString &tableName)
 {
     //TODO: check that
 //    if  (findByTypeId(typeId))
@@ -203,7 +203,7 @@ TableModel::TableModel(int typeId, QString tableName)
         }
 
         if(type == __nut_FIELD){
-            FieldModel *f = new FieldModel;
+            auto *f = new FieldModel;
             f->name = f->displayName = name;
             _fields.append(f);
         }
@@ -234,7 +234,7 @@ TableModel::TableModel(int typeId, QString tableName)
         }
 
         if(type == __nut_FOREGION_KEY){
-            RelationModel *fk = new RelationModel;
+            auto *fk = new RelationModel;
             fk->slaveTable = this;
             fk->localColumn = name + "Id";
             fk->localProperty = name;
@@ -292,7 +292,7 @@ TableModel::TableModel(int typeId, QString tableName)
         "primary_key": "id"
     },
 */
-TableModel::TableModel(QJsonObject json, QString tableName)
+TableModel::TableModel(const QJsonObject &json, const QString &tableName) : _typeId(0)
 {
     _name = tableName;
 
@@ -300,7 +300,7 @@ TableModel::TableModel(QJsonObject json, QString tableName)
     QJsonObject relations = json.value(__FOREIGN_KEYS).toObject();
     foreach (QString key, fields.keys()) {
         QJsonObject fieldObject = fields.value(key).toObject();
-        FieldModel *f = new FieldModel;
+        auto *f = new FieldModel;
         f->name = fieldObject.value(__NAME).toString();
         f->type = static_cast<QMetaType::Type>(QMetaType::type(fieldObject.value(__TYPE).toString().toLatin1().data()));
         f->typeName = QMetaType::typeName(f->type);
@@ -398,8 +398,7 @@ QString TableModel::toString() const
         sl.append(f->name + " " + QVariant::typeToName(f->type));
 
     QString ret = QString("%1 (%2)")
-            .arg(_name)
-            .arg(sl.join(", "));
+            .arg(_name, sl.join(", "));
     return ret;
 }
 

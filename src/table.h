@@ -70,7 +70,7 @@ signals:
 public slots:
 
 protected:
-    void propertyChanged(QString propName);
+    void propertyChanged(const QString &propName);
 
 private:
     TableModel *myModel;

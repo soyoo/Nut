@@ -53,7 +53,7 @@ qulonglong DatabasePrivate::lastId = 0;
 QMap<QString, DatabaseModel> DatabasePrivate::allTableMaps;
 
 DatabasePrivate::DatabasePrivate(Database *parent) : q_ptr(parent),
-    port(0), sqlGenertor(0), changeLogs(0),
+    port(0), sqlGenertor(nullptr), changeLogs(nullptr),
     isDatabaseNew(false)
 {
 }
@@ -74,7 +74,7 @@ bool DatabasePrivate::open(bool update)
     db.setUserName(userName);
     db.setPassword(password);
 
-    if (driver.toLower().startsWith("qsqlite")
+    if (driver.startsWith("qsqlite", Qt::CaseInsensitive)
             && !QFile::exists(databaseName)) {
         //Force to execute update database
         isDatabaseNew = true;
@@ -108,10 +108,10 @@ bool DatabasePrivate::open(bool update)
 
                 isDatabaseNew = true;
                 return open(update);
-            } else {
-                qWarning("Unknown error detecting change logs, %s",
-                         db.lastError().text().toLatin1().data());
             }
+            qWarning("Unknown error detecting change logs, %s",
+                     db.lastError().text().toLatin1().data());
+
         }
         return false;
     }
@@ -335,7 +335,7 @@ bool DatabasePrivate::putModelToDatabase()
     DatabaseModel current = currentModel;
     /*current.remove(__CHANGE_LOG_TABLE_NAME)*/;
 
-    ChangeLogTable *changeLog = new ChangeLogTable();
+    auto *changeLog = new ChangeLogTable();
     changeLog->setData(QJsonDocument(current.toJson()).toJson());
     changeLog->setVersion(current.version());
     changeLogs->append(changeLog);
@@ -358,7 +358,7 @@ bool DatabasePrivate::putModelToDatabase()
 void DatabasePrivate::createChangeLogs()
 {
     //    currentModel.model("change_log")
-    QString diff = sqlGenertor->diff(0, currentModel.tableByName("__change_log"));
+    QString diff = sqlGenertor->diff(nullptr, currentModel.tableByName("__change_log"));
 
     db.exec(diff);
 }
@@ -407,8 +407,7 @@ Database::~Database()
     if (d->db.isOpen())
         d->db.close();
 
-    if (d_ptr)
-        delete d_ptr;
+    delete d_ptr;
 }
 
 QString Database::databaseName() const
@@ -574,9 +573,9 @@ bool Database::open(bool updateDatabase)
         qFatal("Sql generator for driver %s not found",
                  driver().toLatin1().constData());
         return false;
-    } else {
-        return d->open(updateDatabase);
     }
+
+    return d->open(updateDatabase);
 }
 
 void Database::close()
@@ -585,7 +584,7 @@ void Database::close()
     d->db.close();
 }
 
-QSqlQuery Database::exec(QString sql)
+QSqlQuery Database::exec(const QString &sql)
 {
     Q_D(Database);
 

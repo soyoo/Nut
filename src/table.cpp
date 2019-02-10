@@ -39,10 +39,9 @@ NUT_BEGIN_NAMESPACE
  *  This should be fixed to v1.2
  */
 
-Table::Table(QObject *parent) : QObject(parent), myModel(nullptr), _parentTableSet(nullptr)
-{
-    setStatus(NewCreated);
-}
+Table::Table(QObject *parent) : QObject(parent), myModel(nullptr),
+    _status(NewCreated), _parentTableSet(nullptr)
+{ }
 
 void Table::add(TableSetBase *t)
 {
@@ -69,7 +68,7 @@ QVariant Table::primaryValue() const
     return property(primaryKey().toLatin1().data());
 }
 
-void Table::propertyChanged(QString propName)
+void Table::propertyChanged(const QString &propName)
 {
     if (!myModel)
          myModel = TableModel::findByClassName(metaObject()->className());

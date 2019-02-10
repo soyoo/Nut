@@ -43,7 +43,7 @@ public:
     DatabaseModel(const QString &name = QString());
     DatabaseModel(const DatabaseModel &other);
     DatabaseModel(const QJsonObject &json);
-    ~DatabaseModel();
+    ~DatabaseModel() = default;
 
     TableModel *tableByName(QString tableName) const;
     TableModel *tableByClassName(QString className) const;
@@ -54,7 +54,7 @@ public:
                                         const QString &childClassName);
 
     bool operator==(const DatabaseModel &other) const;
-    DatabaseModel operator +(const DatabaseModel &other);
+//    DatabaseModel operator +(const DatabaseModel &other);
 
     Q_DECL_DEPRECATED
     static DatabaseModel fromJson(QJsonObject &json);
@@ -72,6 +72,8 @@ public:
     static DatabaseModel *modelByName(const QString &name);
     static void deleteAllModels();
 };
+
+DatabaseModel operator +(const DatabaseModel &l, const DatabaseModel &r);
 
 NUT_END_NAMESPACE
 

@@ -52,7 +52,7 @@ public:
     bool open(bool updateDatabase);
     void close();
 
-    QSqlQuery exec(QString sql);
+    QSqlQuery exec(const QString& sql);
 
     int saveChanges(bool cleanUp = false);
     void cleanUp();

@@ -114,7 +114,7 @@ public:
 
     QString toString() const;
 
-    ~PhraseData();
+    ~PhraseData() = default;
 
     void cleanUp();
 private:
@@ -135,7 +135,7 @@ class AssignmentPhraseList
 {
 public:
     QList<PhraseData*> data;
-    explicit AssignmentPhraseList();
+    explicit AssignmentPhraseList() = default;
     AssignmentPhraseList(const AssignmentPhrase &l);
     AssignmentPhraseList(AssignmentPhraseList *l, const AssignmentPhrase *r);
     AssignmentPhraseList(AssignmentPhrase *l, const AssignmentPhrase *r);
@@ -181,7 +181,7 @@ public:
     PhraseList(const AbstractFieldPhrase *left, const AbstractFieldPhrase &right);
     PhraseList(PhraseList *left, PhraseList *right);
     PhraseList(PhraseList *left, const AbstractFieldPhrase *right);
-    virtual ~PhraseList();
+    virtual ~PhraseList() = default;
 
     PhraseList &operator =(const PhraseList &other);
     PhraseList operator |(PhraseList &other);
