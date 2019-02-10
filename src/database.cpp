@@ -69,7 +69,8 @@ bool DatabasePrivate::open(bool update)
 
     db = QSqlDatabase::addDatabase(driver, connectionName);
     db.setHostName(hostName);
-    db.setPort(port);
+    if (port)
+        db.setPort(port);
     db.setDatabaseName(databaseName);
     db.setUserName(userName);
     db.setPassword(password);

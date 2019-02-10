@@ -18,6 +18,8 @@
 **
 **************************************************************************/
 
+#include <QDateTime>
+
 #include "postgresqlgenerator.h"
 #include "../table.h"
 #include "../tablemodel.h"
@@ -34,61 +36,94 @@ QString PostgreSqlGenerator::fieldType(FieldModel *field)
     QString dbType;
 
     switch (field->type) {
-    case QVariant::Bool:
+    case QMetaType::Bool:
         dbType = "BOOLEAN";
         break;
-    case QVariant::ByteArray:
+    case QMetaType::QByteArray:
         dbType = "BYTEA";
         break;
-    case QVariant::Date:
+    case QMetaType::QDate:
         dbType = "DATE";
         break;
-    case QVariant::DateTime:
+    case QMetaType::QDateTime:
         dbType = "TIMESTAMP";
         break;
-    case QVariant::Time:
+    case QMetaType::QTime:
         dbType = "TIME";
         break;
 
-    case QVariant::Int:
-    case QVariant::UInt:
+    case QMetaType::SChar:
+    case QMetaType::UChar:
+    case QMetaType::Short:
+    case QMetaType::UShort:
+        dbType = "SMALLINT";
+        break;
+
+    case QMetaType::Float:
+        dbType = "FLOAT";
+        break;
+
+    case QMetaType::Double:
+        dbType = "REAL";
+        break;
+
+    case QMetaType::Int:
+    case QMetaType::UInt:
         if(field->isAutoIncrement)
             dbType = "SERIAL";
         else
             dbType = "INTEGER";
         break;
 
-    case QVariant::ULongLong:
-    case QVariant::LongLong:
+    case QMetaType::ULongLong:
+    case QMetaType::LongLong:
         if(field->isAutoIncrement)
             dbType = "BIGSERIAL";
         else
             dbType = "BIGINT";
         break;
 
-    case QVariant::Double:
-        dbType = "REAL";
-        break;
-    case QVariant::String:
+    case QMetaType::QString:
         if(field->length)
             dbType = QString("VARCHAR(%1)").arg(field->length);
         else
             dbType = "TEXT";
         break;
 
-    case QVariant::Point:
-    case QVariant::PointF:
+    case QMetaType::QPoint:
+    case QMetaType::QPointF:
         dbType="POINT";
         break;
 
-    case QVariant::Uuid:
+    case QMetaType::QUuid:
         dbType = "UUID";
         break;
 
-    case QVariant::Polygon:
-    case QVariant::PolygonF:
+    case QMetaType::QPolygon:
+    case QMetaType::QPolygonF:
         dbType = "POLYGON";
         break;
+
+    case QMetaType::QLine:
+    case QMetaType::QLineF:
+        return "LINE";
+
+    case QMetaType::QRect:
+    case QMetaType::QRectF:
+        return "BOX";
+
+    case QMetaType::QJsonArray:
+    case QMetaType::QJsonValue:
+    case QMetaType::QJsonObject:
+    case QMetaType::QJsonDocument:
+        return "JSON";
+
+    case QMetaType::QStringList:
+        return "TEXT[]";
+
+    case QMetaType::QUrl:
+    case QMetaType::QColor:
+        return "TEXT";
 
     default:
         qDebug() << "Type for " << (int)field->type << field->type << "(" << QMetaType::typeName(field->type) << ")" << "nut supported";
@@ -120,6 +155,22 @@ QString PostgreSqlGenerator::diff(FieldModel *oldField, FieldModel *newField)
         }
     }
     return sql;
+}
+
+QString PostgreSqlGenerator::escapeValue(const QVariant &v) const
+{
+    if (v.type() == QVariant::DateTime)
+        return "'" + v.toDateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
+
+    return SqlGeneratorBase::escapeValue(v);
+}
+
+QVariant PostgreSqlGenerator::readValue(const QMetaType::Type &type, const QVariant &dbValue)
+{
+    if (type == QMetaType::QDateTime)
+        return dbValue.toDateTime();// QDateTime::fromString(dbValue.toString(), "yyyy-MM-dd HH:mm:ss");
+
+    return SqlGeneratorBase::readValue(type, dbValue);
 }
 
 

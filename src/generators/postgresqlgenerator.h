@@ -34,6 +34,11 @@ public:
     QString fieldType(FieldModel *field);
 
     QString diff(FieldModel *oldField, FieldModel *newField);
+
+    // SqlGeneratorBase interface
+public:
+    QString escapeValue(const QVariant &v) const;
+    QVariant readValue(const QMetaType::Type &type, const QVariant &dbValue);
 };
 
 NUT_END_NAMESPACE

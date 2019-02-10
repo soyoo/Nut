@@ -102,7 +102,7 @@ void BasicTest::createPost2()
               (Post::titleField() = "This is a sample")
                 & (Post::isPublicField() = true));
 
-    QTEST_ASSERT(postIdVar.type() == QVariant::LongLong);
+    QTEST_ASSERT(postIdVar.type() == QVariant::LongLong || postIdVar.type() == QVariant::ULongLong);
     int postId = postIdVar.toInt();
 
     for(int i = 0 ; i < 3; i++){
@@ -217,6 +217,7 @@ void BasicTest::testDate()
             ->setWhere(Post::idField() == newPost->id())
             ->first();
 
+    qDebug() << q->saveDate() << d;
     QTEST_ASSERT(q->saveDate() == d);
 }
 
