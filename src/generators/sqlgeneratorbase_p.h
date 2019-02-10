@@ -62,7 +62,7 @@ public:
     };
 
     explicit SqlGeneratorBase(Database *parent);
-    virtual ~SqlGeneratorBase();
+    virtual ~SqlGeneratorBase() = default;
 
     virtual QString masterDatabaseName(QString databaseName);
 
@@ -72,14 +72,14 @@ public:
     virtual QString fieldDeclare(FieldModel *field);
     virtual QString relationDeclare(const RelationModel *relation);
 
-    virtual QStringList diff(DatabaseModel lastModel, DatabaseModel newModel);
+    virtual QStringList diff(const DatabaseModel &lastModel, const DatabaseModel &newModel);
     virtual QString diff(FieldModel *oldField, FieldModel *newField);
     virtual QString diff(TableModel *oldTable, TableModel *newTable);
     virtual QString diffRelation(TableModel *oldTable, TableModel *newTable);
     virtual QString diff(RelationModel *oldRel, RelationModel *newRel);
 
     virtual QString join(const QString &mainTable,
-                         const QList<RelationModel*> list,
+                         const QList<RelationModel*> &list,
                          QStringList *order = Q_NULLPTR);
     virtual QString join(const QStringList &list, QStringList *order = Q_NULLPTR);
 
@@ -90,13 +90,13 @@ public:
     virtual QString insertRecord(Table *t, QString tableName);
     virtual QString updateRecord(Table *t, QString tableName);
     virtual QString deleteRecord(Table *t, QString tableName);
-    virtual QString deleteRecords(QString tableName, QString where);
+    virtual QString deleteRecords(const QString &tableName, const QString &where);
 
     virtual QString selectCommand(const QString &tableName,
                                   const PhraseList &fields,
                                   const ConditionalPhrase &where,
                                   const PhraseList &order,
-                                  const QList<RelationModel*> joins,
+                                  const QList<RelationModel *> &joins,
                                   const int skip = -1,
                                   const int take = -1);
 

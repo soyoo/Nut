@@ -36,50 +36,50 @@ QString MySqlGenerator::fieldType(FieldModel *field)
     QString dbType;
 
     switch (field->type) {
-    case QVariant::Bool:
+    case QMetaType::Bool:
         dbType = "BOOLEAN";
         break;
-    case QVariant::ByteArray:
+    case QMetaType::QByteArray:
         dbType = "BLOB";
         break;
-    case QVariant::DateTime:
+    case QMetaType::QDateTime:
         dbType = "DATETIME";
         break;
 
-    case QVariant::Date:
+    case QMetaType::QDate:
         dbType = "DATE";
         break;
 
-    case QVariant::Time:
+    case QMetaType::QTime:
         dbType = "TIME";
         break;
-    case QVariant::Double:
+    case QMetaType::Double:
         dbType = "REAL";
         break;
-    case QVariant::Int:
+    case QMetaType::Int:
         dbType = "INT(4)";
         if(field->isAutoIncrement)
             dbType += " AUTO_INCREMENT";
 
         break;
-    case QVariant::String:
+    case QMetaType::QString:
         if(field->length)
             dbType = QString("VARCHAR(%1)").arg(field->length);
         else
             dbType = "TEXT";
         break;
 
-    case QVariant::Point:
-    case QVariant::PointF:
+    case QMetaType::QPoint:
+    case QMetaType::QPointF:
         dbType = "POINT";
         break;
 
-    case QVariant::Polygon:
-    case QVariant::PolygonF:
+    case QMetaType::QPolygon:
+    case QMetaType::QPolygonF:
         dbType = "POLYGON";
         break;
 
-    case QVariant::Uuid:
+    case QMetaType::QUuid:
         dbType = "VARCHAR(64)";
         break;
 
@@ -100,12 +100,12 @@ QString MySqlGenerator::fieldType(FieldModel *field)
 QString MySqlGenerator::escapeValue(const QVariant &v) const
 {
     switch (v.type()) {
-    case QVariant::Point: {
+    case QMetaType::QPoint: {
         QPoint pt = v.toPoint();
         return QString("GeomFromText('POINT(%1 %2)',0)").arg(pt.x()).arg(pt.y());
     }
 
-    case QVariant::PointF: {
+    case QMetaType::QPointF: {
         QPointF pt = v.toPointF();
         return QString("GeomFromText('POINT(%1 %2)',0)").arg(pt.x()).arg(pt.y());
     }

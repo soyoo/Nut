@@ -172,7 +172,7 @@ public:                                                                        \
 
 #define NUT_IMPLEMENT_CHILD_TABLE(class, type, n)                              \
     type *class::n##Table(){                                                   \
-        static type *f = new type();                                           \
+        static auto f = new type();                                           \
         return f;                                                              \
     }                                                                          \
     NUT_WRAP_NAMESPACE(TableSet)<type> *class::n(){                            \

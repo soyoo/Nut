@@ -31,8 +31,6 @@ SqliteGenerator::SqliteGenerator(Database *parent) : SqlGeneratorBase(parent)
 
 QString SqliteGenerator::fieldType(FieldModel *field)
 {
-    QString ret = field->name + " ";
-    QString dbType;
     if (field->isPrimaryKey) {
         QString primaryKeyPerfix = " PRIMARY KEY";
         if (field->isAutoIncrement)

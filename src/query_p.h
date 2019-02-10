@@ -38,7 +38,7 @@ class QueryPrivate{
 
 public:
     explicit QueryPrivate(QueryBase *parent);
-    ~QueryPrivate();
+    ~QueryPrivate() = default;
 
     QString sql;
     QString className;

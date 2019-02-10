@@ -92,8 +92,8 @@ bool operator !=(const RelationModel &l, const RelationModel &r);
 class   TableModel
 {
 public:
-    explicit TableModel(int typeId, QString tableName = QString());
-    explicit TableModel(QJsonObject json, QString tableName);
+    explicit TableModel(int typeId, const QString &tableName = QString());
+    explicit TableModel(const QJsonObject &json, const QString &tableName);
     virtual ~TableModel();
 
     QJsonObject toJson() const;
@@ -103,7 +103,7 @@ public:
 //    static TableModel* model(QString className);
 
     FieldModel *field(int n) const;
-    FieldModel *field(QString name) const;
+    FieldModel *field(const QString &name) const;
     RelationModel *foregionKey(const QString &otherTable) const;
     RelationModel *foregionKeyByField(const QString &fieldName) const;
 
@@ -126,7 +126,7 @@ public:
     static QSet<TableModel *> allModels();
     static TableModel *findByTypeId(int typeId);
 //    static TableModel *findByName(QString name);
-    static TableModel *findByClassName(QString className);
+    static TableModel *findByClassName(const QString &className);
 
     bool operator ==(const TableModel &t) const;
     bool operator !=(const TableModel &t) const;

@@ -57,10 +57,6 @@ DatabaseModel::DatabaseModel(const QJsonObject &json) :
     }
 }
 
-DatabaseModel::~DatabaseModel()
-{
-}
-
 TableModel *DatabaseModel::tableByName(QString tableName) const
 {
     for(int i = 0; i < size(); i++){
@@ -72,7 +68,7 @@ TableModel *DatabaseModel::tableByName(QString tableName) const
 
 //    qWarning("Table with name '%s' not found in model",
 //             qUtf8Printable(tableName));
-    return 0;
+    return nullptr;
 }
 
 TableModel *DatabaseModel::tableByClassName(QString className) const
@@ -108,19 +104,19 @@ bool DatabaseModel::operator ==(const DatabaseModel &other) const
     return true;
 }
 
-DatabaseModel DatabaseModel::operator +(const DatabaseModel &other)
-{
-    DatabaseModel model;
-    DatabaseModel::const_iterator i;
+//DatabaseModel DatabaseModel::operator +(const DatabaseModel &other)
+//{
+//    DatabaseModel model;
+//    DatabaseModel::const_iterator i;
 
-    for (i = constBegin(); i != constEnd(); ++i)
-        model.append(*i);
+//    for (i = constBegin(); i != constEnd(); ++i)
+//        model.append(*i);
 
-    for (i = other.constBegin(); i != other.constEnd(); ++i)
-        model.append(*i);
+//    for (i = other.constBegin(); i != other.constEnd(); ++i)
+//        model.append(*i);
 
-    return model;
-}
+//    return model;
+//}
 
 QJsonObject DatabaseModel::toJson() const
 {
@@ -148,13 +144,13 @@ RelationModel *DatabaseModel::relationByClassNames(const QString &masterClassNam
     TableModel *childTable = tableByClassName(childClassName);
 
     if(!childTable)
-        return 0;
+        return nullptr;
 
     foreach (RelationModel *rel, childTable->foregionKeys())
         if(rel->masterClassName == masterClassName)
             return rel;
 
-    return 0;
+    return nullptr;
 }
 
 RelationModel *DatabaseModel::relationByTableNames(const QString &masterTableName, const QString &childTableName)
@@ -162,13 +158,13 @@ RelationModel *DatabaseModel::relationByTableNames(const QString &masterTableNam
     TableModel *childTable = tableByName(childTableName);
 
     if(!childTable)
-        return 0;
+        return nullptr;
 
     foreach (RelationModel *rel, childTable->foregionKeys())
         if(rel->masterTable->name() == masterTableName)
             return rel;
 
-    return 0;
+    return nullptr;
 }
 
 DatabaseModel DatabaseModel::fromJson(QJsonObject &json)
@@ -236,7 +232,21 @@ void DatabaseModel::deleteAllModels()
 //         qDeleteAll(i.value());
      }
 //    qDeleteAll(_models.values());
-    _models.clear();
+     _models.clear();
+}
+
+DatabaseModel operator +(const DatabaseModel &l, const DatabaseModel &r)
+{
+    DatabaseModel model;
+    DatabaseModel::const_iterator i;
+
+    for (i = r.constBegin(); i != r.constEnd(); ++i)
+        model.append(*i);
+
+    for (i = l.constBegin(); i != l.constEnd(); ++i)
+        model.append(*i);
+
+    return model;
 }
 
 NUT_END_NAMESPACE

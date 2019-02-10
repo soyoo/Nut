@@ -16,10 +16,6 @@
 #include "generators/sqlitegenerator.h"
 #include "generators/sqlservergenerator.h"
 
-#define PRINT(x) qDebug() << #x "=" << x;
-
-#define REGISTER(x) qDebug() << #x << "type id:" << qMetaTypeId<x*>()
-
 MainTest::MainTest(QObject *parent) : QObject(parent)
 {
 }
