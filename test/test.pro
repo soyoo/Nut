@@ -7,5 +7,6 @@ SUBDIRS += \
     tst_datatypes \
     #tst_join  \
 #    tst_phrases
-    tst_quuid
+    tst_quuid \
+    tst_generators
 
