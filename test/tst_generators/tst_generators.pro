@@ -12,3 +12,6 @@ IMPORTPATH += $$OUT_PWD/../src/imports
 
 SOURCES += \ 
     tst_generators.cpp
+
+HEADERS += \
+    tst_generators.h

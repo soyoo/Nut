@@ -9,102 +9,120 @@
 #include "generators/sqlitegenerator.h"
 #include "generators/sqlservergenerator.h"
 #include "generators/mysqlgenerator.h"
-#include "generators/mysqlgenerator.h"
+#include "generators/postgresqlgenerator.h"
 
-class tst_generators : public QObject
-{
-    Q_OBJECT
+#include "tst_generators.h"
 
-public:
-    tst_generators();
-    ~tst_generators();
-
-    void types(Nut::SqlGeneratorBase *g);
-
-private slots:
-    void test_sqlite();
-    void test_sqlserver();
-    void test_psql();
-    void test_mysql();
-
-};
-
-tst_generators::tst_generators()
+GeneratorsTest::GeneratorsTest(QObject *parent) : QObject(parent)
 {
 
 }
 
-tst_generators::~tst_generators()
-{
 
-}
-
-void tst_generators::types(Nut::SqlGeneratorBase *g)
+void GeneratorsTest::types(Nut::SqlGeneratorBase *g)
 {
     QList<QMetaType::Type> types;
     types
-             << QMetaType::Bool
-             << QMetaType::Int
-             << QMetaType::UInt
-             << QMetaType::Double
-             << QMetaType::QChar
-             << QMetaType::QString
-             << QMetaType::QByteArray
-             << QMetaType::Long
-             << QMetaType::LongLong
-             << QMetaType::Short
-             << QMetaType::Char
-             << QMetaType::ULong
-             << QMetaType::ULongLong
-             << QMetaType::UShort
-             << QMetaType::SChar
-             << QMetaType::UChar
-             << QMetaType::Float
-             << QMetaType::QDate
-//             << QMetaType::QSize
-             << QMetaType::QTime
-//             << QMetaType::QPolygon
-//             << QMetaType::QPolygonF
-//             << QMetaType::QColor
-//             << QMetaType::QSizeF
-//             << QMetaType::QRectF
-//             << QMetaType::QLine
-//             << QMetaType::QStringList
-//             << QMetaType::QLineF
-//             << QMetaType::QRect
-//             << QMetaType::QPoint
-             << QMetaType::QUrl
-             << QMetaType::QDateTime
-//             << QMetaType::QPointF
-//             << QMetaType::QRegion
-//             << QMetaType::QBitArray
-//             << QMetaType::QImage
-//             << QMetaType::QPixmap
-//             << QMetaType::QLocale
-//             << QMetaType::QMatrix
-//             << QMetaType::QMatrix4x4
-//             << QMetaType::QVector2D
-//             << QMetaType::QVector3D
-//             << QMetaType::QVector4D
-             << QMetaType::QJsonValue
-             << QMetaType::QJsonObject
-             << QMetaType::QJsonArray
-             << QMetaType::QJsonDocument
-             << QMetaType::QUuid
-//             << QMetaType::QByteArrayList
-                ;
+            << QMetaType::Bool
+
+            << QMetaType::Char
+            << QMetaType::SChar
+            << QMetaType::UChar
+            << QMetaType::QChar
+
+            << QMetaType::Short
+            << QMetaType::UShort
+            << QMetaType::Int
+            << QMetaType::UInt
+            << QMetaType::Long
+            << QMetaType::LongLong
+            << QMetaType::ULong
+            << QMetaType::ULongLong
+
+            << QMetaType::Double
+            << QMetaType::Float
+
+            << QMetaType::QString
+            << QMetaType::QStringList
+
+            << QMetaType::QBitArray
+            << QMetaType::QByteArray
+
+            << QMetaType::QDate
+            << QMetaType::QTime
+            << QMetaType::QDateTime
+
+            << QMetaType::QUrl
+            << QMetaType::QColor
+
+            << QMetaType::QPoint
+            << QMetaType::QPointF
+            << QMetaType::QPolygon
+            << QMetaType::QPolygonF
+            << QMetaType::QSize
+            << QMetaType::QSizeF
+            << QMetaType::QRect
+            << QMetaType::QRectF
+            << QMetaType::QLine
+            << QMetaType::QLineF
+
+               //             << QMetaType::QRegion
+               //             << QMetaType::QImage
+               //             << QMetaType::QPixmap
+               //             << QMetaType::QLocale
+               //             << QMetaType::QMatrix
+               //             << QMetaType::QMatrix4x4
+               //             << QMetaType::QVector2D
+               //             << QMetaType::QVector3D
+               //             << QMetaType::QVector4D
+            << QMetaType::QJsonValue
+            << QMetaType::QJsonObject
+            << QMetaType::QJsonArray
+            << QMetaType::QJsonDocument
+
+            << QMetaType::QUuid
+               //             << QMetaType::QByteArrayList
+               ;
 
     Nut::FieldModel m;
     foreach (QMetaType::Type t, types) {
         m.type = t;
         QString fn = g->fieldType(&m);
+
+        if (fn.isEmpty())
+            qDebug() << "No rule for" << t << "(" << QMetaType::typeName(t) << ")";
         Q_ASSERT(!fn.isEmpty());
     }
-//    for (int i = 0; i < en.keyCount(); i++)
-    //        qDebug() << en.value(i);
 }
 
+void GeneratorsTest::test_sqlite()
+{
+    auto g = new Nut::SqliteGenerator;
+    types(g);
+    g->deleteLater();
+}
 
-QTEST_APPLESS_MAIN(tst_generators)
+void GeneratorsTest::test_sqlserver()
+{
+    auto g = new Nut::SqlServerGenerator;
+    types(g);
+    g->deleteLater();
+}
 
-//#include "tst_tst_generators.moc"
+void GeneratorsTest::test_psql()
+{
+    auto g = new Nut::PostgreSqlGenerator;
+    types(g);
+    g->deleteLater();
+}
+
+void GeneratorsTest::test_mysql()
+{
+    auto g = new Nut::MySqlGenerator;
+    types(g);
+    g->deleteLater();
+}
+
+QTEST_MAIN(GeneratorsTest)
+
+//#include "tst_GeneratorsTest.moc"

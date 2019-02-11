@@ -39,6 +39,8 @@ QString PostgreSqlGenerator::fieldType(FieldModel *field)
     case QMetaType::Bool:
         dbType = "BOOLEAN";
         break;
+
+    case QMetaType::QBitArray:
     case QMetaType::QByteArray:
         dbType = "BYTEA";
         break;
@@ -75,13 +77,19 @@ QString PostgreSqlGenerator::fieldType(FieldModel *field)
             dbType = "INTEGER";
         break;
 
-    case QMetaType::ULongLong:
+    case QMetaType::Long:
+    case QMetaType::ULong:
     case QMetaType::LongLong:
+    case QMetaType::ULongLong:
         if(field->isAutoIncrement)
             dbType = "BIGSERIAL";
         else
             dbType = "BIGINT";
         break;
+
+    case QMetaType::Char:
+    case QMetaType::QChar:
+        return "CHAR(1)";
 
     case QMetaType::QString:
         if(field->length)
@@ -121,6 +129,8 @@ QString PostgreSqlGenerator::fieldType(FieldModel *field)
     case QMetaType::QStringList:
         return "TEXT[]";
 
+    case QMetaType::QSize:
+    case QMetaType::QSizeF:
     case QMetaType::QUrl:
     case QMetaType::QColor:
         return "TEXT";

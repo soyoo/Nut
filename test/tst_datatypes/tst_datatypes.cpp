@@ -5,7 +5,7 @@
 
 #include "consts.h"
 
-#include "maintest.h"
+#include "tst_datatypes.h"
 #include "query.h"
 #include "tableset.h"
 #include "tablemodel.h"

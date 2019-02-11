@@ -14,6 +14,6 @@ SOURCES += \
     tst_datatypes.cpp
 
 HEADERS += \
-    maintest.h \
     db.h \
-    sampletable.h
+    sampletable.h \
+    tst_datatypes.h

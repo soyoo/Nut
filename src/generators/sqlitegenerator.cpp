@@ -39,6 +39,7 @@ QString SqliteGenerator::fieldType(FieldModel *field)
     }
     switch (field->type) {
     case QMetaType::Bool:           return "BOOLEAN";
+    case QMetaType::QBitArray:
     case QMetaType::QByteArray:     return "BLOB";
     case QMetaType::QDate:          return "DATE";
     case QMetaType::QDateTime:      return "DATETIME";
@@ -67,6 +68,12 @@ QString SqliteGenerator::fieldType(FieldModel *field)
     case QMetaType::QJsonDocument:
     case QMetaType::QPoint:
     case QMetaType::QPointF:
+    case QMetaType::QSize:
+    case QMetaType::QSizeF:
+    case QMetaType::QLine:
+    case QMetaType::QLineF:
+    case QMetaType::QRect:
+    case QMetaType::QRectF:
     case QMetaType::QPolygon:
     case QMetaType::QPolygonF:
     case QMetaType::QStringList:

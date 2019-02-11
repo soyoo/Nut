@@ -59,7 +59,6 @@ signals:
 private slots:
     void initTestCase();
 
-    void types();
     void insert();
     void retrive();
     void cleanupTestCase();
