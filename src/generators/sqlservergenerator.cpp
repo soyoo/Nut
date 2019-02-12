@@ -116,6 +116,14 @@ QString SqlServerGenerator::fieldType(FieldModel *field)
         dbType = "UNIQUEIDENTIFIER";
         break;
 
+    case QMetaType::QPolygon:
+    case QMetaType::QPolygonF:
+    case QMetaType::QSize:
+    case QMetaType::QSizeF:
+    case QMetaType::QRect:
+    case QMetaType::QRectF:
+    case QMetaType::QLine:
+    case QMetaType::QLineF:
     case QMetaType::QColor:
     case QMetaType::QStringList:
     case QMetaType::QJsonArray:

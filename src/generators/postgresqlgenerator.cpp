@@ -19,6 +19,11 @@
 **************************************************************************/
 
 #include <QDateTime>
+#include <QPoint>
+#ifdef QT_GUI_LIB
+#include <QPolygon>
+#endif
+#include <QVariant>
 
 #include "postgresqlgenerator.h"
 #include "../table.h"
@@ -169,8 +174,53 @@ QString PostgreSqlGenerator::diff(FieldModel *oldField, FieldModel *newField)
 
 QString PostgreSqlGenerator::escapeValue(const QVariant &v) const
 {
+    if (v.type() == QVariant::Time)
+        return "'" + v.toTime().toString("HH:mm:ss") + "'";
+
+    if (v.type() == QVariant::Date)
+        return "'" + v.toDate().toString("yyyy-MM-dd") + "'";
+
     if (v.type() == QVariant::DateTime)
         return "'" + v.toDateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
+
+    if (v.type() == QVariant::StringList)
+        return "'{" + v.toStringList().join(",") + "}'";
+
+    if (v.type() == QVariant::Point) {
+        QPoint pt = v.toPoint();
+        return QString("'(%1, %2)'").arg(pt.x()).arg(pt.y());
+    }
+    if (v.type() == QVariant::PointF) {
+        QPointF pt = v.toPointF();
+        return QString("'(%1, %2)'").arg(pt.x()).arg(pt.y());
+    }
+
+#ifdef QT_GUI_LIB
+    if (v.type() == QVariant::Polygon) {
+        QString ret;
+        QPoint pt;
+        QPolygon pol = v.value<QPolygon>();
+        for (int i = 0; i < pol.size(); ++i) {
+            pt = pol.at(i);
+            if (!ret.isEmpty())
+                ret.append("),(");
+            ret.append(QString::number(pt.x()) + ", " + QString::number(pt.y()));
+        }
+        return "'((" + ret + "))'";
+    }
+    if (v.type() == QVariant::PolygonF) {
+        QString ret;
+        QPointF pt;
+        QPolygonF pol = v.value<QPolygonF>();
+        for (int i = 0; i < pol.size(); ++i) {
+            pt = pol.at(i);
+            if (!ret.isEmpty())
+                ret.append("),(");
+            ret.append(QString::number(pt.x()) + ", " + QString::number(pt.y()));
+        }
+        return "'((" + ret + "))'";
+    }
+#endif
 
     return SqlGeneratorBase::escapeValue(v);
 }
@@ -180,6 +230,14 @@ QVariant PostgreSqlGenerator::readValue(const QMetaType::Type &type, const QVari
     if (type == QMetaType::QDateTime)
         return dbValue.toDateTime();// QDateTime::fromString(dbValue.toString(), "yyyy-MM-dd HH:mm:ss");
 
+    if (type == QMetaType::QPoint) {
+        return SqlGeneratorBase::readValue(QMetaType::QPoint, dbValue.toString()
+                                           .replace("(", "").replace(")", ""));
+    }
+    if (type == QMetaType::QPointF) {
+        return SqlGeneratorBase::readValue(QMetaType::QPointF, dbValue.toString()
+                                           .replace("(", "").replace(")", ""));
+    }
     return SqlGeneratorBase::readValue(type, dbValue);
 }
 

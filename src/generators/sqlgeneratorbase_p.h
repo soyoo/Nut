@@ -64,6 +64,15 @@ public:
     explicit SqlGeneratorBase(Database *parent);
     virtual ~SqlGeneratorBase() = default;
 
+    virtual bool supportPrimaryKey(const QMetaType::Type &type) {
+        Q_UNUSED(type);
+        return true;
+    }
+    virtual bool supportAutoIncrement(const QMetaType::Type &type) {
+        Q_UNUSED(type);
+        return true;
+    }
+
     virtual QString masterDatabaseName(QString databaseName);
 
     virtual QString createTable(TableModel *table);

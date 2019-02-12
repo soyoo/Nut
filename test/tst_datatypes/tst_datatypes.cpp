@@ -74,6 +74,8 @@ void DataTypesTest::initTestCase()
     color = Qt::red;
 
     QTEST_ASSERT(ok);
+
+    db.sampleTables()->query()->remove();
 }
 
 void DataTypesTest::insert()
