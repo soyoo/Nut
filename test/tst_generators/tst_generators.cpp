@@ -19,7 +19,7 @@ GeneratorsTest::GeneratorsTest(QObject *parent) : QObject(parent)
 }
 
 
-void GeneratorsTest::types(Nut::SqlGeneratorBase *g)
+void GeneratorsTest::types(Nut::SqlGeneratorBase *g, QString name)
 {
     QList<QMetaType::Type> types;
     types
@@ -89,6 +89,12 @@ void GeneratorsTest::types(Nut::SqlGeneratorBase *g)
         m.type = t;
         QString fn = g->fieldType(&m);
 
+        QString tn = QString(QMetaType::typeName(t));
+        if (!table.contains(tn))
+            table.insert(tn, row());
+
+        table[tn].set(name, fn);
+
         if (fn.isEmpty())
             qDebug() << "No rule for" << t << "(" << QMetaType::typeName(t) << ")";
         Q_ASSERT(!fn.isEmpty());
@@ -98,29 +104,42 @@ void GeneratorsTest::types(Nut::SqlGeneratorBase *g)
 void GeneratorsTest::test_sqlite()
 {
     auto g = new Nut::SqliteGenerator;
-    types(g);
+    types(g, "sqlite");
     g->deleteLater();
 }
 
 void GeneratorsTest::test_sqlserver()
 {
     auto g = new Nut::SqlServerGenerator;
-    types(g);
+    types(g, "mssql");
     g->deleteLater();
 }
 
 void GeneratorsTest::test_psql()
 {
     auto g = new Nut::PostgreSqlGenerator;
-    types(g);
+    types(g, "psql");
     g->deleteLater();
 }
 
 void GeneratorsTest::test_mysql()
 {
     auto g = new Nut::MySqlGenerator;
-    types(g);
+    types(g, "mysql");
     g->deleteLater();
+}
+
+void GeneratorsTest::cleanupTestCase()
+{
+    QMap<QString, row>::const_iterator i;
+    QString p = "\n| Type  | Sqlite | MySql  | Postgresql| Ms Sql server |"
+                  "\n|--------|--------|--------|--------|--------|";
+    for (i = table.constBegin(); i != table.constEnd(); ++i) {
+        p.append(QString("\n|%1|%2|%3|%4|%5|")
+                 .arg(i.key(), i.value().sqlite, i.value().mysql,
+                     i.value().psql, i.value().mssql));
+    }
+    qDebug() << p.toStdString().c_str();
 }
 
 QTEST_MAIN(GeneratorsTest)
