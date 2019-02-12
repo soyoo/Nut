@@ -42,6 +42,7 @@ class SqlGeneratorBase : public QObject
 //    Q_OBJECT
 
     Database *_database;
+protected:
     SqlSerializer *_serializer;
 
 public:

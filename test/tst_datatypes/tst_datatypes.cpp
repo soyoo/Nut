@@ -52,8 +52,11 @@ void DataTypesTest::initTestCase()
     url = QUrl("http://google.com/search?q=nut");
 
     time = QTime::currentTime();
+    time.setHMS(time.hour(), time.minute(), time.second());
+
     date = QDate::currentDate();
     dateTime = QDateTime::currentDateTime();
+    dateTime.setTime(time);
 
     uuid = QUuid::createUuid();
     jsonDoc = QJsonDocument::fromJson("{\"a\": 1}");
@@ -158,7 +161,6 @@ void DataTypesTest::retrive()
     QTEST_ASSERT(t->f_jsonArray() == jsonArr);
     QTEST_ASSERT(t->f_jsonValue() == jsonValue);
 
-    qDebug() << t->f_string() << string;
     QTEST_ASSERT(t->f_string() == string);
     QTEST_ASSERT(t->f_stringList() == stringList);
     QTEST_ASSERT(t->f_qchar() == qchar);

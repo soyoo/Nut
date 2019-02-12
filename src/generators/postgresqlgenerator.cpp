@@ -22,14 +22,44 @@
 #include <QPoint>
 #ifdef QT_GUI_LIB
 #include <QPolygon>
+#include <QPolygonF>
 #endif
 #include <QVariant>
 
 #include "postgresqlgenerator.h"
 #include "../table.h"
 #include "../tablemodel.h"
+#include "sqlserializer.h"
 
 NUT_BEGIN_NAMESPACE
+
+bool PostgreSqlGenerator::readInsideParentese(QString &text, QString &out)
+{
+    int start = -1;
+    int end = -1;
+    int pc = 0;
+    for (int i = 0; i < text.length(); ++i) {
+        QChar ch = text.at(i);
+
+        if (ch == '(') {
+            if (start == -1)
+                start = i;
+            pc++;
+        }
+        if (ch == ')') {
+            pc--;
+
+            if (!pc && end == -1)
+                end = i;
+        }
+        if (start != -1 && end != -1){
+            out = text.mid(start + 1, end - start - 1);
+            text = text.mid(end + 1);
+            return true;
+        }
+    }
+    return false;
+}
 
 PostgreSqlGenerator::PostgreSqlGenerator(Database *parent) : SqlGeneratorBase (parent)
 {
@@ -228,16 +258,58 @@ QString PostgreSqlGenerator::escapeValue(const QVariant &v) const
 QVariant PostgreSqlGenerator::readValue(const QMetaType::Type &type, const QVariant &dbValue)
 {
     if (type == QMetaType::QDateTime)
-        return dbValue.toDateTime();// QDateTime::fromString(dbValue.toString(), "yyyy-MM-dd HH:mm:ss");
+        return dbValue.toDateTime();
 
-    if (type == QMetaType::QPoint) {
+    if (type == QMetaType::QTime)
+        return dbValue.toTime();
+
+    if (type == QMetaType::QDate)
+        return dbValue.toDate();
+
+    if (type == QMetaType::QPoint)
         return SqlGeneratorBase::readValue(QMetaType::QPoint, dbValue.toString()
                                            .replace("(", "").replace(")", ""));
-    }
-    if (type == QMetaType::QPointF) {
+    if (type == QMetaType::QPointF)
         return SqlGeneratorBase::readValue(QMetaType::QPointF, dbValue.toString()
                                            .replace("(", "").replace(")", ""));
+    if (type == QMetaType::QStringList)
+        return dbValue.toString().replace("{", "").replace("}", "")
+                .split(",");
+
+#ifdef QT_GUI_LIB
+    if (type == QMetaType::QPolygon) {
+        QString p;
+        QString ref = dbValue.toString();
+        QPolygon pol;
+        if (!readInsideParentese(ref, p))
+            return pol;
+
+        ref = p;
+        while (readInsideParentese(ref, p)) {
+            QList<int> l = _serializer->toListInt(p);
+            if (l.count() != 2)
+                return QPolygon();
+            pol.append(QPoint(l.at(0), l.at(1)));
+        }
+        return pol;
     }
+    if (type == QMetaType::QPolygonF) {
+        QString p;
+        QString ref = dbValue.toString();
+        QPolygonF pol;
+        if (!readInsideParentese(ref, p))
+            return pol;
+
+        ref = p;
+        while (readInsideParentese(ref, p)) {
+            QList<qreal> l = _serializer->toListReal(p);
+            if (l.count() != 2)
+                return QPolygonF();
+            pol.append(QPointF(l.at(0), l.at(1)));
+        }
+        return pol;
+    }
+#endif
     return SqlGeneratorBase::readValue(type, dbValue);
 }
 
