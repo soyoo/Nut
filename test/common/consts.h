@@ -8,11 +8,11 @@
     .arg(timer.elapsed() / 1000.) \
     .arg(__func__)
 
-#define DRIVER "QPSQL"
+#define DRIVER "QMYSQL"
 #define DATABASE QString(metaObject()->className()).toLower() + "_db"
-#define HOST "127.0.0.1"
-#define USERNAME "postgres"
-#define PASSWORD "856856"
+#define HOST "localhost"
+#define USERNAME "root"
+#define PASSWORD ""
 
 #ifdef Q_OS_LINUX
 #   define OS "Linux"

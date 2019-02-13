@@ -129,7 +129,7 @@ void DataTypesTest::retrive()
     QList<SampleTable*> list = db.sampleTables()->query()->toList();
     QTEST_ASSERT(list.count() == 1);
     SampleTable *t = list.first();
-
+qDebug() << time << t->f_time();
     QTEST_ASSERT(t->f_int8() == n8);
     QTEST_ASSERT(t->f_int16() == n16);
     QTEST_ASSERT(t->f_int32() == n32);

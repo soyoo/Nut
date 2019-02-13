@@ -23,6 +23,15 @@
 
 #include <QPoint>
 #include <QPointF>
+#include <QTime>
+#include <QDate>
+#include <QDateTime>
+#ifdef QT_GUI_LIB
+#include <QPolygon>
+#include <QPolygonF>
+#endif
+
+#include "sqlserializer.h"
 
 NUT_BEGIN_NAMESPACE
 
@@ -74,20 +83,20 @@ QString MySqlGenerator::fieldType(FieldModel *field)
             dbType = "TEXT";
         break;
 
-    case QMetaType::QPoint:
-    case QMetaType::QPointF:
-        dbType = "POINT";
-        break;
 
     case QMetaType::QPolygon:
     case QMetaType::QPolygonF:
-        dbType = "POLYGON";
-        break;
+//        dbType = "POLYGON";
+//        break;
 
     case QMetaType::QUuid:
-        dbType = "VARCHAR(64)";
-        break;
+//        dbType = "VARCHAR(64)";
+//        break;
 
+    case QMetaType::QPoint:
+    case QMetaType::QPointF:
+//        dbType = "POINT";
+//        break;
     case QMetaType::QSize:
     case QMetaType::QSizeF:
     case QMetaType::QRect:
@@ -110,38 +119,146 @@ QString MySqlGenerator::fieldType(FieldModel *field)
         dbType = QString();
     }
 
-    if(field->typeName == QStringLiteral("Nut::DbGeography"))
-        dbType = "GEOMETRY";
+//    if(field->typeName == QStringLiteral("Nut::DbGeography"))
+//        dbType = "GEOMETRY";
 
     return dbType;
 }
 
 QString MySqlGenerator::escapeValue(const QVariant &v) const
 {
-    switch (v.type()) {
-    case QMetaType::QPoint: {
-        QPoint pt = v.toPoint();
-        return QString("GeomFromText('POINT(%1 %2)',0)").arg(pt.x()).arg(pt.y());
-    }
+    if (v.type() == QVariant::Bool)
+        return v.toBool() ? "1" : "0";
 
-    case QMetaType::QPointF: {
-        QPointF pt = v.toPointF();
-        return QString("GeomFromText('POINT(%1 %2)',0)").arg(pt.x()).arg(pt.y());
-    }
+    if (v.type() == QVariant::Time)
+        return "'" + v.toTime().toString("HH:mm:ss") + "'";
 
-    default:
+    if (v.type() == QVariant::Date)
+        return "'" + v.toDate().toString("yyyy-MM-dd") + "'";
+
+    if (v.type() == QVariant::DateTime)
+        return "'" + v.toDateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
+
+//#ifdef QT_GUI_LIB
+//    if (v.type() == QVariant::Polygon) {
+//        QString ret;
+//        QPoint pt;
+//        QPolygon pol = v.value<QPolygon>();
+//        for (int i = 0; i < pol.size(); ++i) {
+//            pt = pol.at(i);
+//            if (!ret.isEmpty())
+//                ret.append(", ");
+//            ret.append(QString::number(pt.x()) + " " + QString::number(pt.y()));
+//        }
+
+//        return "GeomFromText('POLYGON(" + ret + "))')";
+//    }
+//    if (v.type() == QVariant::PolygonF) {
+//        QString ret;
+//        QPointF pt;
+//        QPolygonF pol = v.value<QPolygonF>();
+//        for (int i = 0; i < pol.size(); ++i) {
+//            pt = pol.at(i);
+//            if (!ret.isEmpty())
+//                ret.append("),(");
+//            ret.append(QString::number(pt.x()) + " " + QString::number(pt.y()));
+//        }
+//        return "GeomFromText('POLYGON(" + ret + "))')";
+//    }
+//#endif
+//    switch (v.type()) {
+//    case QMetaType::QPoint: {
+//        QPoint pt = v.toPoint();
+//        return QString("GeomFromText('POINT(%1 %2)',0)").arg(pt.x()).arg(pt.y());
+//    }
+
+//    case QMetaType::QPointF: {
+//        QPointF pt = v.toPointF();
+//        return QString("GeomFromText('POINT(%1 %2)',0)").arg(pt.x()).arg(pt.y());
+//    }
+
+//    default:
         return SqlGeneratorBase::escapeValue(v);
-    }
+//    }
 }
 
 QVariant MySqlGenerator::readValue(const QMetaType::Type &type, const QVariant &dbValue)
 {
-    if (type == QMetaType::QPointF) {
-        qDebug() << "QVariant::PointF" << dbValue;
-    }
+
+//#ifdef QT_GUI_LIB
+//    if (type == QMetaType::QPolygon) {
+//        qDebug() << "p=" << dbValue;
+//        QString p;
+//        QString ref = dbValue.toString();
+//        QPolygon pol;
+//        if (!readInsideParentese(ref, p))
+//            return pol;
+//        QStringList parts = p.split(",");
+//        foreach (QString v, parts) {
+//            QList<int> l = _serializer->toListInt(p.trimmed(), " ");
+//            if (l.count() != 2)
+//                return QPolygon();
+//            pol.append(QPoint(l.at(0), l.at(1)));
+//        }
+//        return pol;
+//    }
+//    if (type == QMetaType::QPolygonF) {
+//        QString p;
+//        QString ref = dbValue.toString();
+//        QPolygonF pol;
+//        if (!readInsideParentese(ref, p))
+//            return pol;
+
+//        QStringList parts = p.split(",");
+//        foreach (QString v, parts) {
+//            QList<qreal> l = _serializer->toListReal(p.trimmed(), " ");
+//            if (l.count() != 2)
+//                return QPolygonF();
+//            pol.append(QPointF(l.at(0), l.at(1)));
+//        }
+//        return pol;
+//    }
+//#endif
+
+    if (type == QMetaType::QDateTime)
+        return dbValue.toDateTime();
+
+    if (type == QMetaType::QTime)
+        return dbValue.toTime();
+
+    if (type == QMetaType::QDate)
+        return dbValue.toDate();
+
     return SqlGeneratorBase::readValue(type, dbValue);
 }
 
+bool MySqlGenerator::readInsideParentese(QString &text, QString &out)
+{
+    int start = -1;
+    int end = -1;
+    int pc = 0;
+    for (int i = 0; i < text.length(); ++i) {
+        QChar ch = text.at(i);
+
+        if (ch == '(') {
+            if (start == -1)
+                start = i;
+            pc++;
+        }
+        if (ch == ')') {
+            pc--;
+
+            if (!pc && end == -1)
+                end = i;
+        }
+        if (start != -1 && end != -1){
+            out = text.mid(start + 1, end - start - 1);
+            text = text.mid(end + 1);
+            return true;
+        }
+    }
+    return false;
+}
 //QString MySqlGenerator::phrase(const PhraseData *d) const
 //{
 //    if (d->operatorCond == PhraseData::Distance) {
