@@ -8,5 +8,6 @@ SUBDIRS += \
     #tst_join  \
 #    tst_phrases
     tst_quuid \
-    tst_generators
+    tst_generators \
+    tst_upgrades
 

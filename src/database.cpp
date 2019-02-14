@@ -232,7 +232,7 @@ bool DatabasePrivate::getCurrectScheema()
 
             if (!typeId)
                 qFatal("The class %s is not registered with qt meta object", qPrintable(name));
-
+qDebug() << "Table found" << typeId;
             TableModel *sch = new TableModel(typeId, value);
             currentModel.append(sch);
         }

@@ -1,0 +1,21 @@
+#ifndef DB1_H
+#define DB1_H
+
+#include <Database>
+class Table1;
+
+class DB1 : public Nut::Database
+{
+    Q_OBJECT
+
+    NUT_DB_VERSION(1)
+
+    NUT_DECLARE_TABLE(Table1, sampleTable)
+
+public:
+    DB1();
+};
+
+Q_DECLARE_METATYPE(DB1*)
+
+#endif // DB1_H
