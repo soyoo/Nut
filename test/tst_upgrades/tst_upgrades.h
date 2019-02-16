@@ -12,6 +12,7 @@ class Upgrades : public QObject
 
     void initDb(Nut::Database &db);
 
+    int id;
 public:
     Upgrades();
     ~Upgrades();

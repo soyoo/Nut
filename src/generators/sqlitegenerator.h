@@ -31,11 +31,12 @@ class SqliteGenerator : public SqlGeneratorBase
 public:
     explicit SqliteGenerator(Database *parent = nullptr);
 
-    QString fieldType(FieldModel *field);
+    QString fieldType(FieldModel *field) override;
 
-    void appendSkipTake(QString &sql, int skip, int take);
+    void appendSkipTake(QString &sql, int skip, int take) override;
 
-    QString primaryKeyConstraint(const TableModel *table) const;
+    QString primaryKeyConstraint(const TableModel *table) const override;
+    QStringList diff(TableModel *oldTable, TableModel *newTable) override;
 };
 
 NUT_END_NAMESPACE

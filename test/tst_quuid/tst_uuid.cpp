@@ -19,8 +19,8 @@ UuidTest::UuidTest(QObject *parent) : QObject(parent)
 
 void UuidTest::initTestCase()
 {
-    qDebug() << "Test type id:" << qRegisterMetaType<Test*>();
-    qDebug() << "DB type id:" << qRegisterMetaType<TestDatabase*>();
+    REGISTER(Test);
+    REGISTER(TestDatabase);
 
     QFile::remove(DATABASE);
 

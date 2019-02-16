@@ -22,11 +22,11 @@ JoinTest::JoinTest(QObject *parent) : QObject(parent)
 
 void JoinTest::initTestCase()
 {
-    qDebug() << "User type id:" << qRegisterMetaType<User*>();
-    qDebug() << "Post type id:" << qRegisterMetaType<Post*>();
-    qDebug() << "Comment type id:" << qRegisterMetaType<Comment*>();
-    qDebug() << "Score type id:" << qRegisterMetaType<Score*>();
-    qDebug() << "DB type id:" << qRegisterMetaType<WeblogDatabase*>();
+    REGISTER(User);
+    REGISTER(Post);
+    REGISTER(Comment);
+    REGISTER(Score);
+    REGISTER(WeblogDatabase);
 
     db.setDriver(DRIVER);
     db.setHostName(HOST);

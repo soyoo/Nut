@@ -171,12 +171,8 @@ QString PostgreSqlGenerator::fieldType(FieldModel *field)
         return "TEXT";
 
     default:
-        qDebug() << "Type for " << (int)field->type << field->type << "(" << QMetaType::typeName(field->type) << ")" << "nut supported";
         dbType = QString();
     }
-
-    if(field->type == (unsigned)QMetaType::type("Nut::DbGeography"))
-        dbType = "GEOGRAPHY";
 
     return dbType;
 }

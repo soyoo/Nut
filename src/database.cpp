@@ -173,16 +173,6 @@ bool DatabasePrivate::updateDatabase()
     if (db.lastError().type() == QSqlError::NoError) {
 
         q->databaseUpdated(last.version(), current.version());
-
-        //TODO: remove this
-        for (int i = 0; i < q->metaObject()->methodCount(); i++) {
-            QMetaMethod m = q->metaObject()->method(i);
-            if (m.name() == "update" + current.version()) {
-                m.invoke(q, Qt::DirectConnection,
-                         Q_ARG(QString, current.version()));
-                break;
-            }
-        }
     } else {
         qWarning("Unable update database, error = %s",
                  db.lastError().text().toLatin1().data());
@@ -220,7 +210,9 @@ bool DatabasePrivate::getCurrectScheema()
 
         if (!nutClassInfoString(q->metaObject()->classInfo(i),
                                 type, name, value)) {
-            qDebug() << "No valid table in" << q->metaObject()->classInfo(i).value();
+
+            errorMessage = QString("No valid table in %1")
+                    .arg(q->metaObject()->classInfo(i).value());
             continue;
         }
         if (type == __nut_TABLE) {
@@ -232,13 +224,17 @@ bool DatabasePrivate::getCurrectScheema()
 
             if (!typeId)
                 qFatal("The class %s is not registered with qt meta object", qPrintable(name));
-qDebug() << "Table found" << typeId;
+
             TableModel *sch = new TableModel(typeId, value);
             currentModel.append(sch);
         }
 
-        if (type == __nut_DB_VERSION)
-            currentModel.setVersion(name);
+        if (type == __nut_DB_VERSION) {
+            bool ok;
+            int version = value.toInt(&ok);
+            if (!ok)
+                qFatal("NUT_DB_VERSION macro accept version in format 'x'");
+            currentModel.setVersion(version);
 
             /* TODO: remove
             QStringList version
@@ -254,6 +250,7 @@ qDebug() << "Table found" << typeId;
             if (!ok)
                 qFatal("NUT_DB_VERSION macro accept version in format 'x' or "
                        "'x[.y]' only, and x,y must be integer values\n");*/
+        }
     }
 
     for (int i = 1; i < q->metaObject()->propertyCount(); i++) {
@@ -337,7 +334,7 @@ bool DatabasePrivate::putModelToDatabase()
     /*current.remove(__CHANGE_LOG_TABLE_NAME)*/;
 
     auto *changeLog = new ChangeLogTable();
-    changeLog->setData(QJsonDocument(current.toJson()).toJson());
+    changeLog->setData(QJsonDocument(current.toJson()).toJson(QJsonDocument::Compact));
     changeLog->setVersion(current.version());
     changeLogs->append(changeLog);
     q->saveChanges();
@@ -359,9 +356,10 @@ bool DatabasePrivate::putModelToDatabase()
 void DatabasePrivate::createChangeLogs()
 {
     //    currentModel.model("change_log")
-    QString diff = sqlGenertor->diff(nullptr, currentModel.tableByName("__change_log"));
+    QStringList diff = sqlGenertor->diff(nullptr, currentModel.tableByName("__change_log"));
 
-    db.exec(diff);
+    foreach (QString s, diff)
+        db.exec(s);
 }
 
 /*!
@@ -530,7 +528,7 @@ QSqlDatabase Database::database()
     return d->db;
 }
 
-void Database::databaseUpdated(QString oldVersion, QString newVersion)
+void Database::databaseUpdated(int oldVersion, int newVersion)
 {
     Q_UNUSED(oldVersion);
     Q_UNUSED(newVersion);

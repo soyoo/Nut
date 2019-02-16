@@ -132,7 +132,7 @@ QStringList SqlGeneratorBase::diff(const DatabaseModel &lastModel,
     foreach (TableModel *table, unionModel) {
         TableModel *oldTable = lastModel.tableByName(table->name());
         TableModel *newTable = newModel.tableByName(table->name());
-        QString sql = diff(oldTable, newTable);
+        QStringList sql = diff(oldTable, newTable);
         if (!sql.isEmpty())
             ret << sql;
 //        QString sqlRel = diffRelation(oldTable, newTable);
@@ -148,7 +148,7 @@ QString SqlGeneratorBase::diff(FieldModel *oldField, FieldModel *newField)
     QString sql = QString();
     if (oldField && newField)
         if (*oldField == *newField)
-            return QString();
+            return sql;
 
     if (!newField) {
         sql = "DROP COLUMN " + oldField->name;
@@ -162,14 +162,14 @@ QString SqlGeneratorBase::diff(FieldModel *oldField, FieldModel *newField)
     return sql;
 }
 
-QString SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
+QStringList SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
 {
     if (oldTable && newTable)
         if (*oldTable == *newTable)
-            return QString();
+            return QStringList();
 
     if (!newTable)
-        return "DROP TABLE " + oldTable->name();
+        return QStringList() << ("DROP TABLE " + oldTable->name());
 
     QList<QString> fieldNames;
     QList<QString> relations;
@@ -197,12 +197,12 @@ QString SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
             FieldModel *oldField = oldTable->field(fieldName);
 
             QString buffer = diff(oldField, newField);
-            if (!buffer.isNull())
+            if (!buffer.isEmpty())
                 columnSql << buffer;
         } else {
             QString declare = fieldDeclare(newField);
             if (declare.isEmpty())
-                return declare;
+                return QStringList() << declare;
             columnSql << declare;
         }
     }
@@ -231,14 +231,16 @@ QString SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
 
         sql = QString("CREATE TABLE %1 \n(%2)")
                 .arg(newTable->name(), columnSql.join(",\n"));
+
     }
-    return sql;
+    return QStringList() << sql;
 }
 
-QString SqlGeneratorBase::diffRelation(TableModel *oldTable, TableModel *newTable)
+QStringList SqlGeneratorBase::diffRelation(TableModel *oldTable, TableModel *newTable)
 {
+    QStringList ret;
     if (!newTable)
-        return QString();
+        return ret;
 
     QList<QString> relations;
 
@@ -258,20 +260,21 @@ QString SqlGeneratorBase::diffRelation(TableModel *oldTable, TableModel *newTabl
         if (oldTable)
             oldRelation = oldTable->foregionKeyByField(fieldName);
 
-        QString buffer = diff(oldRelation, newRelation);
-        if (!buffer.isNull())
-            columnSql << buffer;
+        QStringList buffer = diff(oldRelation, newRelation);
+        if (!buffer.isEmpty())
+            columnSql << buffer.at(0);
     }
 
     if (columnSql.count())
-        return "ALTER TABLE " + newTable->name() + "\n"
-                + columnSql.join(",\n");
+        ret.append("ALTER TABLE " + newTable->name() + "\n"
+                + columnSql.join(",\n"));
 
-    return QString();
+    return ret;
 }
 
-QString SqlGeneratorBase::diff(RelationModel *oldRel, RelationModel *newRel)
+QStringList SqlGeneratorBase::diff(RelationModel *oldRel, RelationModel *newRel)
 {
+    QStringList ret;
     /*
         CONSTRAINT FK_PersonOrder FOREIGN KEY (PersonID)
             REFERENCES Persons(PersonID)
@@ -285,19 +288,19 @@ QString SqlGeneratorBase::diff(RelationModel *oldRel, RelationModel *newRel)
                          .arg(newRelation->foreignColumn);
     */
     if (!oldRel)
-        return QString("ADD CONSTRAINT FK_%1 FOREIGN KEY (%1) "
+        ret.append(QString("ADD CONSTRAINT FK_%1 FOREIGN KEY (%1) "
                        "REFERENCES %2(%3)")
                 .arg(newRel->localColumn, newRel->masterTable->name(),
-                     newRel->foreignColumn);
+                     newRel->foreignColumn));
 
     if (!newRel)
-        return QString("ADD CONSTRAINT FK_%1 FOREIGN KEY (%1) "
+        ret.append(QString("ADD CONSTRAINT FK_%1 FOREIGN KEY (%1) "
                        "REFERENCES %2(%3)")
                 .arg(oldRel->localColumn, oldRel->masterTable->name(),
-                     oldRel->foreignColumn);
+                     oldRel->foreignColumn));
 
 //    if (*oldRel == *newRel)
-    return QString();
+    return ret;
 }
 
 QString SqlGeneratorBase::join(const QString &mainTable,

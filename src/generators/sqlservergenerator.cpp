@@ -146,7 +146,7 @@ QString SqlServerGenerator::diff(FieldModel *oldField, FieldModel *newField)
     QString sql = QString();
     if (oldField && newField)
         if (*oldField == *newField)
-            return QString();
+            return sql;
 
     if (!newField) {
         sql = "DROP COLUMN " + oldField->name;

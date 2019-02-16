@@ -97,14 +97,12 @@ AbstractFieldPhrase::AbstractFieldPhrase(const char *className,
                                          const char *fieldName)
     :data(new PhraseData(className, fieldName))
 {
-    qDebug() <<"AbstractFieldPhrase created"<<className<<fieldName;
 }
 
 AbstractFieldPhrase::AbstractFieldPhrase(const AbstractFieldPhrase &other)
 {
     data = other.data;
     data->parents++;
-    qDebug() <<"Copy ctor"<<other.data->toString()<<other.data->parents;
 }
 
 AbstractFieldPhrase::AbstractFieldPhrase(AbstractFieldPhrase &&other)
@@ -358,7 +356,6 @@ ConditionalPhrase::ConditionalPhrase() : data(nullptr)
 
 ConditionalPhrase::ConditionalPhrase(const ConditionalPhrase &other)
 {
-    qDebug() << "************* ctor called:";
     data = other.data;
     data->parents++;
 //    const_cast<ConditionalPhrase&>(other).data = 0;
@@ -367,7 +364,6 @@ ConditionalPhrase::ConditionalPhrase(const ConditionalPhrase &other)
 #ifdef Q_COMPILER_RVALUE_REFS
 ConditionalPhrase::ConditionalPhrase(const ConditionalPhrase &&other)
 {
-    qDebug() << "************* ctor called:";
     this->data = qMove(other.data);
 }
 #endif

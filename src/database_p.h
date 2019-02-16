@@ -70,6 +70,8 @@ public:
     QSet<TableSetBase *> tableSets;
 
     bool isDatabaseNew;
+
+    QString errorMessage;
 };
 
 NUT_END_NAMESPACE

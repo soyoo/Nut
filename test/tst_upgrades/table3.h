@@ -10,6 +10,8 @@ class Table3 : public Nut::Table
     NUT_PRIMARY_AUTO_INCREMENT(id)
     NUT_DECLARE_FIELD(int, id, id, setId)
 
+    NUT_DECLARE_FIELD(QString, grade, grade, setGrade)
+
 public:
     Q_INVOKABLE Table3(QObject *parent = Q_NULLPTR);
 

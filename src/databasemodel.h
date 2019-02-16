@@ -36,7 +36,7 @@ struct RelationModel;
 class DatabaseModel : public QList<TableModel *>
 {
     QString _databaseClassName;
-    QString _version;
+    int _version;
     static QMap<QString, DatabaseModel *> _models;
 
 public:
@@ -61,8 +61,8 @@ public:
     QJsonObject toJson() const;
     operator QJsonObject();
 
-    QString version() const;
-    void setVersion(QString version);
+    int version() const;
+    void setVersion(int version);
 
     bool remove(const QString &tableName);
 

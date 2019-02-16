@@ -7,6 +7,7 @@
 #include "table1.h"
 #include "table2.h"
 #include "table3.h"
+#include "query.h"
 
 #include "tst_upgrades.h"
 #include "consts.h"
@@ -55,6 +56,12 @@ void Upgrades::version2()
     DB2 db;
     initDb(db);
     QTEST_ASSERT(db.open());
+
+    Table2 t;
+    t.setStr("0");
+    db.sampleTable()->append(&t);
+    db.saveChanges();
+    id = t.id();
 }
 
 void Upgrades::version3()
@@ -62,6 +69,10 @@ void Upgrades::version3()
     DB3 db;
     initDb(db);
     QTEST_ASSERT(db.open());
+
+    auto t = db.sampleTable()->query()
+            ->first();
+    QTEST_ASSERT(id == t->id());
 }
 
 

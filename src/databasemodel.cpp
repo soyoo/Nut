@@ -31,13 +31,13 @@ QMap<QString, DatabaseModel*> DatabaseModel::_models;
 #define NODE_VERSION "version"
 #define NODE_TABLES  "tables"
 DatabaseModel::DatabaseModel(const QString &name) :
-    QList<TableModel*>(), _databaseClassName(name), _version(QString())
+    QList<TableModel*>(), _databaseClassName(name), _version(0)
 {
     _models.insert(name, this);
 }
 
 DatabaseModel::DatabaseModel(const DatabaseModel &other) :
-    QList<TableModel*>(other), _version(QString())
+    QList<TableModel*>(other), _version(0)
 {
 
 }
@@ -45,7 +45,7 @@ DatabaseModel::DatabaseModel(const DatabaseModel &other) :
 DatabaseModel::DatabaseModel(const QJsonObject &json) :
     QList<TableModel*>()
 {
-    setVersion(json.value(NODE_VERSION).toString());
+    setVersion(json.value(NODE_VERSION).toInt());
 
     QJsonObject tables = json.value(NODE_TABLES).toObject();
     foreach (QString key, tables.keys()) {
@@ -171,7 +171,7 @@ DatabaseModel DatabaseModel::fromJson(QJsonObject &json)
 {
     DatabaseModel model;
 
-    model.setVersion(json.value(NODE_VERSION).toString());
+    model.setVersion(json.value(NODE_VERSION).toInt());
 
     QJsonObject tables = json.value(NODE_TABLES).toObject();
     foreach (QString key, tables.keys()) {
@@ -184,12 +184,12 @@ DatabaseModel DatabaseModel::fromJson(QJsonObject &json)
     return model;
 }
 
-QString DatabaseModel::version() const
+int DatabaseModel::version() const
 {
     return _version;
 }
 
-void DatabaseModel::setVersion(QString version)
+void DatabaseModel::setVersion(int version)
 {
     _version = version;
 }

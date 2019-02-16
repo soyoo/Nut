@@ -39,9 +39,11 @@ NUT_BEGIN_NAMESPACE
  *  This should be fixed to v1.2
  */
 
-Table::Table(QObject *parent) : QObject(parent), myModel(nullptr),
+Table::Table(QObject *parent) : QObject(parent),
     _status(NewCreated), _parentTableSet(nullptr)
-{ }
+{
+    myModel = TableModel::findByClassName(metaObject()->className());
+}
 
 void Table::add(TableSetBase *t)
 {
