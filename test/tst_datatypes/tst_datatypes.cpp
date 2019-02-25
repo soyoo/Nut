@@ -34,47 +34,47 @@ void DataTypesTest::initTestCase()
 
     QFile::remove(DATABASE);
     bool ok = db.open();
-    n8 = 8;
-    n16 = 16;
-    n32 = 32l;
-    n64 = 64ll;
-    nu8 = 8u;
-    nu16 = 16u;
-    nu32 = 32ul;
-    nu64 = 64ull;
-    r = 1.2;
-    f = 2.3f;
-    point = QPoint(1, 2);
-    pointf  = QPointF(1.2, 3.4);
-    polygon = QPolygon() << QPoint(1, 2) << QPoint(3, 4) << QPoint(5, 6);
-    polygonf = QPolygonF() << QPointF(1.2, 2.3) << QPointF(3.4, 4.5) << QPointF(5.6, 6.7);
+    f_int8 = 8;
+    f_int16 = 16;
+    f_int32 = 32l;
+    f_int64 = 64ll;
+    f_uint8 = 8u;
+    f_uint16 = 16u;
+    f_uint32 = 32ul;
+    f_uint64 = 64ull;
+    f_real = 1.2;
+    f_float = 2.3f;
+    f_point = QPoint(1, 2);
+    f_pointf  = QPointF(1.2, 3.4);
+    f_polygon = QPolygon() << QPoint(1, 2) << QPoint(3, 4) << QPoint(5, 6);
+    f_polygonf = QPolygonF() << QPointF(1.2, 2.3) << QPointF(3.4, 4.5) << QPointF(5.6, 6.7);
 
-    url = QUrl("http://google.com/search?q=nut");
+    f_url = QUrl("http://google.com/search?q=nut");
 
-    time = QTime::currentTime();
-    time.setHMS(time.hour(), time.minute(), time.second());
+    f_time = QTime::currentTime();
+    f_time.setHMS(f_time.hour(), f_time.minute(), f_time.second());
 
-    date = QDate::currentDate();
-    dateTime = QDateTime::currentDateTime();
-    dateTime.setTime(time);
+    f_date = QDate::currentDate();
+    f_dateTime = QDateTime::currentDateTime();
+    f_dateTime.setTime(f_time);
 
-    uuid = QUuid::createUuid();
-    jsonDoc = QJsonDocument::fromJson("{\"a\": 1}");
-    jsonObj = jsonDoc.object();
-    jsonArr.insert(0, QJsonValue(1));
-    jsonArr.insert(1, QJsonValue("Hi"));
-    jsonArr.insert(2, QJsonValue(true));
+    f_uuid = QUuid::createUuid();
+    f_jsonDoc = QJsonDocument::fromJson("{\"a\": 1}");
+    f_jsonObj = f_jsonDoc.object();
+    f_jsonArray.insert(0, QJsonValue(1));
+    f_jsonArray.insert(1, QJsonValue("Hi"));
+    f_jsonArray.insert(2, QJsonValue(true));
 
-    jsonValue = QJsonValue(true);
+    f_jsonValue = QJsonValue(true);
 
-    stringList.append("One");
-    stringList.append("Two");
-    stringList.append("Three");
-    string = "this is \n sample ' unescapped \r\n text";
+    f_stringList.append("One");
+    f_stringList.append("Two");
+    f_stringList.append("Three");
+    f_string = "this is \n sample ' unescapped \r\n text";
 
-    qchar = QChar('z');
+    f_qchar = QChar('z');
 
-    color = Qt::red;
+    f_color = Qt::red;
 
     QTEST_ASSERT(ok);
 
@@ -84,41 +84,41 @@ void DataTypesTest::initTestCase()
 void DataTypesTest::insert()
 {
     SampleTable t;
-    t.setInt8(n8);
-    t.setInt16(n16);
-    t.setInt32(n32);
-    t.setInt64(n64);
+    t.setInt8(f_int8);
+    t.setInt16(f_int16);
+    t.setInt32(f_int32);
+    t.setInt64(f_int64);
 
-    t.setUint8(nu8);
-    t.setUint16(nu16);
-    t.setUint32(nu32);
-    t.setUint64(nu64);
+    t.setUint8(f_uint8);
+    t.setUint16(f_uint16);
+    t.setUint32(f_uint32);
+    t.setUint64(f_uint64);
 
-    t.setReal(r);
-    t.setFloat(f);
+    t.setReal(f_real);
+    t.setFloat(f_float);
 
-    t.setPoint(point);
-    t.setPointf(pointf);
+    t.setPoint(f_point);
+    t.setPointf(f_pointf);
 
-    t.setPolygon(polygon);
-    t.setPolygonf(polygonf);
+    t.setPolygon(f_polygon);
+    t.setPolygonf(f_polygonf);
 
-    t.setUrl(url);
+    t.setUrl(f_url);
 
-    t.setTime(time);
-    t.setDate(date);
-    t.setDateTime(dateTime);
-    t.setUuid(uuid);
+    t.setTime(f_time);
+    t.setDate(f_date);
+    t.setDateTime(f_dateTime);
+    t.setUuid(f_uuid);
 
-    t.setJsonDoc(jsonDoc);
-    t.setJsonObj(jsonObj);
-    t.setJsonArray(jsonArr);
-    t.setJsonValue(jsonValue);
+    t.setJsonDoc(f_jsonDoc);
+    t.setJsonObj(f_jsonObj);
+    t.setJsonArray(f_jsonArray);
+    t.setJsonValue(f_jsonValue);
 
-    t.setString(string);
-    t.setStringList(stringList);
-    t.setQchar(qchar);
-    t.setColor(color);
+    t.setString(f_string);
+    t.setStringList(f_stringList);
+    t.setQchar(f_qchar);
+    t.setColor(f_color);
 
     db.sampleTables()->append(&t);
     db.saveChanges();
@@ -129,42 +129,85 @@ void DataTypesTest::retrive()
     QList<SampleTable*> list = db.sampleTables()->query()->toList();
     QTEST_ASSERT(list.count() == 1);
     SampleTable *t = list.first();
-qDebug() << time << t->f_time();
-    QTEST_ASSERT(t->f_int8() == n8);
-    QTEST_ASSERT(t->f_int16() == n16);
-    QTEST_ASSERT(t->f_int32() == n32);
-    QTEST_ASSERT(t->f_int64() == n64);
 
-    QTEST_ASSERT(t->f_uint8() == nu8);
-    QTEST_ASSERT(t->f_uint16() == nu16);
-    QTEST_ASSERT(t->f_uint32() == nu32);
-    QTEST_ASSERT(t->f_uint64() == nu64);
+    QTEST_ASSERT(t->f_int8() == f_int8);
+    QTEST_ASSERT(t->f_int16() == f_int16);
+    QTEST_ASSERT(t->f_int32() == f_int32);
+    QTEST_ASSERT(t->f_int64() == f_int64);
 
-    QTEST_ASSERT(qFuzzyCompare(t->f_real(), r));
-    QTEST_ASSERT(qFuzzyCompare(t->f_float(), f));
+    QTEST_ASSERT(t->f_uint8() == f_uint8);
+    QTEST_ASSERT(t->f_uint16() == f_uint16);
+    QTEST_ASSERT(t->f_uint32() == f_uint32);
+    QTEST_ASSERT(t->f_uint64() == f_uint64);
 
-    QTEST_ASSERT(t->f_point() == point);
-    QTEST_ASSERT(t->f_pointf() == pointf);
+    QTEST_ASSERT(qFuzzyCompare(t->f_real(), f_real));
+    QTEST_ASSERT(qFuzzyCompare(t->f_float(), f_float));
 
-    QTEST_ASSERT(t->f_polygon() == polygon);
-    QTEST_ASSERT(t->f_polygonf() == polygonf);
+    QTEST_ASSERT(t->f_point() == f_point);
+    QTEST_ASSERT(t->f_pointf() == f_pointf);
 
-    QTEST_ASSERT(t->f_url() == url);
-    QTEST_ASSERT(t->f_uuid() == uuid);
+    QTEST_ASSERT(t->f_polygon() == f_polygon);
+    QTEST_ASSERT(t->f_polygonf() == f_polygonf);
 
-    QTEST_ASSERT(t->f_time() == time);
-    QTEST_ASSERT(t->f_date() == date);
-    QTEST_ASSERT(t->f_dateTime() == dateTime);
+    QTEST_ASSERT(t->f_url() == f_url);
+    QTEST_ASSERT(t->f_uuid() == f_uuid);
 
-    QTEST_ASSERT(t->f_jsonDoc() == jsonDoc);
-    QTEST_ASSERT(t->f_jsonObj() == jsonObj);
-    QTEST_ASSERT(t->f_jsonArray() == jsonArr);
-    QTEST_ASSERT(t->f_jsonValue() == jsonValue);
+    QTEST_ASSERT(t->f_time() == f_time);
+    QTEST_ASSERT(t->f_date() == f_date);
+    QTEST_ASSERT(t->f_dateTime() == f_dateTime);
 
-    QTEST_ASSERT(t->f_string() == string);
-    QTEST_ASSERT(t->f_stringList() == stringList);
-    QTEST_ASSERT(t->f_qchar() == qchar);
-    QTEST_ASSERT(t->f_color() == color);
+    QTEST_ASSERT(t->f_jsonDoc() == f_jsonDoc);
+    QTEST_ASSERT(t->f_jsonObj() == f_jsonObj);
+    QTEST_ASSERT(t->f_jsonArray() == f_jsonArray);
+    QTEST_ASSERT(t->f_jsonValue() == f_jsonValue);
+
+    QTEST_ASSERT(t->f_string() == f_string);
+    QTEST_ASSERT(t->f_stringList() == f_stringList);
+    QTEST_ASSERT(t->f_qchar() == f_qchar);
+    QTEST_ASSERT(t->f_color() == f_color);
+}
+
+#define CHECK(name) \
+    c = db.sampleTables()->query()                                             \
+            ->where(SampleTable::f_ ## name ## Field() == f_ ## name)          \
+            ->count();                                                         \
+    QTEST_ASSERT(c == 1);
+
+void DataTypesTest::check()
+{
+    int c;
+
+    CHECK(int8)
+    CHECK(int16)
+    CHECK(int32)
+    CHECK(int64)
+    CHECK(uint8)
+    CHECK(uint16)
+    CHECK(uint32)
+    CHECK(uint64)
+    CHECK(real)
+    CHECK(float)
+    CHECK(point)
+    CHECK(pointf)
+    CHECK(polygon)
+    CHECK(polygonf)
+    CHECK(url)
+
+    CHECK(time)
+    CHECK(date)
+    CHECK(dateTime)
+
+    CHECK(uuid)
+    CHECK(jsonDoc)
+    CHECK(jsonObj)
+    CHECK(jsonArray)
+    CHECK(jsonValue)
+
+    CHECK(string)
+    CHECK(stringList)
+
+    CHECK(qchar)
+    CHECK(color)
 }
 
 void DataTypesTest::cleanupTestCase()

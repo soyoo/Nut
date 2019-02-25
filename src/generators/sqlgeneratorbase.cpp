@@ -127,14 +127,16 @@ QStringList SqlGeneratorBase::diff(const DatabaseModel &lastModel,
 {
     QStringList ret;
 
-    DatabaseModel unionModel = lastModel + newModel;
+    DatabaseModel unionModel = lastModel | newModel;
+    DatabaseModel::iterator i;
 
-    foreach (TableModel *table, unionModel) {
-        TableModel *oldTable = lastModel.tableByName(table->name());
-        TableModel *newTable = newModel.tableByName(table->name());
+    for (i = unionModel.begin(); i != unionModel.end(); ++i) {
+        TableModel *oldTable = lastModel.tableByName((*i)->name());
+        TableModel *newTable = newModel.tableByName((*i)->name());
         QStringList sql = diff(oldTable, newTable);
         if (!sql.isEmpty())
             ret << sql;
+
 //        QString sqlRel = diffRelation(oldTable, newTable);
 //        if (!sqlRel.isEmpty())
 //            ret << sqlRel;

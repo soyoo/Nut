@@ -123,9 +123,14 @@ public:
     QList<RelationModel *> foregionKeys() const;
     QStringList fieldsNames() const;
 
+    Q_DECL_DEPRECATED
     static QSet<TableModel *> allModels();
+
+    Q_DECL_DEPRECATED
     static TableModel *findByTypeId(int typeId);
 //    static TableModel *findByName(QString name);
+
+    Q_DECL_DEPRECATED
     static TableModel *findByClassName(const QString &className);
 
     bool operator ==(const TableModel &t) const;

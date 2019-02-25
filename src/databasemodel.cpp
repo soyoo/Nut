@@ -249,4 +249,27 @@ DatabaseModel operator +(const DatabaseModel &l, const DatabaseModel &r)
     return model;
 }
 
+DatabaseModel operator |(const DatabaseModel &l, const DatabaseModel &r)
+{
+    DatabaseModel ret;
+    DatabaseModel::const_iterator i;
+    QSet<QString> tables;
+
+    for (i = r.constBegin(); i != r.constEnd(); ++i) {
+        if (tables.contains((*i)->name()))
+            continue;
+        ret.append(*i);
+        tables.insert((*i)->name());
+    }
+
+    for (i = l.constBegin(); i != l.constEnd(); ++i) {
+        if (tables.contains((*i)->name()))
+            continue;
+        ret.append(*i);
+        tables.insert((*i)->name());
+    }
+
+    return ret;
+}
+
 NUT_END_NAMESPACE

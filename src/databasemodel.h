@@ -74,6 +74,7 @@ public:
 };
 
 DatabaseModel operator +(const DatabaseModel &l, const DatabaseModel &r);
+DatabaseModel operator |(const DatabaseModel &l, const DatabaseModel &r);
 
 NUT_END_NAMESPACE
 

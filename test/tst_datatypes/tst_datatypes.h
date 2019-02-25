@@ -19,37 +19,37 @@ class DataTypesTest : public QObject
     Q_OBJECT
     DB db;
 
-    qint8 n8;
-    qint16 n16;
-    qint32 n32;
-    qint64 n64;
-    quint8 nu8;
-    quint16 nu16;
-    quint32 nu32;
-    quint64 nu64;
-    qreal r;
-    float f;
-    QPoint point;
-    QPointF pointf;
-    QPolygon polygon;
-    QPolygonF polygonf;
-    QUrl url;
+    qint8 f_int8;
+    qint16 f_int16;
+    qint32 f_int32;
+    qint64 f_int64;
+    quint8 f_uint8;
+    quint16 f_uint16;
+    quint32 f_uint32;
+    quint64 f_uint64;
+    qreal f_real;
+    float f_float;
+    QPoint f_point;
+    QPointF f_pointf;
+    QPolygon f_polygon;
+    QPolygonF f_polygonf;
+    QUrl f_url;
 
-    QTime time;
-    QDate date;
-    QDateTime dateTime;
+    QTime f_time;
+    QDate f_date;
+    QDateTime f_dateTime;
 
-    QUuid uuid;
-    QJsonDocument jsonDoc;
-    QJsonObject jsonObj;
-    QJsonArray jsonArr;
-    QJsonValue jsonValue;
+    QUuid f_uuid;
+    QJsonDocument f_jsonDoc;
+    QJsonObject f_jsonObj;
+    QJsonArray f_jsonArray;
+    QJsonValue f_jsonValue;
 
-    QString string;
-    QStringList stringList;
+    QString f_string;
+    QStringList f_stringList;
 
-    QChar qchar;
-    QColor color;
+    QChar f_qchar;
+    QColor f_color;
 
 public:
     explicit DataTypesTest(QObject *parent = nullptr);
@@ -61,6 +61,7 @@ private slots:
 
     void insert();
     void retrive();
+    void check();
     void cleanupTestCase();
 };
 

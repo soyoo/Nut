@@ -8,7 +8,7 @@
     .arg(timer.elapsed() / 1000.) \
     .arg(__func__)
 
-#define DRIVER "QSQLITE"
+#define DRIVER "QMYSQL"
 #define DATABASE QString(metaObject()->className()).toLower() + "_db"
 #define HOST "localhost"
 #define USERNAME "root"
