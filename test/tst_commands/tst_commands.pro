@@ -9,15 +9,15 @@ include(../../nut.pri)
 TEMPLATE = app
 IMPORTPATH += $$OUT_PWD/../src/imports
 SOURCES += \
-    maintest.cpp \
     ../common/comment.cpp \
     ../common/post.cpp \
     ../common/weblogdatabase.cpp \
-    ../common/user.cpp
+    ../common/user.cpp \
+    tst_commands.cpp
 
 HEADERS += \
-    maintest.h \
     ../common/comment.h \
     ../common/post.h \
     ../common/weblogdatabase.h \
-    ../common/user.h
+    ../common/user.h \
+    tst_commands.h

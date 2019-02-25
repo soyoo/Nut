@@ -9,7 +9,7 @@ INCLUDEPATH += $$PWD/../../src $$PWD/../common
 include(../../nut.pri)
 IMPORTPATH += $$OUT_PWD/../src/imports
 SOURCES += \
-    maintest.cpp
+    tst_phrases.cpp
 
 HEADERS += \
-    maintest.h
+    tst_phrases.h

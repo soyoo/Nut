@@ -4,15 +4,12 @@
 #include <QtCore/QObject>
 #include <QtCore/qglobal.h>
 
-#include "weblogdatabase.h"
 class Post;
+class User;
 class MainTest : public QObject
 {
     Q_OBJECT
-    WeblogDatabase db;
-    int postId;
-    Post *post;
-    Query<Post> *q;
+
 public:
     explicit MainTest(QObject *parent = nullptr);
 
@@ -20,10 +17,13 @@ signals:
 
 private slots:
     void initTestCase();
+    void no1();
 
-    void cmd1();
-    void cmd2();
-    void join();
+    void numeric();
+    void string();
+    void boolean();
+    void datetime();
+    void extra();
 };
 
 #endif // MAINTEST_H

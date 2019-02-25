@@ -4,7 +4,7 @@
 
 #include "consts.h"
 
-#include "maintest.h"
+#include "tst_commands.h"
 #include "query.h"
 #include "tableset.h"
 #include "tablemodel.h"
@@ -15,16 +15,16 @@
 #include "user.h"
 #include "score.h"
 
-MainTest::MainTest(QObject *parent) : QObject(parent)
+CommandsTest::CommandsTest(QObject *parent) : QObject(parent)
 {
 
 }
 
-void MainTest::initTestCase()
+void CommandsTest::initTestCase()
 {
-    qDebug() << "User type id:" << qRegisterMetaType<Post*>();
-    qDebug() << "Comment type id:" << qRegisterMetaType<Comment*>();
-    qDebug() << "DB type id:" << qRegisterMetaType<WeblogDatabase*>();
+    REGISTER(Post);
+    REGISTER(Comment);
+    REGISTER(WeblogDatabase);
 
     db.setDriver(DRIVER);
     db.setHostName(HOST);
@@ -37,7 +37,7 @@ void MainTest::initTestCase()
     QTEST_ASSERT(ok);
 }
 
-void MainTest::cmd1()
+void CommandsTest::cmd1()
 {
     Query<Post> *q = db.posts()->query()
             ->setWhere(Post::titleField() == "test" && Post::idField() < 4 + 5);
@@ -47,7 +47,7 @@ void MainTest::cmd1()
     qDebug() << q->sqlCommand();
 }
 
-void MainTest::cmd2()
+void CommandsTest::cmd2()
 {
     Query<Post> *q = db.posts()->query()
             ->setWhere(!Post::idField().in({1, 2, 3, 4}));
@@ -58,7 +58,7 @@ void MainTest::cmd2()
     qDebug() << q->sqlCommand();
 }
 
-void MainTest::join()
+void CommandsTest::join()
 {
     auto q = db.posts()->query()
             ->join<User>()
@@ -66,4 +66,4 @@ void MainTest::join()
 
 }
 
-QTEST_MAIN(MainTest)
+QTEST_MAIN(CommandsTest)
