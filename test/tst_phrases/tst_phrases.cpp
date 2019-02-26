@@ -110,6 +110,18 @@ void MainTest::extra()
     auto p2 = url == "http://google.com";
 }
 
+void MainTest::mix()
+{
+    FieldPhrase<int> id("", "");
+    FieldPhrase<QString> name("", "");
+    FieldPhrase<QString> lastName("", "");
+    FieldPhrase<QDate> birthDate("", "");
+
+    select(id | name | lastName);
+//    update((name = "john") | (lastName = "snow"));
+
+}
+
 void MainTest::select(const PhraseList &ph)
 {
 

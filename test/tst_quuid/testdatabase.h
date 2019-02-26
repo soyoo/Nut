@@ -1,7 +1,7 @@
 #ifndef TESTDATABASE_H
 #define TESTDATABASE_H
 
-#include <Database>
+#include "database.h"
 
 class Test;
 class TestDatabase : public Nut::Database
