@@ -3,7 +3,6 @@ QT       -= gui
 
 TARGET = tst_upgrades
 TEMPLATE = app
-
 CONFIG   += warn_on c++11
 
 include(../common/nut-lib.pri)

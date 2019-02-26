@@ -50,6 +50,9 @@ void MainTest::numeric()
     auto p22 = p3 == p4;
     auto p23 = f == n + 1;
 
+    auto p24 = n = 4;
+    auto p26 = (n = 4) & (n = 5);
+    auto p27 = n | f;
 }
 
 void MainTest::string()
@@ -105,6 +108,31 @@ void MainTest::extra()
 
     auto p1 = url == QUrl();
     auto p2 = url == "http://google.com";
+}
+
+void MainTest::select(const PhraseList &ph)
+{
+
+}
+
+void MainTest::where(const ConditionalPhrase &ph)
+{
+
+}
+
+void MainTest::update(const AssignmentPhraseList &p)
+{
+
+}
+
+void MainTest::insert(const AssignmentPhraseList &p)
+{
+
+}
+
+void MainTest::order_by(const PhraseList &ph)
+{
+
 }
 
 QTEST_MAIN(MainTest)
