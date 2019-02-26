@@ -85,11 +85,11 @@ void MainTest::datetime()
     auto p8 = time.hour() == 3;
     auto p9 = time = QTime::currentTime();
 
-    auto pi1 = time.addYears(1);
-    auto pi2 = date.addMinutes(3);
+//    auto pi1 = time.addYears(1);
+//    auto pi2 = date.addMinutes(3);
 
-    QTEST_ASSERT(!pi1.data);
-    QTEST_ASSERT(!pi2.data);
+//    QTEST_ASSERT(!pi1.data);
+//    QTEST_ASSERT(!pi2.data);
 }
 
 void MainTest::extra()
