@@ -983,6 +983,24 @@ QString SqlGeneratorBase::createConditionalPhrase(const PhraseData *d) const
         else if (op == PhraseData::AddSeconds)
             ret = QString("DATEADD(second, %1, %2)")
                     .arg(d->operand.toString(), createConditionalPhrase(d->left));
+        else if (op == PhraseData::DatePartYear)
+            ret = QString("DATEPART(year, %1)")
+                    .arg(d->operand.toString());
+        else if (op == PhraseData::DatePartMonth)
+            ret = QString("DATEPART(month, %1)")
+                    .arg(d->operand.toString());
+        else if (op == PhraseData::DatePartDay)
+            ret = QString("DATEPART(day, %1)")
+                    .arg(d->operand.toString());
+        else if (op == PhraseData::DatePartHour)
+            ret = QString("DATEPART(hour, %1)")
+                    .arg(d->operand.toString());
+        else if (op == PhraseData::DatePartMinute)
+            ret = QString("DATEPART(minute, %1)")
+                    .arg(d->operand.toString());
+        else if (op == PhraseData::DatePartMilisecond)
+            ret = QString("DATEPART(milisecond, %1)")
+                    .arg(d->operand.toString());
         else
             ret = createConditionalPhrase(d->left) + " " + operatorString(op) + " "
               + escapeValue(d->operand);
