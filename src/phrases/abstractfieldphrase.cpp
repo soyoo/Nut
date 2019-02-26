@@ -89,7 +89,7 @@ AbstractFieldPhraseOperatorField(<=, PhraseData::LessEqual)
 AbstractFieldPhraseOperatorField(> , PhraseData::Greater)
 AbstractFieldPhraseOperatorField(>=, PhraseData::GreaterEqual)
 
-AbstractFieldPhrase AbstractFieldPhrase::operator !()
+AbstractFieldPhrase AbstractFieldPhrase::operator ~()
 {
     AbstractFieldPhrase f(data->className, data->fieldName);
     f.data->isNot = !data->isNot;

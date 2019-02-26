@@ -117,29 +117,33 @@ void MainTest::mix()
     FieldPhrase<QString> lastName("", "");
     FieldPhrase<QDate> birthDate("", "");
 
+    select(id);
     select(id | name | lastName);
-//    update((name = "john") | (lastName = "snow"));
-
+    update((name = "john") & (lastName = "snow"));
+    insert(id = 0);
+    insert((id = 4) & (name = "john"));
+    order_by(id);
+    order_by(id | ~name);
 }
 
 void MainTest::select(const PhraseList &ph)
 {
-
+    QTEST_ASSERT(ph.data.count());
 }
 
 void MainTest::where(const ConditionalPhrase &ph)
 {
-
+    QTEST_ASSERT(ph.data);
 }
 
 void MainTest::update(const AssignmentPhraseList &p)
 {
-
+    QTEST_ASSERT(p.data.count());
 }
 
 void MainTest::insert(const AssignmentPhraseList &p)
 {
-
+    QTEST_ASSERT(p.data.count());
 }
 
 void MainTest::order_by(const PhraseList &ph)

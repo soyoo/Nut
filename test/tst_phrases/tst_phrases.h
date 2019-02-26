@@ -30,6 +30,7 @@ private slots:
     void boolean();
     void datetime();
     void extra();
+    void mix();
 
 private:
     void select(const Nut::PhraseList &ph);
