@@ -24,7 +24,7 @@ public:
 #ifdef Q_COMPILER_RVALUE_REFS
     ConditionalPhrase(const ConditionalPhrase &&other);
 #endif
-    ConditionalPhrase(const PhraseData *data);
+    explicit ConditionalPhrase(const PhraseData *data);
     ConditionalPhrase(AbstractFieldPhrase *, PhraseData::Condition);
     ConditionalPhrase(AbstractFieldPhrase *, PhraseData::Condition, const QVariant &v);
     ConditionalPhrase(AbstractFieldPhrase *, PhraseData::Condition, const AbstractFieldPhrase &v);

@@ -15,9 +15,14 @@ public:
         AbstractFieldPhrase(className, s)
     {}
 
-    AssignmentPhrase operator =(const QVariant &other) {
+    AssignmentPhrase operator =(const T &other) {
         return AssignmentPhrase(this, other);
     }
+
+    ConditionalPhrase operator ==(const T &other) {
+        return ConditionalPhrase(this, PhraseData::Equal, other);
+    }
+
 };
 
 
