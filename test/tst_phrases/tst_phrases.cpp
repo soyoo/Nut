@@ -27,6 +27,7 @@ void MainTest::no1()
 void MainTest::numeric()
 {
     FieldPhrase<int> n("main", "int");
+    FieldPhrase<float> f("main", "float");
 
     auto p1 = n == 1;
     auto p2 = n <= 1;
@@ -43,6 +44,12 @@ void MainTest::numeric()
     auto p13 = ++n;
     auto p14 = n++;
     auto p15 = n.between(1, 2);
+    auto p16 = n + 1 < n + 2;
+
+    auto p21 = p1 && p2;
+    auto p22 = p3 == p4;
+    auto p23 = f == n + 1;
+
 }
 
 void MainTest::string()

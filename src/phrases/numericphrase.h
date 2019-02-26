@@ -6,31 +6,22 @@
 
 NUT_BEGIN_NAMESPACE
 
-#define SPECIALIZATION_NUMERIC_MEMBER(type, op, cond) \
-    ConditionalPhrase operator op(const QVariant &other) \
-{ \
-    return ConditionalPhrase(this, cond, other); \
-    }
+#define SPECIALIZATION_NUMERIC_MEMBER(type, op, cond)                          \
+    ConditionalPhrase operator op(const QVariant &other)                       \
+{                                                                              \
+    return ConditionalPhrase(this, cond, other);                               \
+}
 
 template <typename T>
-class FieldPhrase<T, typename std::enable_if<std::is_integral<T>::value>::type>
+class FieldPhrase<T, typename std::enable_if<
+            std::is_floating_point<T>::value || std::is_integral<T>::value
+        >::type>
         : public AbstractFieldPhrase
 {
 public:
     FieldPhrase(const char *className, const char *s) :
         AbstractFieldPhrase(className, s)
     {}
-
-    SPECIALIZATION_NUMERIC_MEMBER(type, <,  PhraseData::Less)
-    SPECIALIZATION_NUMERIC_MEMBER(type, <=, PhraseData::LessEqual)
-    SPECIALIZATION_NUMERIC_MEMBER(type, >,  PhraseData::Greater)
-    SPECIALIZATION_NUMERIC_MEMBER(type, >=, PhraseData::GreaterEqual)
-    SPECIALIZATION_NUMERIC_MEMBER(type, %,  PhraseData::Mod)
-
-    SPECIALIZATION_NUMERIC_MEMBER(type, +,  PhraseData::Add)
-    SPECIALIZATION_NUMERIC_MEMBER(type, -,  PhraseData::Minus)
-    SPECIALIZATION_NUMERIC_MEMBER(type, *,  PhraseData::Multiple)
-    SPECIALIZATION_NUMERIC_MEMBER(type, /,  PhraseData::Divide)
 
     AssignmentPhrase operator =(const QVariant &other) {
         return AssignmentPhrase(this, other);
@@ -59,6 +50,17 @@ public:
     {
         return ConditionalPhrase(this, PhraseData::Minus, 1);
     }
+
+    SPECIALIZATION_NUMERIC_MEMBER(type, <,  PhraseData::Less)
+    SPECIALIZATION_NUMERIC_MEMBER(type, <=, PhraseData::LessEqual)
+    SPECIALIZATION_NUMERIC_MEMBER(type, >,  PhraseData::Greater)
+    SPECIALIZATION_NUMERIC_MEMBER(type, >=, PhraseData::GreaterEqual)
+    SPECIALIZATION_NUMERIC_MEMBER(type, %,  PhraseData::Mod)
+
+    SPECIALIZATION_NUMERIC_MEMBER(type, +,  PhraseData::Add)
+    SPECIALIZATION_NUMERIC_MEMBER(type, -,  PhraseData::Minus)
+    SPECIALIZATION_NUMERIC_MEMBER(type, *,  PhraseData::Multiple)
+    SPECIALIZATION_NUMERIC_MEMBER(type, /,  PhraseData::Divide)
 };
 
 #define SPECIALIZATION_NUMERIC_TYPE(type) \
