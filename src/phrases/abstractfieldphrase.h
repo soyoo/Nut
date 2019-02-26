@@ -57,6 +57,7 @@ public:
     ConditionalPhrase operator >=(const AbstractFieldPhrase &other);
 
     AbstractFieldPhrase operator ~();
+    AbstractFieldPhrase operator !();
     AssignmentPhrase operator =(const QVariant &other);
     AssignmentPhrase operator =(const ConditionalPhrase &other);
     AssignmentPhrase operator <<(const QVariant &other);

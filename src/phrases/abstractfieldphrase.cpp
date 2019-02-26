@@ -96,4 +96,11 @@ AbstractFieldPhrase AbstractFieldPhrase::operator ~()
     return f;
 }
 
+AbstractFieldPhrase AbstractFieldPhrase::operator !()
+{
+    AbstractFieldPhrase f(data->className, data->fieldName);
+    f.data->isNot = !data->isNot;
+    return f;
+}
+
 NUT_END_NAMESPACE
