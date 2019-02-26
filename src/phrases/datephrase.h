@@ -77,8 +77,8 @@ public:
                                  QVariantList() << min << max);
     }
 
-    template<class P = T,
-             class std::enable_if<std::is_same<P, QDateTime>::value, int>::type = 0>
+//    template<class P = T,
+//             class std::enable_if<std::is_same<P, QDateTime>::value, int>::type = 0>
     ConditionalPhrase addYears(int val) {
         if (!is_valid_template<T, QDate>())
             return ConditionalPhrase();
