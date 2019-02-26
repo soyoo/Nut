@@ -5,7 +5,7 @@
 
 NUT_BEGIN_NAMESPACE
 
-class PhraseDataList : public QList<PhraseData*>
+class NUT_EXPORT PhraseDataList : public QList<PhraseData*>
 {
 public:
     PhraseDataList();

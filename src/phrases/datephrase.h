@@ -46,7 +46,7 @@ template <>
 inline bool is_valid_template<QTime, QTime>() {return true;}
 
 template <typename T>
-class FieldPhrase<T, typename std::enable_if<is_date<T>::value>::type>
+class NUT_EXPORT FieldPhrase<T, typename std::enable_if<is_date<T>::value>::type>
         : public AbstractFieldPhrase
 {
 public:

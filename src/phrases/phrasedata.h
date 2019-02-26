@@ -5,7 +5,7 @@
 
 NUT_BEGIN_NAMESPACE
 
-class PhraseData
+class NUT_EXPORT PhraseData
 {
 public:
     enum Condition {

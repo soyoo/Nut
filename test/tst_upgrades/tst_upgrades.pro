@@ -5,9 +5,8 @@ TARGET = tst_upgrades
 TEMPLATE = app
 
 CONFIG   += warn_on c++11
-INCLUDEPATH += $$PWD/../../src $$PWD/../common
-include(../../nut.pri)
-IMPORTPATH += $$OUT_PWD/../src/imports
+
+include(../common/nut-lib.pri)
 
 SOURCES +=  tst_upgrades.cpp \
     db1.cpp \

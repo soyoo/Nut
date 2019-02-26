@@ -10,7 +10,7 @@
 NUT_BEGIN_NAMESPACE
 
 class PhraseData;
-class AbstractFieldPhrase
+class NUT_EXPORT AbstractFieldPhrase
 {
 public:
     PhraseData *data;

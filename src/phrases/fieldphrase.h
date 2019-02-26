@@ -8,7 +8,7 @@
 NUT_BEGIN_NAMESPACE
 
 template<typename T, typename enable = void>
-class FieldPhrase : public AbstractFieldPhrase
+class NUT_EXPORT FieldPhrase : public AbstractFieldPhrase
 {
 public:
     FieldPhrase(const char *className, const char *s) :
@@ -27,7 +27,7 @@ public:
 
 
 template<>
-class FieldPhrase<QString> : public AbstractFieldPhrase
+class NUT_EXPORT FieldPhrase<QString> : public AbstractFieldPhrase
 {
 public:
     FieldPhrase(const char *className, const char *s) :
@@ -102,7 +102,7 @@ public:
     }
 
 template<>
-class FieldPhrase<bool> : public AbstractFieldPhrase
+class NUT_EXPORT FieldPhrase<bool> : public AbstractFieldPhrase
 {
 public:
     FieldPhrase(const char *className, const char *s) :

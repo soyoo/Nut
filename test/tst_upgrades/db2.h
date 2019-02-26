@@ -1,7 +1,8 @@
 #ifndef DB2_H
 #define DB2_H
 
-#include <Database>
+#include "database.h"
+
 class Table2;
 
 class DB2 : public Nut::Database

@@ -5,9 +5,9 @@ TARGET = tst_nut
 TEMPLATE = app
 
 CONFIG   += warn_on c++11
-INCLUDEPATH += $$PWD/../../src $$PWD/../common
-include(../../nut.pri)
-IMPORTPATH += $$OUT_PWD/../src/imports
+
+include(../common/nut-lib.pri)
+
 SOURCES += \
     ../common/comment.cpp \
     ../common/post.cpp \

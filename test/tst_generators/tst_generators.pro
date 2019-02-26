@@ -6,9 +6,7 @@ CONFIG -= app_bundle
 
 TEMPLATE = app
 
-INCLUDEPATH += $$PWD/../../src $$PWD/../common
-include(../../nut.pri)
-IMPORTPATH += $$OUT_PWD/../src/imports
+include(../common/nut-lib.pri)
 
 SOURCES += \ 
     tst_generators.cpp

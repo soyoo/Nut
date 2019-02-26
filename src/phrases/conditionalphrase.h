@@ -13,7 +13,7 @@ ConditionalPhrase operator op(const QVariant &other) \
 { \
     return ConditionalPhrase(this, cond, other); \
 }
-class ConditionalPhrase
+class NUT_EXPORT ConditionalPhrase
 {
 public:
     PhraseData *data;

@@ -8,7 +8,8 @@
 NUT_BEGIN_NAMESPACE
 
 class AbstractFieldPhrase;
-class PhraseList{
+class NUT_EXPORT PhraseList
+{
 public:
     bool isValid;
     PhraseDataList data;
