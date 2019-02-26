@@ -39,7 +39,7 @@ HEADERS += \
     $$PWD/phrases/phrasedata.h \
     $$PWD/phrases/phrasedatalist.h \
     $$PWD/phrases/phraselist.h \
-    ../../../../Dev/Qt/Nut/src/phrases/datephrase.h
+    $$PWD/phrases/datephrase.h
 
 SOURCES += \
     $$PWD/generators/sqlgeneratorbase.cpp \
@@ -68,6 +68,6 @@ SOURCES += \
     $$PWD/phrases/phrasedata.cpp \
     $$PWD/phrases/phrasedatalist.cpp \
     $$PWD/phrases/phraselist.cpp \
-    ../../../../Dev/Qt/Nut/src/phrases/datephrase.cpp
+    $$PWD/phrases/datephrase.cpp
 
 include($$PWD/../3rdparty/serializer/src/src.pri)
