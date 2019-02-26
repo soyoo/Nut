@@ -34,6 +34,15 @@ void MainTest::numeric()
     auto p4 = n < 1;
     auto p5 = n > 1;
     auto p6 = n != 1;
+    auto p7 = n = n + 1;
+    auto p8 = n < n + 1;
+    auto p9 = n <= n + 1;
+    auto p10 = n > n + 1;
+    auto p11 = n >= n + 1;
+    auto p12 = n + 1 > n - 2;
+    auto p13 = ++n;
+    auto p14 = n++;
+    auto p15 = n.between(1, 2);
 }
 
 void MainTest::string()
@@ -73,6 +82,14 @@ void MainTest::datetime()
     auto p5 = datetime > QDateTime::currentDateTime();
     auto p6 = datetime.addMonths(1) >= QDateTime::currentDateTime();
     auto p7 = time.between(QTime::currentTime().addSecs(-100), QTime::currentTime());
+    auto p8 = time.hour() == 3;
+    auto p9 = time = QTime::currentTime();
+
+    auto pi1 = time.addYears(1);
+    auto pi2 = date.addMinutes(3);
+
+    QTEST_ASSERT(!pi1.data);
+    QTEST_ASSERT(!pi2.data);
 }
 
 void MainTest::extra()

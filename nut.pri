@@ -29,7 +29,17 @@ HEADERS += \
     $$PWD/src/sqlmodel.h \
     $$PWD/src/sqlmodel_p.h \
     $$PWD/src/phrase.h \
-    $$PWD/src/tuple.h
+    $$PWD/src/tuple.h \
+    $$PWD/src/phrases/conditionalphrase.h \
+    $$PWD/src/phrases/abstractfieldphrase.h \
+    $$PWD/src/phrases/fieldphrase.h \
+    $$PWD/src/phrases/phraselist.h \
+    $$PWD/src/phrases/assignmentphraselist.h \
+    $$PWD/src/phrases/phrasedatalist.h \
+    $$PWD/src/phrases/phrasedata.h \
+    $$PWD/src/phrases/assignmentphrase.h \
+    $$PWD/src/phrases/numericphrase.h \
+    $$PWD/src/phrases/datephrase.h
 
 SOURCES += \
     $$PWD/src/generators/sqlgeneratorbase.cpp \
@@ -50,4 +60,14 @@ SOURCES += \
     $$PWD/src/serializableobject.cpp \
     $$PWD/src/sqlmodel.cpp \
     $$PWD/src/phrase.cpp \
-    $$PWD/src/tuple.cpp
+    $$PWD/src/tuple.cpp \
+    $$PWD/src/phrases/conditionalphrase.cpp \
+    $$PWD/src/phrases/abstractfieldphrase.cpp \
+    $$PWD/src/phrases/fieldphrase.cpp \
+    $$PWD/src/phrases/phraselist.cpp \
+    $$PWD/src/phrases/assignmentphraselist.cpp \
+    $$PWD/src/phrases/phrasedatalist.cpp \
+    $$PWD/src/phrases/phrasedata.cpp \
+    $$PWD/src/phrases/assignmentphrase.cpp \
+    $$PWD/src/phrases/numericphrase.cpp \
+    $$PWD/src/phrases/datephrase.cpp
