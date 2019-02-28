@@ -63,7 +63,7 @@ void UuidTest::restore()
 
 void UuidTest::cleanupTestCase()
 {
-    qDeleteAll(Nut::TableModel::allModels());
+//    qDeleteAll(Nut::TableModel::allModels());
 //    Nut::DatabaseModel::deleteAllModels();
 }
 

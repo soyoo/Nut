@@ -278,7 +278,7 @@ void BasicTest::cleanupTestCase()
     user->deleteLater();
 
     //release models before exiting
-    qDeleteAll(TableModel::allModels());
+//    qDeleteAll(TableModel::allModels());
 
     if (QFile::remove("nut_tst_basic"))
         qDebug() << "database removed";

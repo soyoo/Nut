@@ -724,14 +724,14 @@ QString SqlGeneratorBase::insertCommand(const QString &tableName, const Assignme
 
 void SqlGeneratorBase::replaceTableNames(QString &command)
 {
-    foreach (TableModel *m, TableModel::allModels())
+    foreach (TableModel *m, _database->model())
         command = command
                 .replace("[" + m->className() + "]", m->name());
 }
 
 void SqlGeneratorBase::removeTableNames(QString &command)
 {
-    foreach (TableModel *m, TableModel::allModels())
+    foreach (TableModel *m, _database->model())
         command = command.replace("[" + m->className() + "].", "");
 }
 

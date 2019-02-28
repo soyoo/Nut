@@ -117,6 +117,8 @@ inline bool nutClassInfoInt(const QMetaClassInfo &classInfo,
     }
 }
 
+#define NUT_FIELD_PERFIX
+#define NUT_FIELD_POSTFIX Field
 
 // Database
 #define NUT_DB_VERSION(version)  \

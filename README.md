@@ -3,7 +3,7 @@
 # Nut
 
 ## Build result
-| Brancc name   | Icon  |
+| Branch        | Status        |
 | ------------- |:-------------:|
 | master        | [![Build Status](https://travis-ci.org/HamedMasafi/Nut.svg?branch=master)](https://travis-ci.org/HamedMasafi/Nut) |
 | dev           | [![Build Status](https://travis-ci.org/HamedMasafi/Nut.svg?branch=dev)](https://travis-ci.org/HamedMasafi/Nut) |

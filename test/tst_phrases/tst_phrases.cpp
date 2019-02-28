@@ -123,7 +123,7 @@ void MainTest::mix()
     insert(id = 0);
     insert((id = 4) & (name = "john"));
     order_by(id);
-    order_by(id | ~name);
+    order_by(id | !name);
 }
 
 void MainTest::select(const PhraseList &ph)
@@ -148,7 +148,7 @@ void MainTest::insert(const AssignmentPhraseList &p)
 
 void MainTest::order_by(const PhraseList &ph)
 {
-
+    QTEST_ASSERT(ph.data.count());
 }
 
 QTEST_MAIN(MainTest)

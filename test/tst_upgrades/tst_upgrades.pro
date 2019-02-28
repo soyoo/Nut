@@ -1,5 +1,4 @@
 QT       += testlib sql
-QT       -= gui
 
 TARGET = tst_upgrades
 TEMPLATE = app

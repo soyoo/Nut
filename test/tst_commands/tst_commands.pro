@@ -1,7 +1,5 @@
 QT       += qml quick testlib sql
 
-QT       -= gui
-
 TARGET = tst_nut
 CONFIG   += warn_on qmltestcase c++11
 INCLUDEPATH += $$PWD/../../src $$PWD/../common

@@ -1,5 +1,4 @@
 QT       += qml quick testlib sql
-QT       -= gui
 
 TARGET = tst_nut
 TEMPLATE = app

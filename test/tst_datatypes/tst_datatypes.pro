@@ -1,4 +1,4 @@
-QT       += testlib sql
+QT       += testlib sql gui
 
 TARGET = tst_datatypes
 TEMPLATE = app

@@ -1,5 +1,4 @@
-QT       += sql
-QT       -= gui
+QT       += sql gui
 
 TARGET = nut
 TEMPLATE = lib
@@ -40,7 +39,8 @@ HEADERS += \
     $$PWD/phrases/phrasedata.h \
     $$PWD/phrases/phrasedatalist.h \
     $$PWD/phrases/phraselist.h \
-    $$PWD/phrases/datephrase.h
+    $$PWD/phrases/datephrase.h \
+    $$PWD/table_p.h
 
 SOURCES += \
     $$PWD/generators/sqlgeneratorbase.cpp \
