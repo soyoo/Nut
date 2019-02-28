@@ -182,7 +182,7 @@ QString MySqlGenerator::escapeValue(const QVariant &v) const
 //    }
 }
 
-QVariant MySqlGenerator::readValue(const QMetaType::Type &type, const QVariant &dbValue)
+QVariant MySqlGenerator::unescapeValue(const QMetaType::Type &type, const QVariant &dbValue)
 {
 
 //#ifdef QT_GUI_LIB
@@ -229,7 +229,7 @@ QVariant MySqlGenerator::readValue(const QMetaType::Type &type, const QVariant &
     if (type == QMetaType::QDate)
         return dbValue.toDate();
 
-    return SqlGeneratorBase::readValue(type, dbValue);
+    return SqlGeneratorBase::unescapeValue(type, dbValue);
 }
 
 bool MySqlGenerator::readInsideParentese(QString &text, QString &out)

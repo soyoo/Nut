@@ -267,7 +267,7 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
             QList<FieldModel*> childFields = data.table->fields();
             foreach (FieldModel *field, childFields)
                 table->setProperty(field->name.toLatin1().data(),
-                                   d->database->sqlGenertor()->readValue(
+                                   d->database->sqlGenertor()->unescapeValue(
                                        field->type,
                                        q.value(data.table->name() + "." + field->name)));
 

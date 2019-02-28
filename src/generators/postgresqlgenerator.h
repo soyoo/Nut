@@ -41,7 +41,7 @@ public:
     // SqlGeneratorBase interface
 public:
     QString escapeValue(const QVariant &v) const;
-    QVariant readValue(const QMetaType::Type &type, const QVariant &dbValue);
+    QVariant unescapeValue(const QMetaType::Type &type, const QVariant &dbValue);
 };
 
 NUT_END_NAMESPACE

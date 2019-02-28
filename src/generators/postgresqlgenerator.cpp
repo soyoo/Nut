@@ -251,7 +251,7 @@ QString PostgreSqlGenerator::escapeValue(const QVariant &v) const
     return SqlGeneratorBase::escapeValue(v);
 }
 
-QVariant PostgreSqlGenerator::readValue(const QMetaType::Type &type, const QVariant &dbValue)
+QVariant PostgreSqlGenerator::unescapeValue(const QMetaType::Type &type, const QVariant &dbValue)
 {
     if (type == QMetaType::QDateTime)
         return dbValue.toDateTime();
@@ -263,10 +263,10 @@ QVariant PostgreSqlGenerator::readValue(const QMetaType::Type &type, const QVari
         return dbValue.toDate();
 
     if (type == QMetaType::QPoint)
-        return SqlGeneratorBase::readValue(QMetaType::QPoint, dbValue.toString()
+        return SqlGeneratorBase::unescapeValue(QMetaType::QPoint, dbValue.toString()
                                            .replace("(", "").replace(")", ""));
     if (type == QMetaType::QPointF)
-        return SqlGeneratorBase::readValue(QMetaType::QPointF, dbValue.toString()
+        return SqlGeneratorBase::unescapeValue(QMetaType::QPointF, dbValue.toString()
                                            .replace("(", "").replace(")", ""));
     if (type == QMetaType::QStringList)
         return dbValue.toString().replace("{", "").replace("}", "")
@@ -306,7 +306,7 @@ QVariant PostgreSqlGenerator::readValue(const QMetaType::Type &type, const QVari
         return pol;
     }
 #endif
-    return SqlGeneratorBase::readValue(type, dbValue);
+    return SqlGeneratorBase::unescapeValue(type, dbValue);
 }
 
 

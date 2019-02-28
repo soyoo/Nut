@@ -131,6 +131,11 @@ QString SqlGeneratorBase::fieldDeclare(FieldModel *field)
     return field->name + " " + type + (field->notNull ? " NOT NULL" : "");
 }
 
+QStringList SqlGeneratorBase::constraints(TableModel *table)
+{
+    return QStringList();
+}
+
 QString SqlGeneratorBase::relationDeclare(const RelationModel *relation)
 {
     return QString("FOREIGN KEY (FK_%1) REFERENCES %2(%1)")

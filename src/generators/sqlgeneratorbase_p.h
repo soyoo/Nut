@@ -79,6 +79,9 @@ public:
     //fields
     virtual QString fieldType(FieldModel *field) = 0;
     virtual QString fieldDeclare(FieldModel *field);
+    virtual QStringList constraints(TableModel *table);
+    virtual QString escapeValue(const QVariant &v) const;
+    virtual QVariant unescapeValue(const QMetaType::Type &type, const QVariant &dbValue);
 
     virtual QString masterDatabaseName(QString databaseName);
 
@@ -141,8 +144,6 @@ public:
 
 //    virtual QString updateCommand(WherePhrase &phrase, QList<WherePhrase> &wheres, QString tableName);
 
-    virtual QString escapeValue(const QVariant &v) const;
-    virtual QVariant readValue(const QMetaType::Type &type, const QVariant &dbValue);
     virtual QString phrase(const PhraseData *d) const;
     virtual QString operatorString(const PhraseData::Condition &cond) const;
     virtual void appendSkipTake(QString &sql, int skip = -1, int take = -1);
