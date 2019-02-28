@@ -45,6 +45,8 @@ class SqlGeneratorBase : public QObject
 protected:
     SqlSerializer *_serializer;
 
+    bool isNumeric(const QMetaType::Type &type);
+
 public:
     //TODO: remove this enum
     enum CommandType{
@@ -74,12 +76,14 @@ public:
         return true;
     }
 
+    //fields
+    virtual QString fieldType(FieldModel *field) = 0;
+    virtual QString fieldDeclare(FieldModel *field);
+
     virtual QString masterDatabaseName(QString databaseName);
 
     virtual QString createTable(TableModel *table);
 
-    virtual QString fieldType(FieldModel *field) = 0;
-    virtual QString fieldDeclare(FieldModel *field);
     virtual QString relationDeclare(const RelationModel *relation);
 
     virtual QStringList diff(const DatabaseModel &lastModel, const DatabaseModel &newModel);

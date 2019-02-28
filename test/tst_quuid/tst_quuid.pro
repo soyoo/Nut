@@ -16,3 +16,5 @@ HEADERS += \
     testdatabase.h \
     test.h \
     tst_uuid.h
+
+include($$PWD/../ci-test-init.pri)

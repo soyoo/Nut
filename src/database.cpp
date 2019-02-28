@@ -264,9 +264,20 @@ bool DatabasePrivate::getCurrectScheema()
         }
     }
 
-    foreach (TableModel *table, currentModel)
+    foreach (TableModel *table, currentModel) {
+        foreach (FieldModel *f, table->fields()) {
+            if (f->isPrimaryKey && ! sqlGenertor->supportPrimaryKey(f->type))
+                qFatal("The field of type %s does not support as primary key",
+                       qPrintable(f->typeName));
+
+            if (f->isAutoIncrement && ! sqlGenertor->supportAutoIncrement(f->type))
+                qFatal("The field of type %s does not support as auto increment",
+                       qPrintable(f->typeName));
+        }
+
         foreach (RelationModel *fk, table->foregionKeys())
             fk->masterTable = currentModel.tableByClassName(fk->masterClassName);
+    }
 
     allTableMaps.insert(q->metaObject()->className(), currentModel);
     return true;

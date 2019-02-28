@@ -72,3 +72,4 @@ SOURCES += \
     $$PWD/phrases/datephrase.cpp
 
 include($$PWD/../3rdparty/serializer/src/src.pri)
+include($$PWD/../ci-test-init.pri)

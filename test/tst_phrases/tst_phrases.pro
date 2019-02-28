@@ -12,3 +12,5 @@ SOURCES += \
 
 HEADERS += \
     tst_phrases.h
+
+include($$PWD/../ci-test-init.pri)

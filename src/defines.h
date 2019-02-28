@@ -181,6 +181,7 @@ public:                                                                        \
         return m_##n;                                                          \
     }
 
+#define NUT_FIELD(name)                     NUT_INFO(__nut_FIELD, name, 0)
 #define NUT_PRIMARY_KEY(x)                  NUT_INFO(__nut_PRIMARY_KEY,  x, 0)
 #define NUT_AUTO_INCREMENT(x)               NUT_INFO(__nut_AUTO_INCREMENT, x, 0)
 #define NUT_PRIMARY_AUTO_INCREMENT(x)       NUT_INFO(__nut_PRIMARY_KEY_AI, x, 0)

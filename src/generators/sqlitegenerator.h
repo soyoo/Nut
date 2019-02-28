@@ -32,11 +32,14 @@ public:
     explicit SqliteGenerator(Database *parent = nullptr);
 
     QString fieldType(FieldModel *field) override;
+    QString fieldDeclare(FieldModel *field) override;
+    bool supportAutoIncrement(const QMetaType::Type &type) override;
 
     void appendSkipTake(QString &sql, int skip, int take) override;
 
     QString primaryKeyConstraint(const TableModel *table) const override;
     QStringList diff(TableModel *oldTable, TableModel *newTable) override;
+
 };
 
 NUT_END_NAMESPACE

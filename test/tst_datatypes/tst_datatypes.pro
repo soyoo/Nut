@@ -16,3 +16,5 @@ HEADERS += \
     db.h \
     sampletable.h \
     tst_datatypes.h
+
+include($$PWD/../ci-test-init.pri)

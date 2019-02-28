@@ -24,3 +24,4 @@ HEADERS += \
     ../common/weblogdatabase.h \
     ../common/score.h
 
+include($$PWD/../ci-test-init.pri)

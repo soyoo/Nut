@@ -22,3 +22,5 @@ HEADERS += \
     table2.h \
     db3.h \
     table3.h
+
+include($$PWD/../ci-test-init.pri)

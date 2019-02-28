@@ -31,12 +31,6 @@ SqliteGenerator::SqliteGenerator(Database *parent) : SqlGeneratorBase(parent)
 
 QString SqliteGenerator::fieldType(FieldModel *field)
 {
-    if (field->isPrimaryKey) {
-        QString primaryKeyPerfix = " PRIMARY KEY";
-        if (field->isAutoIncrement)
-            primaryKeyPerfix += " AUTOINCREMENT";
-        return "INTEGER" + primaryKeyPerfix;
-    }
     switch (field->type) {
     case QMetaType::Bool:           return "BOOLEAN";
     case QMetaType::QBitArray:
@@ -78,7 +72,7 @@ QString SqliteGenerator::fieldType(FieldModel *field)
     case QMetaType::QPolygonF:
     case QMetaType::QStringList:
     case QMetaType::QColor:
-    case QMetaType::QUuid:          return "text";
+    case QMetaType::QUuid:          return "TEXT";
 
 //        if (field->isAutoIncrement)
 //            dbType.append(" PRIMARY KEY AUTOINCREMENT");
@@ -93,6 +87,29 @@ QString SqliteGenerator::fieldType(FieldModel *field)
 //                 QMetaType::typeName(field->type));
         return QString();
     }
+}
+
+QString SqliteGenerator::fieldDeclare(FieldModel *field)
+{
+    QString type = fieldType(field);
+    if (type.isEmpty())
+        return type;
+
+    if (field->isPrimaryKey) {
+        type.append(" PRIMARY KEY");
+        if (field->isAutoIncrement)
+            type = "INTEGER PRIMARY KEY AUTOINCREMENT";
+    }
+
+    if (field->notNull)
+        type.append(" NOT NULL");
+
+    return field->name + " " + type;
+}
+
+bool SqliteGenerator::supportAutoIncrement(const QMetaType::Type &type)
+{
+    return isNumeric(type);
 }
 
 

@@ -52,6 +52,21 @@ NUT_BEGIN_NAMESPACE
  *      INNER JOIN dbo.GiftCards ON dbo.GiftTypes.GiftTypeID = dbo.GiftCards.GiftTypeID
  *      INNER JOIN dbo.Entities ON dbo.GiftCards.GiftCardID = dbo.Entities.GiftCardID
  */
+bool SqlGeneratorBase::isNumeric(const QMetaType::Type &type)
+{
+    return type == QMetaType::SChar
+            || type == QMetaType::Char
+            || type == QMetaType::UChar
+            || type == QMetaType::Short
+            || type == QMetaType::UShort
+            || type == QMetaType::Int
+            || type == QMetaType::UInt
+            || type == QMetaType::Long
+            || type == QMetaType::ULong
+            || type == QMetaType::LongLong
+            || type == QMetaType::ULongLong;
+}
+
 SqlGeneratorBase::SqlGeneratorBase(Database *parent)
     : QObject(parent)
 {
