@@ -249,6 +249,7 @@ QStringList SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
             QString pkCon = primaryKeyConstraint(newTable);
             if (!pkCon.isEmpty())
                 columnSql << pkCon;
+            columnSql << constraints(newTable);
         }
 
         sql = QString("CREATE TABLE %1 \n(%2)")
@@ -853,7 +854,7 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
     }
 }
 
-QVariant SqlGeneratorBase::readValue(const QMetaType::Type &type,
+QVariant SqlGeneratorBase::unescapeValue(const QMetaType::Type &type,
                                      const QVariant &dbValue)
 {
     return _serializer->deserialize(dbValue.toString(), type);

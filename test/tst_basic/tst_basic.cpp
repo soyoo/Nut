@@ -31,7 +31,7 @@ void BasicTest::initTestCase()
 
     db.setDriver(DRIVER);
     db.setHostName(HOST);
-    db.setDatabaseName("nut_tst_basic");
+    db.setDatabaseName(DATABASE);
     db.setUserName(USERNAME);
     db.setPassword(PASSWORD);
 

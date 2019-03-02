@@ -33,6 +33,7 @@ public:
 
     QString fieldType(FieldModel *field) override;
     QString fieldDeclare(FieldModel *field) override;
+
     bool supportAutoIncrement(const QMetaType::Type &type) override;
 
     void appendSkipTake(QString &sql, int skip, int take) override;

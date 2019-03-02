@@ -4,12 +4,14 @@
 #include <QtCore/QObject>
 #include <QtCore/qglobal.h>
 
-#include <QColor>
 #include <QDateTime>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#ifdef QT_GUI_LIB
+#include <QColor>
 #include <QPolygonF>
+#endif
 #include <QUrl>
 #include <QUuid>
 
@@ -29,17 +31,11 @@ class DataTypesTest : public QObject
     quint64 f_uint64;
     qreal f_real;
     float f_float;
-    QPoint f_point;
-    QPointF f_pointf;
-    QPolygon f_polygon;
-    QPolygonF f_polygonf;
-    QUrl f_url;
 
     QTime f_time;
     QDate f_date;
     QDateTime f_dateTime;
 
-    QUuid f_uuid;
     QJsonDocument f_jsonDoc;
     QJsonObject f_jsonObj;
     QJsonArray f_jsonArray;
@@ -49,7 +45,15 @@ class DataTypesTest : public QObject
     QStringList f_stringList;
 
     QChar f_qchar;
+    QUrl f_url;
+    QUuid f_uuid;
+#ifdef QT_GUI_LIB
+    QPoint f_point;
+    QPointF f_pointf;
+    QPolygon f_polygon;
+    QPolygonF f_polygonf;
     QColor f_color;
+#endif
 
 public:
     explicit DataTypesTest(QObject *parent = nullptr);

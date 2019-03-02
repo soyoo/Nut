@@ -1,17 +1,19 @@
 #ifndef SAMPLETABLE_H
 #define SAMPLETABLE_H
 
-#include <QColor>
 #include <QPoint>
 #include <QTime>
 #include <QDate>
 #include <QDateTime>
-#include <QPolygon>
 #include <QUrl>
 #include <QUuid>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#ifdef QT_GUI_LIB
+#include <QColor>
+#include <QPolygon>
+#endif
 
 #include "table.h"
 
@@ -38,10 +40,6 @@ class SampleTable : public Nut::Table
     NUT_DECLARE_FIELD(float, f_float, f_float, setFloat)
 //    NUT_DECLARE_FIELD(long double, fldouble, fldouble, setFldouble)
     NUT_DECLARE_FIELD(QString, f_string, f_string, setString)
-    NUT_DECLARE_FIELD(QPoint, f_point, f_point, setPoint)
-    NUT_DECLARE_FIELD(QPointF, f_pointf, f_pointf, setPointf)
-    NUT_DECLARE_FIELD(QPolygon, f_polygon, f_polygon, setPolygon)
-    NUT_DECLARE_FIELD(QPolygonF, f_polygonf, f_polygonf, setPolygonf)
 
     NUT_DECLARE_FIELD(QTime, f_time, f_time, setTime)
     NUT_DECLARE_FIELD(QDate, f_date, f_date, setDate)
@@ -58,8 +56,13 @@ class SampleTable : public Nut::Table
 
     NUT_DECLARE_FIELD(QStringList, f_stringList, f_stringList, setStringList)
     NUT_DECLARE_FIELD(QChar, f_qchar, f_qchar, setQchar)
+#ifdef QT_GUI_LIB
+    NUT_DECLARE_FIELD(QPoint, f_point, f_point, setPoint)
+    NUT_DECLARE_FIELD(QPointF, f_pointf, f_pointf, setPointf)
+    NUT_DECLARE_FIELD(QPolygon, f_polygon, f_polygon, setPolygon)
+    NUT_DECLARE_FIELD(QPolygonF, f_polygonf, f_polygonf, setPolygonf)
     NUT_DECLARE_FIELD(QColor, f_color, f_color, setColor)
-
+#endif
 public:
     Q_INVOKABLE SampleTable(QObject *parent = Q_NULLPTR);
 };

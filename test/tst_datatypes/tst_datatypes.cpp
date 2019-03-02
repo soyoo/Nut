@@ -44,10 +44,6 @@ void DataTypesTest::initTestCase()
     f_uint64 = 64ull;
     f_real = 1.2;
     f_float = 2.3f;
-    f_point = QPoint(1, 2);
-    f_pointf  = QPointF(1.2, 3.4);
-    f_polygon = QPolygon() << QPoint(1, 2) << QPoint(3, 4) << QPoint(5, 6);
-    f_polygonf = QPolygonF() << QPointF(1.2, 2.3) << QPointF(3.4, 4.5) << QPointF(5.6, 6.7);
 
     f_url = QUrl("http://google.com/search?q=nut");
 
@@ -74,7 +70,13 @@ void DataTypesTest::initTestCase()
 
     f_qchar = QChar('z');
 
+#ifdef QT_GUI_LIB
+    f_point = QPoint(1, 2);
+    f_pointf  = QPointF(1.2, 3.4);
+    f_polygon = QPolygon() << QPoint(1, 2) << QPoint(3, 4) << QPoint(5, 6);
+    f_polygonf = QPolygonF() << QPointF(1.2, 2.3) << QPointF(3.4, 4.5) << QPointF(5.6, 6.7);
     f_color = Qt::red;
+#endif
 
     QTEST_ASSERT(ok);
 
@@ -97,12 +99,6 @@ void DataTypesTest::insert()
     t.setReal(f_real);
     t.setFloat(f_float);
 
-    t.setPoint(f_point);
-    t.setPointf(f_pointf);
-
-    t.setPolygon(f_polygon);
-    t.setPolygonf(f_polygonf);
-
     t.setUrl(f_url);
 
     t.setTime(f_time);
@@ -118,8 +114,15 @@ void DataTypesTest::insert()
     t.setString(f_string);
     t.setStringList(f_stringList);
     t.setQchar(f_qchar);
+#ifdef QT_GUI_LIB
     t.setColor(f_color);
 
+    t.setPoint(f_point);
+    t.setPointf(f_pointf);
+
+    t.setPolygon(f_polygon);
+    t.setPolygonf(f_polygonf);
+#endif
     db.sampleTables()->append(&t);
     db.saveChanges();
 }
@@ -143,11 +146,6 @@ void DataTypesTest::retrive()
     QTEST_ASSERT(qFuzzyCompare(t->f_real(), f_real));
     QTEST_ASSERT(qFuzzyCompare(t->f_float(), f_float));
 
-    QTEST_ASSERT(t->f_point() == f_point);
-    QTEST_ASSERT(t->f_pointf() == f_pointf);
-
-    QTEST_ASSERT(t->f_polygon() == f_polygon);
-    QTEST_ASSERT(t->f_polygonf() == f_polygonf);
 
     QTEST_ASSERT(t->f_url() == f_url);
     QTEST_ASSERT(t->f_uuid() == f_uuid);
@@ -164,7 +162,14 @@ void DataTypesTest::retrive()
     QTEST_ASSERT(t->f_string() == f_string);
     QTEST_ASSERT(t->f_stringList() == f_stringList);
     QTEST_ASSERT(t->f_qchar() == f_qchar);
+#ifdef QT_GUI_LIB
+    QTEST_ASSERT(t->f_point() == f_point);
+    QTEST_ASSERT(t->f_pointf() == f_pointf);
+
+    QTEST_ASSERT(t->f_polygon() == f_polygon);
+    QTEST_ASSERT(t->f_polygonf() == f_polygonf);
     QTEST_ASSERT(t->f_color() == f_color);
+#endif
 }
 
 #define CHECK(name) \
@@ -187,10 +192,6 @@ void DataTypesTest::check()
     CHECK(uint64)
     CHECK(real)
     CHECK(float)
-    CHECK(point)
-    CHECK(pointf)
-    CHECK(polygon)
-    CHECK(polygonf)
     CHECK(url)
 
     CHECK(time)
@@ -207,7 +208,13 @@ void DataTypesTest::check()
     CHECK(stringList)
 
     CHECK(qchar)
+#ifdef QT_GUI_LIB
+    CHECK(point)
+    CHECK(pointf)
+    CHECK(polygon)
+    CHECK(polygonf)
     CHECK(color)
+#endif
 }
 
 void DataTypesTest::cleanupTestCase()
