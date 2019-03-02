@@ -96,7 +96,7 @@ QString SqliteGenerator::fieldDeclare(FieldModel *field)
         return type;
 
     if (field->isPrimaryKey) {
-        type.append("INTEGER PRIMARY KEY");
+        type = "INTEGER PRIMARY KEY";
         if (field->isAutoIncrement)
             type.append(" AUTOINCREMENT");
     }
