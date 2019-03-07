@@ -20,7 +20,7 @@
 
 #include "assignmentphraselist.h"
 #include "phrasedata.h"
-#include <phrase.h>
+#include "assignmentphrase.h"
 
 NUT_BEGIN_NAMESPACE
 

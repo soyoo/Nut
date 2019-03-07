@@ -186,6 +186,9 @@ QString SqlGeneratorBase::diff(FieldModel *oldField, FieldModel *newField)
 
 QStringList SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
 {
+    if (!newTable && !oldTable)
+        return QStringList();
+
     if (oldTable && newTable)
         if (*oldTable == *newTable)
             return QStringList();
