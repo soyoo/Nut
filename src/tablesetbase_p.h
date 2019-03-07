@@ -55,6 +55,7 @@ protected:
 
 private:
     void add(Table* t);
+    void remove(Table* t);
 
     friend class Table;
     friend class QueryBase;

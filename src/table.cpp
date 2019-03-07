@@ -44,7 +44,16 @@ Table::Table(QObject *parent) : QObject(parent),
     d_ptr(new TablePrivate(this))
 {
     Q_D(Table);
+    d->status = NewCreated;
     d->model = TableModel::findByClassName(metaObject()->className());
+}
+
+Table::~Table()
+{
+    Q_D(Table);
+
+    if (d->parentTableSet)
+        d->parentTableSet->remove(this);
 }
 
 void Table::add(TableSetBase *t)

@@ -43,6 +43,7 @@ class NUT_EXPORT Table : public QObject
 
 public:
     explicit Table(QObject *parentTableSet = nullptr);
+    virtual ~Table();
 
     enum Status{
         NewCreated,

@@ -135,6 +135,8 @@ bool DatabasePrivate::updateDatabase()
 
     if (last == current) {
         qDebug("Databse is up-to-date");
+        //TODO: crash without this and I don't know why!
+        changeLogs->clearChilds();
         return true;
     }
 
@@ -348,7 +350,7 @@ bool DatabasePrivate::putModelToDatabase()
     changeLog->setData(QJsonDocument(current.toJson()).toJson(QJsonDocument::Compact));
     changeLog->setVersion(current.version());
     changeLogs->append(changeLog);
-    q->saveChanges();
+    q->saveChanges(true);
     changeLog->deleteLater();
 
     return true;

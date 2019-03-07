@@ -75,6 +75,12 @@ void TableSetBase::add(Table *t)
     }
 }
 
+void TableSetBase::remove(Table *t)
+{
+    _tables.remove(t);
+    _tablesList.removeOne(t);
+}
+
 QString TableSetBase::childClassName() const
 {
     return _childClassName;

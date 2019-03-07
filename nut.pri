@@ -39,7 +39,8 @@ HEADERS += \
     $$PWD/src/phrases/phrasedata.h \
     $$PWD/src/phrases/assignmentphrase.h \
     $$PWD/src/phrases/numericphrase.h \
-    $$PWD/src/phrases/datephrase.h
+    $$PWD/src/phrases/datephrase.h \
+    $$PWD/src/bulkinserter.h
 
 SOURCES += \
     $$PWD/src/generators/sqlgeneratorbase.cpp \
@@ -70,4 +71,5 @@ SOURCES += \
     $$PWD/src/phrases/phrasedata.cpp \
     $$PWD/src/phrases/assignmentphrase.cpp \
     $$PWD/src/phrases/numericphrase.cpp \
-    $$PWD/src/phrases/datephrase.cpp
+    $$PWD/src/phrases/datephrase.cpp \
+    $$PWD/src/bulkinserter.cpp

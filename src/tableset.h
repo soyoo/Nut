@@ -29,12 +29,14 @@
 
 #include "tablesetbase_p.h"
 #include "table.h"
+#include "bulkinserter.h"
 
 NUT_BEGIN_NAMESPACE
 
 template<class T>
 class Query;
 
+class BulkInserter;
 template<class T>
 class NUT_EXPORT TableSet : public TableSetBase
 {
@@ -54,6 +56,7 @@ public:
     const T &operator[](int i) const;
 
     Query<T> *query(bool autoDelete = true);
+    BulkInserter *bulkInserter();
 };
 
 template<class T>
@@ -74,6 +77,14 @@ Q_OUTOFLINE_TEMPLATE Query<T> *TableSet<T>::query(bool autoDelete)
     Query<T> *q = new Query<T>(_database, this, autoDelete);
 
     return q;
+}
+
+template<class T>
+Q_OUTOFLINE_TEMPLATE BulkInserter *TableSet<T>::bulkInserter()
+{
+    BulkInserter *bi = new BulkInserter(_childClassName);
+    return bi;
+
 }
 
 template<class T>
