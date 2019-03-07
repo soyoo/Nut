@@ -82,7 +82,7 @@ Q_OUTOFLINE_TEMPLATE Query<T> *TableSet<T>::query(bool autoDelete)
 template<class T>
 Q_OUTOFLINE_TEMPLATE BulkInserter *TableSet<T>::bulkInserter()
 {
-    BulkInserter *bi = new BulkInserter(_childClassName);
+    BulkInserter *bi = new BulkInserter(_database, _childClassName);
     return bi;
 
 }

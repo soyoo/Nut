@@ -4,14 +4,22 @@
 #include <initializer_list>
 #include <QDebug>
 #include "defines.h"
+#include "phrases/phraselist.h"
 
 NUT_BEGIN_NAMESPACE
 
 class PhraseList;
+class Database;
 class BulkInserter
 {
+    Database *_database;
+    QString _className;
+    Nut::PhraseList _fields;
+    QList<QVariantList> variants;
+    size_t _fieldCount;
+
 public:
-    BulkInserter(QString &className);
+    BulkInserter(Database *db, QString &className);
     void setFields(const PhraseList &ph);
 
     void insert(std::initializer_list<QVariant> vars);
@@ -19,6 +27,7 @@ public:
     void insert(Args... args) {
         insert({args...});
     }
+    int apply();
 };
 
 NUT_END_NAMESPACE

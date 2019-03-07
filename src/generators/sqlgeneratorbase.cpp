@@ -123,6 +123,25 @@ QString SqlGeneratorBase::recordsPhrase(TableModel *table)
     return ret;
 }
 
+QString SqlGeneratorBase::insertBulk(const QString &tableName, const PhraseList &ph, const QList<QVariantList> &vars)
+{
+    QString sql;
+    foreach (QVariantList list, vars) {
+        QStringList values;
+        foreach (QVariant v, list)
+            values.append(escapeValue(v));
+
+        if (!sql.isEmpty())
+            sql.append(", ");
+        sql.append("(" + values.join(", ") + ")");
+    }
+    sql = "INSERT INTO " + tableName + "(" + createFieldPhrase(ph)
+            + ") VALUES" + sql;
+
+    removeTableNames(sql);
+    return sql;
+}
+
 QString SqlGeneratorBase::fieldDeclare(FieldModel *field)
 {
     QString type = fieldType(field);

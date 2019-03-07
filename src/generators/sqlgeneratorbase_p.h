@@ -104,6 +104,7 @@ public:
 
     virtual QString recordsPhrase(TableModel *table);
 
+    virtual QString insertBulk(const QString &tableName, const PhraseList &ph, const QList<QVariantList> &vars);
     virtual QString insertRecord(Table *t, QString tableName);
     virtual QString updateRecord(Table *t, QString tableName);
     virtual QString deleteRecord(Table *t, QString tableName);
