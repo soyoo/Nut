@@ -144,7 +144,9 @@ void Table::setParentTableSet(TableSetBase *parent)
 {
     Q_D(Table);
     d->parentTableSet = parent;
-    d->parentTableSet->add(this);
+
+    if (parent)
+        d->parentTableSet->add(this);
 }
 
 TableSetBase *Table::childTableSet(const QString &name) const

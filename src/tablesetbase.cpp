@@ -37,6 +37,12 @@ TableSetBase::TableSetBase(Table *parent) : QObject(parent),
     parent->add(this);
 }
 
+TableSetBase::~TableSetBase()
+{
+    foreach (Table *t, _tables)
+        t->setParentTableSet(nullptr);
+}
+
 int TableSetBase::save(Database *db, bool cleanUp)
 {
     int rowsAffected = 0;
