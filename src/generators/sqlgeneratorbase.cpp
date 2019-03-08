@@ -828,52 +828,6 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
          return QString();
     }
     return "'" + serialized + "'";
-
-    switch (v.type()) {
-    case QVariant::Bool:
-        return v.toBool() ? "1" : "0";
-
-    case QVariant::Int:
-    case QVariant::UInt:
-    case QVariant::ULongLong:
-    case QVariant::LongLong:
-    case QVariant::Double:
-        return v.toString();
-
-    case QVariant::Uuid:
-        return "'" + v.toUuid().toString() + "'";
-
-    case QVariant::Char:
-    case QVariant::String:
-        return "'" + v.toString().replace("'", "''") + "'";
-
-    case QVariant::DateTime:
-        return "'" + v.toDateTime().toString(Qt::ISODate) + "'";
-
-    case QVariant::Date:
-        return "'" + v.toDate().toString(Qt::ISODate) + "'";
-
-    case QVariant::Time:
-        return "'" + v.toTime().toString(Qt::ISODate) + "'";
-
-    case QVariant::StringList:
-    case QVariant::List:
-        return "('" + v.toStringList().join("', '") + "')";
-
-    case QVariant::Point:
-    case QVariant::PointF:
-    case QVariant::Polygon:
-    case QVariant::PolygonF:
-        return "'" + _serializer->serialize(v) + "'";
-
-    case QVariant::Invalid:
-        qFatal("Invalud field value");
-
-    default:
-        qWarning("No field escape rule for: %s", v.typeName());
-        Q_UNREACHABLE();
-        return QString();
-    }
 }
 
 QVariant SqlGeneratorBase::unescapeValue(const QMetaType::Type &type,
