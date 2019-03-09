@@ -83,7 +83,7 @@ public:
     QVariant min(const FieldPhrase<int> &f);
     QVariant average(const FieldPhrase<int> &f);
 
-    QVariant insert(AssignmentPhraseList p);
+    QVariant insert(const AssignmentPhraseList &p);
 
     //data mailpulation
     int update(const AssignmentPhraseList &ph);
@@ -91,6 +91,7 @@ public:
     int remove();
 
     QSqlQueryModel *toModel();
+    void toModel(QSqlQueryModel *model);
 
     //debug purpose
     QString sqlCommand() const;
@@ -410,7 +411,7 @@ Q_OUTOFLINE_TEMPLATE QVariant Query<T>::average(const FieldPhrase<int> &f)
 }
 
 template<class T>
-Q_OUTOFLINE_TEMPLATE QVariant Query<T>::insert(AssignmentPhraseList p)
+Q_OUTOFLINE_TEMPLATE QVariant Query<T>::insert(const AssignmentPhraseList &p)
 {
     Q_D(Query);
     d->sql = d->database->sqlGenertor()
@@ -542,6 +543,14 @@ Q_OUTOFLINE_TEMPLATE int Query<T>::remove()
 template <class T>
 Q_OUTOFLINE_TEMPLATE QSqlQueryModel *Query<T>::toModel()
 {
+    QSqlQueryModel *model = new QSqlQueryModel;
+    toModel(model);
+    return model;
+}
+
+template <class T>
+Q_OUTOFLINE_TEMPLATE void Query<T>::toModel(QSqlQueryModel *model)
+{
     Q_D(Query);
 
     d->sql = d->database->sqlGenertor()->selectCommand(
@@ -551,7 +560,6 @@ Q_OUTOFLINE_TEMPLATE QSqlQueryModel *Query<T>::toModel()
                 d->skip, d->take);
 
     DatabaseModel dbModel = d->database->model();
-    QSqlQueryModel *model = new QSqlQueryModel;
     model->setQuery(d->sql, d->database->database());
 
     int fieldIndex = 0;
@@ -573,8 +581,6 @@ Q_OUTOFLINE_TEMPLATE QSqlQueryModel *Query<T>::toModel()
                                  f->displayName);
         }
     }
-
-    return model;
 }
 
 template <class T>
