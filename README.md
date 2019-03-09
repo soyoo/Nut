@@ -8,7 +8,7 @@
 | master        | [![Build Status](https://travis-ci.org/HamedMasafi/Nut.svg?branch=master)](https://travis-ci.org/HamedMasafi/Nut) |
 | dev           | [![Build Status](https://travis-ci.org/HamedMasafi/Nut.svg?branch=dev)](https://travis-ci.org/HamedMasafi/Nut) |
 
-[![GitLicense](https://gitlicense.com/badge/hamedmasaffi/nut)](https://gitlicense.com/license/hamedmasafi/nut)
+[![GitLicense](https://gitlicense.com/badge/hamedmasafi/nut)](https://gitlicense.com/license/hamedmasafi/nut)
 
 [![Codacy 
 Badge](https://api.codacy.com/project/badge/Grade/f3802610beb946068f6cd2c2b6608a8b)](https://www.codacy.com/app/HamedMasafi/Nut?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=HamedMasafi/Nut&amp;utm_campaign=Badge_Grade)
