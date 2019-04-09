@@ -827,6 +827,7 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
          qWarning("No field escape rule for: %s", v.typeName());
          return QString();
     }
+
     return "'" + serialized + "'";
 }
 

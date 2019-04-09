@@ -175,6 +175,9 @@ bool DatabasePrivate::updateDatabase()
     if (db.lastError().type() == QSqlError::NoError) {
 
         q->databaseUpdated(last.version(), current.version());
+        if (!last.count())
+            q->databaseCreated();
+
     } else {
         qWarning("Unable update database, error = %s",
                  db.lastError().text().toLatin1().data());
@@ -539,6 +542,11 @@ QSqlDatabase Database::database()
 {
     Q_D(Database);
     return d->db;
+}
+
+void Database::databaseCreated()
+{
+
 }
 
 void Database::databaseUpdated(int oldVersion, int newVersion)

@@ -73,6 +73,7 @@ public:
 
 protected:
     //remove minor version
+    virtual void databaseCreated();
     virtual void databaseUpdated(int oldVersion, int newVersion);
 
 public slots:
