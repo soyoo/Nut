@@ -5,6 +5,7 @@
 #include <QDebug>
 #include "defines.h"
 #include "phrases/phraselist.h"
+#include "phrases/fieldphrase.h"
 
 NUT_BEGIN_NAMESPACE
 

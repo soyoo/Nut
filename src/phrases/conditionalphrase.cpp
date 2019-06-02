@@ -144,6 +144,7 @@ ConditionalPhrase operator op(const ConditionalPhrase &l, \
 { \
     ConditionalPhrase p; \
     p.data = new PhraseData; \
+    p.data->type = PhraseData::WithOther; \
     p.data->operatorCond = cond; \
     p.data->left = l.data; \
     p.data->right = r.data; \
@@ -156,6 +157,7 @@ ConditionalPhrase operator op(const ConditionalPhrase &l, \
 { \
     ConditionalPhrase p; \
     p.data = new PhraseData; \
+    p.data->type = PhraseData::WithOther; \
     p.data->operatorCond = cond; \
     p.data->left = l.data; \
     p.data->right = r.data; \
@@ -168,6 +170,7 @@ ConditionalPhrase operator op(ConditionalPhrase &&l, \
 { \
     ConditionalPhrase p; \
     p.data = new PhraseData; \
+    p.data->type = PhraseData::WithOther; \
     p.data->operatorCond = cond; \
     p.data->left = l.data; \
     p.data->right = r.data; \
@@ -179,6 +182,7 @@ ConditionalPhrase operator op(ConditionalPhrase &&l, ConditionalPhrase &&r) \
 { \
     ConditionalPhrase p; \
     p.data = new PhraseData; \
+    p.data->type = PhraseData::WithOther; \
     p.data->operatorCond = cond; \
     p.data->left = l.data; \
     p.data->right = r.data; \
