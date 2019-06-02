@@ -9,5 +9,6 @@ SUBDIRS += \
     tst_phrases \
     tst_quuid \
     tst_generators \
-    tst_upgrades
+    tst_upgrades \
+    tst_json
 
