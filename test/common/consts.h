@@ -8,10 +8,10 @@
     .arg(timer.elapsed() / 1000.) \
     .arg(__func__)
 
-#define DRIVER "QSQLITE"
-#define DATABASE QString(metaObject()->className()).toLower() + "_db"
-#define HOST "localhost"
-#define USERNAME "root"
+#define DRIVER "QPSQL"
+#define DATABASE QString("nut_test_%1_db").arg(metaObject()->className()).toLower()
+#define HOST "127.0.0.1"
+#define USERNAME "postgres"
 #define PASSWORD ""
 
 #ifdef Q_OS_LINUX
