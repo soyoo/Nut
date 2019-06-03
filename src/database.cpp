@@ -313,9 +313,9 @@ DatabaseModel DatabasePrivate::getLastScheema()
 //    DatabaseModel ret(q->metaObject()->className());
 
     if (u) {
+        QJsonParseError e;
         QJsonObject json
-            = QJsonDocument::fromJson(
-                  QByteArray(u->data().toLocal8Bit().data())).object();
+            = QJsonDocument::fromJson(u->data().replace("\\\"", "\"").toUtf8(), &e).object();
 
         DatabaseModel ret = json;
         return ret;
