@@ -625,6 +625,12 @@ void Database::add(TableSetBase *t)
 int Database::saveChanges(bool cleanUp)
 {
     Q_D(Database);
+
+    if (!d->db.isOpen()) {
+        qWarning("Database is not open");
+        return 0;
+    }
+
     int rowsAffected = 0;
     foreach (TableSetBase *ts, d->tableSets)
         rowsAffected += ts->save(this, cleanUp);

@@ -300,6 +300,7 @@ TableModel::TableModel(const QJsonObject &json, const QString &tableName) : _typ
     QJsonObject relations = json.value(__FOREIGN_KEYS).toObject();
     foreach (QString key, fields.keys()) {
         QJsonObject fieldObject = fields.value(key).toObject();
+        //TODO: use FieldModel(QJsonObject) ctor
         auto *f = new FieldModel;
         f->name = fieldObject.value(__NAME).toString();
         f->type = static_cast<QMetaType::Type>(QMetaType::type(fieldObject.value(__TYPE).toString().toLatin1().data()));

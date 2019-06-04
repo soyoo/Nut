@@ -1,1 +1,1 @@
-QT -= gui
+#QT -= gui

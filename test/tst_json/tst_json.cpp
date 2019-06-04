@@ -38,7 +38,15 @@ void TestJson::store()
     DB db;
     initDb(db);
 
-    QTEST_ASSERT(db.open());
+    db.open();
+
+    Table *t = new Table;
+    QJsonDocument doc = QJsonDocument::fromJson("{a: 4, b:3.14}");
+    t->setDoc(doc);
+    db.sampleTable()->append(t);
+    db.saveChanges(true);
+
+//    QTEST_ASSERT(db.open());
 }
 
 QTEST_APPLESS_MAIN(TestJson)

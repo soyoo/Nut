@@ -152,6 +152,7 @@ QString SqlGeneratorBase::fieldDeclare(FieldModel *field)
 
 QStringList SqlGeneratorBase::constraints(TableModel *table)
 {
+    Q_UNUSED(table);
     return QStringList();
 }
 
