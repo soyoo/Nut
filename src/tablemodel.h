@@ -110,6 +110,7 @@ public:
     QString toString() const;
 
     QString primaryKey() const;
+    bool isPrimaryKeyAutoIncrement() const;
 
     QString name() const;
     void setName(const QString &name);

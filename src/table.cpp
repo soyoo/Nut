@@ -164,8 +164,9 @@ int Table::save(Database *db)
 
     QSqlQuery q = db->exec(db->sqlGenertor()->saveRecord(this, db->tableName(metaObject()->className())));
 
-    if(status() == Added && isPrimaryKeyAutoIncrement())
-        setProperty(primaryKey().toLatin1().data(), q.lastInsertId());
+    auto model = db->model().tableByName(metaObject()->className());
+    if(status() == Added && model->isPrimaryKeyAutoIncrement())
+        setProperty(model->primaryKey().toLatin1().data(), q.lastInsertId());
 
     foreach(TableSetBase *ts, d->childTableSets)
         ts->save(db);

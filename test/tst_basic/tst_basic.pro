@@ -1,6 +1,6 @@
 QT       += testlib sql
 
-TARGET = tst_nut
+TARGET = tst_basic
 TEMPLATE = app
 
 CONFIG   += warn_on c++11

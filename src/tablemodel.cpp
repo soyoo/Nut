@@ -411,6 +411,14 @@ QString TableModel::primaryKey() const
     return QString();
 }
 
+bool TableModel::isPrimaryKeyAutoIncrement() const
+{
+    FieldModel *pk = field(primaryKey());
+    if (!pk)
+        return false;
+    return pk->isAutoIncrement;
+}
+
 FieldModel::FieldModel(const QJsonObject &json)
 {
     name = json.value(__NAME).toString();

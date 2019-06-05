@@ -61,3 +61,6 @@ SOURCES += \
     $$PWD/phrases/phrasedatalist.cpp \
     $$PWD/phrases/phraselist.cpp \
     $$PWD/phrases/datephrase.cpp
+
+
+include($$PWD/../3rdparty/serializer/src/src.pri)
