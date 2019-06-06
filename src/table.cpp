@@ -45,6 +45,7 @@ Table::Table(QObject *parent) : QObject(parent),
 {
     Q_D(Table);
     d->status = NewCreated;
+//    d->model = TableModel::findByClassName(metaObject()->className());
 }
 
 Table::~Table()
@@ -122,6 +123,9 @@ bool Table::setParentTable(Table *master)
     QString masterClassName = master->metaObject()->className();
     d->refreshModel();
 
+    if (!d->model)
+        d->model = TableModel::findByClassName(metaObject()->className());
+
     foreach (RelationModel *r, d->model->foregionKeys())
         if(r->masterClassName == masterClassName)
         {
@@ -164,8 +168,9 @@ int Table::save(Database *db)
 
     QSqlQuery q = db->exec(db->sqlGenertor()->saveRecord(this, db->tableName(metaObject()->className())));
 
-    if(status() == Added && isPrimaryKeyAutoIncrement())
-        setProperty(primaryKey().toLatin1().data(), q.lastInsertId());
+    auto model = db->model().tableByClassName(metaObject()->className());
+    if(status() == Added && model->isPrimaryKeyAutoIncrement())
+        setProperty(model->primaryKey().toLatin1().data(), q.lastInsertId());
 
     foreach(TableSetBase *ts, d->childTableSets)
         ts->save(db);
@@ -189,7 +194,7 @@ void Table::setStatus(const Status &status)
 
 
 TablePrivate::TablePrivate(Table *parent) : q_ptr(parent),
-    status(Table::NewCreated), parentTableSet(nullptr)
+    model(nullptr), status(Table::NewCreated), parentTableSet(nullptr)
 {
 
 }

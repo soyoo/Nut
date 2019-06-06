@@ -274,8 +274,8 @@ void BasicTest::emptyDatabase()
 
 void BasicTest::cleanupTestCase()
 {
-    post->deleteLater();
-    user->deleteLater();
+//    post->deleteLater();
+//    user->deleteLater();
 
     //release models before exiting
 //    qDeleteAll(TableModel::allModels());

@@ -45,7 +45,7 @@ public:
     DatabaseModel(const QJsonObject &json);
     ~DatabaseModel() = default;
 
-    TableModel *tableByName(QString tableName) const;
+    TableModel *tableByName(const QString &tableName) const;
     TableModel *tableByClassName(QString className) const;
 
     RelationModel *relationByClassNames(const QString &masterClassName,

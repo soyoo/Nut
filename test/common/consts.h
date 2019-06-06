@@ -1,6 +1,8 @@
 #ifndef CONSTS_H
 #define CONSTS_H
 
+#include <qsystemdetection.h>
+
 #define REGISTER(x) qDebug() << (#x) << "type id:" << qMetaTypeId<x*>()
 #define PRINT(x) qDebug() << (#x "=") << (x);
 #define TIC()  QElapsedTimer timer; timer.start()
@@ -11,8 +13,8 @@
 #define DRIVER "QPSQL"
 #define DATABASE QString("nut_test_%1_db").arg(metaObject()->className()).toLower()
 #define HOST "127.0.0.1"
-#define USERNAME "postgres"
-#define PASSWORD ""
+#define USERNAME "nut"
+#define PASSWORD "856856"
 
 #ifdef Q_OS_LINUX
 #   define OS "Linux"

@@ -152,6 +152,7 @@ QString SqlGeneratorBase::fieldDeclare(FieldModel *field)
 
 QStringList SqlGeneratorBase::constraints(TableModel *table)
 {
+    Q_UNUSED(table);
     return QStringList();
 }
 
@@ -439,7 +440,8 @@ QString SqlGeneratorBase::join(const QStringList &list, QStringList *order)
 QString SqlGeneratorBase::insertRecord(Table *t, QString tableName)
 {
     QString sql = QString();
-    TableModel *model = _database->model().tableByName(tableName);
+    auto model = _database->model().tableByName(tableName);
+
     QString key = model->isPrimaryKeyAutoIncrement() ? model->primaryKey() : QString();
 
     QStringList values;
