@@ -45,7 +45,6 @@ Table::Table(QObject *parent) : QObject(parent),
 {
     Q_D(Table);
     d->status = NewCreated;
-    d->model = TableModel::findByClassName(metaObject()->className());
 }
 
 Table::~Table()
@@ -86,15 +85,15 @@ QVariant Table::primaryValue() const
 void Table::propertyChanged(const QString &propName)
 {
     Q_D(Table);
-    if (!d->model)
-         d->model = TableModel::findByClassName(metaObject()->className());
+//    if (!d->model)
+//         d->model = TableModel::findByClassName(metaObject()->className());
 
-    if (!d->model)
-        qFatal ("model for class '%s' not found", qPrintable(metaObject()->className()));
+//    if (!d->model)
+//        qFatal ("model for class '%s' not found", qPrintable(metaObject()->className()));
 
-    foreach (FieldModel *f, d->model->fields())
-        if(f->isPrimaryKey && propName == f->name && f->isAutoIncrement)
-            return;
+//    foreach (FieldModel *f, d->model->fields())
+//        if(f->isPrimaryKey && propName == f->name && f->isAutoIncrement)
+//            return;
 
     d->changedProperties.insert(propName);
     if (d->status == FeatchedFromDB)
@@ -121,6 +120,7 @@ bool Table::setParentTable(Table *master)
     Q_D(Table);
 
     QString masterClassName = master->metaObject()->className();
+    d->refreshModel();
 
     foreach (RelationModel *r, d->model->foregionKeys())
         if(r->masterClassName == masterClassName)
@@ -192,6 +192,13 @@ TablePrivate::TablePrivate(Table *parent) : q_ptr(parent),
     status(Table::NewCreated), parentTableSet(nullptr)
 {
 
+}
+
+void TablePrivate::refreshModel()
+{
+    Q_Q(Table);
+    if (!model)
+        model = TableModel::findByClassName(q->metaObject()->className());
 }
 
 NUT_END_NAMESPACE

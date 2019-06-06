@@ -439,7 +439,8 @@ QString SqlGeneratorBase::join(const QStringList &list, QStringList *order)
 QString SqlGeneratorBase::insertRecord(Table *t, QString tableName)
 {
     QString sql = QString();
-    QString key = t->isPrimaryKeyAutoIncrement() ? t->primaryKey() : QString();
+    TableModel *model = _database->model().tableByName(tableName);
+    QString key = model->isPrimaryKeyAutoIncrement() ? model->primaryKey() : QString();
 
     QStringList values;
 
