@@ -13,7 +13,7 @@
 #define DRIVER "QPSQL"
 #define DATABASE QString("nut_test_%1_db").arg(metaObject()->className()).toLower()
 #define HOST "127.0.0.1"
-#define USERNAME "nut"
+#define USERNAME "postgres"
 #define PASSWORD "856856"
 
 #ifdef Q_OS_LINUX

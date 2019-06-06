@@ -41,12 +41,20 @@ void TestJson::store()
     db.open();
 
     Table *t = new Table;
-    QJsonDocument doc = QJsonDocument::fromJson("{a: 4, b:3.14}");
+    QJsonParseError e;
+    QJsonDocument doc = QJsonDocument::fromJson(R"({"a": 4, "b":3.14})", &e);
+    qDebug() << e.errorString();
     t->setDoc(doc);
     db.sampleTable()->append(t);
     db.saveChanges(true);
 
-//    QTEST_ASSERT(db.open());
+    int id = t->id();
+    auto newObj = db.sampleTable()->query()
+            ->where(Table::idField() == id)
+            ->first();
+
+    Q_ASSERT(newObj != nullptr);
+    Q_ASSERT(newObj->doc() == t->doc());
 }
 
 QTEST_APPLESS_MAIN(TestJson)

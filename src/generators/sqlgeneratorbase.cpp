@@ -468,7 +468,8 @@ QString SqlGeneratorBase::insertRecord(Table *t, QString tableName)
 QString SqlGeneratorBase::updateRecord(Table *t, QString tableName)
 {
     QString sql = QString();
-    QString key = t->primaryKey();
+    auto model = _database->model().tableByName(tableName);
+    QString key = model->primaryKey();
     QStringList values;
 
     foreach (QString f, t->changedProperties())
@@ -477,7 +478,7 @@ QString SqlGeneratorBase::updateRecord(Table *t, QString tableName)
                           + "'");
     sql = QString("UPDATE %1 SET %2 WHERE %3=%4")
               .arg(tableName, values.join(", "),
-                   key, t->primaryValue().toString());
+                   key, t->property(key.toUtf8().data()).toString());
 
     removeTableNames(sql);
 
@@ -486,8 +487,10 @@ QString SqlGeneratorBase::updateRecord(Table *t, QString tableName)
 
 QString SqlGeneratorBase::deleteRecord(Table *t, QString tableName)
 {
+    auto model = _database->model().tableByName(tableName);
+    QString key = model->primaryKey();
     QString sql = QString("DELETE FROM %1 WHERE %2='%3'")
-        .arg(tableName, t->primaryKey(), t->primaryValue().toString());
+        .arg(tableName, key, t->property(key.toUtf8().data()).toString());
     replaceTableNames(sql);
     return sql;
 }
@@ -595,9 +598,9 @@ QString SqlGeneratorBase::selectCommand(const QString &tableName,
     if (orderText != "")
         sql.append(" ORDER BY " + orderText);
 
-    for (int i = 0; i < _database->model().count(); i++)
-        sql = sql.replace(_database->model().at(i)->className() + ".",
-                          _database->model().at(i)->name() + ".");
+//    for (int i = 0; i < _database->model().count(); i++)
+//        sql = sql.replace(_database->model().at(i)->className() + ".",
+//                          _database->model().at(i)->name() + ".");
 
     appendSkipTake(sql, skip, take);
     replaceTableNames(sql);

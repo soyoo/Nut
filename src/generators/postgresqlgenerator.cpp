@@ -25,6 +25,7 @@
 #include <QPolygonF>
 #endif
 #include <QVariant>
+#include <QJsonDocument>
 
 #include "postgresqlgenerator.h"
 #include "../table.h"
@@ -219,6 +220,9 @@ QString PostgreSqlGenerator::escapeValue(const QVariant &v) const
     if (v.type() == QVariant::PointF) {
         QPointF pt = v.toPointF();
         return QString("'(%1, %2)'").arg(pt.x()).arg(pt.y());
+    }
+    if (v.userType() == QMetaType::QJsonDocument) {
+        return "'" + QString(v.toJsonDocument().toJson()) + "'";
     }
 
 #ifdef QT_GUI_LIB
