@@ -45,7 +45,9 @@
 #include <iostream>
 #include <cstdarg>
 
-#define __CHANGE_LOG_TABLE_NAME "__change_logs"
+#ifndef __CHANGE_LOG_TABLE_NAME
+#   define __CHANGE_LOG_TABLE_NAME "__change_logs"
+#endif
 
 NUT_BEGIN_NAMESPACE
 
@@ -196,6 +198,7 @@ bool DatabasePrivate::getCurrectScheema()
         return false;
     }
 
+    QMap<QString, QString> tables;
     tables.clear();
 
     // TODO: change logs must not be in model
@@ -240,21 +243,6 @@ bool DatabasePrivate::getCurrectScheema()
             if (!ok)
                 qFatal("NUT_DB_VERSION macro accept version in format 'x'");
             currentModel.setVersion(version);
-
-            /* TODO: remove
-            QStringList version
-                = QString(ci.value()).replace("\"", "").split('.');
-            bool ok = false;
-            if (version.length() == 1) {
-                currentModel.setVersion(version.at(0).toInt(&ok));
-            } else if (version.length() == 2) {
-                currentModel.setVersionMajor(version.at(0).toInt(&ok));
-                currentModel.setVersionMinor(version.at(1).toInt(&ok));
-            }
-
-            if (!ok)
-                qFatal("NUT_DB_VERSION macro accept version in format 'x' or "
-                       "'x[.y]' only, and x,y must be integer values\n");*/
         }
     }
 
@@ -287,22 +275,6 @@ bool DatabasePrivate::getCurrectScheema()
     allTableMaps.insert(q->metaObject()->className(), currentModel);
     return true;
 }
-
-//bool DatabasePrivate::checkClassInfo(const QMetaClassInfo &classInfo, QString &type, QString &name, QString &value)
-//{
-//    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
-//        return false;
-//    } else {
-//        QStringList parts = QString(classInfo.value()).split("\n");
-//        if (parts.count() != 3)
-//            return false;
-
-//        type = parts[0];
-//        name = parts[1];
-//        value = parts[2];
-//        return true;
-//    }
-//}
 
 DatabaseModel DatabasePrivate::getLastScheema()
 {
@@ -386,6 +358,7 @@ void DatabasePrivate::createChangeLogs()
 Database::Database(QObject *parent)
     : QObject(parent), d_ptr(new DatabasePrivate(this))
 {
+//    _d = new QSharedDataPointer<DatabasePrivate>(new DatabasePrivate(this));
     DatabasePrivate::lastId++;
 }
 
@@ -393,6 +366,7 @@ Database::Database(const Database &other)
     : QObject(other.parent()), d_ptr(new DatabasePrivate(this))
 {
     DatabasePrivate::lastId++;
+//    _d = other._d;
 
     setDriver(other.driver());
     setHostName(other.hostName());
@@ -592,7 +566,6 @@ bool Database::open(bool updateDatabase)
     if (!d->sqlGenertor) {
         qFatal("Sql generator for driver %s not found",
                  driver().toLatin1().constData());
-        return false;
     }
 
     return d->open(updateDatabase);

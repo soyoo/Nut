@@ -101,38 +101,6 @@ QStringList TableModel::fieldsNames() const
     return ret;
 }
 
-QSet<TableModel *> TableModel::allModels()
-{
-    return _allModels;
-}
-
-/*
- * This is not used anywhere
- */
-TableModel *TableModel::findByTypeId(int typeId)
-{
-    foreach (TableModel *model, _allModels)
-        if(model->typeId() == typeId)
-            return model;
-    return nullptr;
-}
-
-/**
- * @brief TableModel::findByClassName
- *  Find a table model by class name
- * @param className
- * @return
- */
-TableModel *TableModel::findByClassName(const QString &className)
-{
-    foreach (TableModel *model, _allModels){
-        if(model->className() == className)
-            return model;
-    }
-
-    return nullptr;
-}
-
 bool TableModel::operator ==(const TableModel &t) const{
     if(_name != t.name())
         return false;
@@ -156,23 +124,6 @@ bool TableModel::operator !=(const TableModel &t) const
 {
     return !(*this == t);
 }
-
-//bool TableModel::checkClassInfo(const QMetaClassInfo &classInfo,
-//                                QString &type, QString &name, QString &value)
-//{
-//    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
-//        return false;
-//    } else {
-//        QStringList parts = QString(classInfo.value()).split("\n");
-//        if (parts.count() != 3)
-//            return false;
-
-//        type = parts[0];
-//        name = parts[1];
-//        value = parts[2];
-//        return true;
-//    }
-//}
 
 TableModel::TableModel(int typeId, const QString &tableName)
 {
@@ -271,9 +222,6 @@ TableModel::TableModel(int typeId, const QString &tableName)
             f->isAutoIncrement = true;
         }
     }
-
-    if(!findByTypeId(typeId) && !tableName.isNull())
-        _allModels.insert(this);
 }
 
 /*

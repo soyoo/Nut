@@ -26,13 +26,13 @@
 NUT_BEGIN_NAMESPACE
 
 TableSetBase::TableSetBase(Database *parent) : QObject(parent),
-    _database(parent), _table(nullptr), _tableName(QString())
+    _database(parent), _table(nullptr)//, _tableName(QString())
 {
     parent->add(this);
 }
 
 TableSetBase::TableSetBase(Table *parent) : QObject(parent),
-    _database(nullptr), _table(parent), _tableName(QString())
+    _database(nullptr), _table(parent)//, _tableName(QString())
 {
     parent->add(this);
 }
@@ -46,9 +46,14 @@ TableSetBase::~TableSetBase()
 int TableSetBase::save(Database *db, bool cleanUp)
 {
     int rowsAffected = 0;
-    foreach (Table *t, _tablesList) {
+    TableModel *masterModel = nullptr;
+    if (_table)
+        masterModel = db->model().tableByClassName(_table->metaObject()->className());
+
+    foreach (Table *t, _childRows) {
         if(_table)
-            t->setParentTable(_table);
+            t->setParentTable(_table, masterModel,
+                              db->model().tableByClassName(t->metaObject()->className()));
 
         if(t->status() == Table::Added
                 || t->status() == Table::Modified
@@ -61,30 +66,30 @@ int TableSetBase::save(Database *db, bool cleanUp)
     }
 
     if (cleanUp)
-        _tablesList.clear();
+        _childRows.clear();
 
     return rowsAffected;
 }
 
 void TableSetBase::clearChilds()
 {
-    foreach (Table *t, _tablesList)
+    foreach (Table *t, _childRows)
         t->deleteLater();
-    _tablesList.clear();
+    _childRows.clear();
 }
 
 void TableSetBase::add(Table *t)
 {
     if(!_tables.contains(t)){
         _tables.insert(t);
-        _tablesList.append(t);
+        _childRows.append(t);
     }
 }
 
 void TableSetBase::remove(Table *t)
 {
     _tables.remove(t);
-    _tablesList.removeOne(t);
+    _childRows.removeOne(t);
 }
 
 QString TableSetBase::childClassName() const

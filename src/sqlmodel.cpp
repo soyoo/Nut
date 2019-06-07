@@ -21,7 +21,8 @@
 #include "database.h"
 #include "tablesetbase_p.h"
 #include "databasemodel.h"
-
+#include "tablemodel.h"
+#include "table.h"
 #include "sqlmodel_p.h"
 #include "sqlmodel.h"
 

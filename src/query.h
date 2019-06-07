@@ -29,7 +29,9 @@
 #include <QtSql/QSqlResult>
 #include <QtSql/QSqlError>
 #include <QtSql/QSqlQueryModel>
+#include <QSqlQuery>
 
+#include "table.h"
 #include "query_p.h"
 #include "database.h"
 #include "databasemodel.h"
@@ -97,11 +99,11 @@ public:
     QString sqlCommand() const;
 };
 
-template <typename T>
-inline Query<T> *createQuery(TableSet<T> *tableSet)
-{
-    return tableSet->query();
-}
+//template <typename T>
+//inline Query<T> *createQuery(TableSet<T> *tableSet)
+//{
+//    return tableSet->query();
+//}
 
 template <class T>
 Q_OUTOFLINE_TEMPLATE Query<T>::Query(Database *database, TableSetBase *tableSet,

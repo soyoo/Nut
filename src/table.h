@@ -55,14 +55,14 @@ public:
 
     int save(Database *db);
 
-    Q_DECL_DEPRECATED
-    QString primaryKey() const;
+//    Q_DECL_DEPRECATED
+//    QString primaryKey() const;
 
-    Q_DECL_DEPRECATED
-    bool isPrimaryKeyAutoIncrement() const;
+//    Q_DECL_DEPRECATED
+//    bool isPrimaryKeyAutoIncrement() const;
 
-    Q_DECL_DEPRECATED
-    QVariant primaryValue() const;
+//    Q_DECL_DEPRECATED
+//    QVariant primaryValue() const;
 
     Status status() const;
     void setStatus(const Status &status);
@@ -74,7 +74,7 @@ public:
 
     QSet<QString> changedProperties() const;
 
-    bool setParentTable(Table *master);
+    bool setParentTable(Table *master, TableModel *masterModel, TableModel *model);
 signals:
 
 public slots:
@@ -83,6 +83,7 @@ protected:
     void propertyChanged(const QString &propName);
 
 private:
+    void setModel(TableModel *model);
 //    TableModel *myModel;
 //    Status _status;
 //    QSet<QString> _changedProperties;
@@ -96,6 +97,8 @@ private:
     template<class T>
     friend class Query;
 
+    template<class T>
+    friend class TableSet;
     friend class TableSetBase;
 };
 

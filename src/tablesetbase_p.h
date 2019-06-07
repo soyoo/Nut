@@ -48,10 +48,10 @@ public:
 
 protected:
     QSet<Table*> _tables;
-    QList<Table*> _tablesList;
+    QList<Table*> _childRows;
     Database *_database;
     Table *_table;
-    QString _tableName;
+//    QString _tableName;
     QString _childClassName;
 
 private:

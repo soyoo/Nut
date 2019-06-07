@@ -30,6 +30,8 @@
 #include "tablesetbase_p.h"
 #include "table.h"
 #include "bulkinserter.h"
+//#include "database.h"
+#include "databasemodel.h"
 
 NUT_BEGIN_NAMESPACE
 
@@ -37,6 +39,7 @@ template<class T>
 class Query;
 
 class BulkInserter;
+class Database;
 template<class T>
 class NUT_EXPORT TableSet : public TableSetBase
 {
@@ -96,21 +99,24 @@ Q_OUTOFLINE_TEMPLATE int TableSet<T>::length() const
 template<class T>
 Q_OUTOFLINE_TEMPLATE T *TableSet<T >::at(int i) const
 {
-    return reinterpret_cast<T*>(_tablesList.at(i));
+    return reinterpret_cast<T*>(_childRows.at(i));
 }
 
 template<class T>
 Q_OUTOFLINE_TEMPLATE const T &TableSet<T>::operator[](int i) const
 {
-    return _tablesList[i];
+    return _childRows[i];
 }
 
 template<class T>
 Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(T *t)
 {
     _tables.insert(t);
-    _tablesList.append(t);
-//    rows.append(t);
+    _childRows.append(t);
+
+//    if (_database)
+//        t->setModel(_database->model().tableByClassName(t->metaObject()->className()));
+
     t->setParentTableSet(this);
     if(t->status() != Table::FeatchedFromDB)
         t->setStatus(Table::Added);

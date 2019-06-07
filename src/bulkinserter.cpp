@@ -23,7 +23,7 @@ void Nut::BulkInserter::setFields(const Nut::PhraseList &ph)
 void Nut::BulkInserter::insert(std::initializer_list<QVariant> vars)
 {
     if (vars.size() != _fieldCount) {
-        qInfo("Number of rows mstake");
+        qInfo("Number of rows mistake");
         return;
     }
 

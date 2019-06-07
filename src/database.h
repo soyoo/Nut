@@ -24,6 +24,7 @@
 #include <QtCore/qglobal.h>
 #include <QtCore/QList>
 #include <QtSql/QSqlDatabase>
+#include <QSharedDataPointer>
 
 #include "defines.h"
 #include "tableset.h"
@@ -39,6 +40,7 @@ class NUT_EXPORT Database : public QObject
 {
     Q_OBJECT
 
+//    QSharedDataPointer<DatabasePrivate> *_d;
     DatabasePrivate *d_ptr;
     Q_DECLARE_PRIVATE(Database)
 

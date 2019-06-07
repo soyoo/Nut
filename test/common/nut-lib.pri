@@ -5,6 +5,6 @@ win32 {
         LIBDIR = $$absolute_path($$OUT_PWD/../../src)
 }
 
-#LIBS += -L$$LIBDIR -lnut
+LIBS += -L$$LIBDIR -lnut
 INCLUDEPATH += $$PWD/../../src $$PWD/../common
-include(../../src/src.pri)
+#include(../../src/src.pri)

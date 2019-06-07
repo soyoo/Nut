@@ -25,11 +25,12 @@
 #include "databasemodel.h"
 
 #include <QDebug>
+#include <QSharedData>
 
 NUT_BEGIN_NAMESPACE
 
 class ChangeLogTable;
-class DatabasePrivate
+class DatabasePrivate //: public QSharedData
 {
     Database *q_ptr;
     Q_DECLARE_PUBLIC(Database)
@@ -45,8 +46,6 @@ public:
     DatabaseModel getLastScheema();
     bool getCurrectScheema();
 
-//    bool checkClassInfo(const QMetaClassInfo &classInfo,
-//                                    QString &type, QString &name, QString &value);
     QSqlDatabase db;
 
     QString hostName;
@@ -62,8 +61,6 @@ public:
 
     TableSet<ChangeLogTable> *changeLogs;
 
-    QT_DEPRECATED
-    QMap<QString, QString> tables;
     static QMap<QString, DatabaseModel> allTableMaps;
     static qulonglong lastId;
 

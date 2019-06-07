@@ -20,11 +20,14 @@
 
 #include <QMetaMethod>
 #include <QVariant>
+#include <QSqlQuery>
+
 #include "table.h"
 #include "table_p.h"
 #include "database.h"
 #include "databasemodel.h"
 #include "generators/sqlgeneratorbase_p.h"
+#include "tablesetbase_p.h"
 
 NUT_BEGIN_NAMESPACE
 
@@ -42,11 +45,7 @@ NUT_BEGIN_NAMESPACE
 
 Table::Table(QObject *parent) : QObject(parent),
     d_ptr(new TablePrivate(this))
-{
-    Q_D(Table);
-    d->status = NewCreated;
-//    d->model = TableModel::findByClassName(metaObject()->className());
-}
+{ }
 
 Table::~Table()
 {
@@ -62,26 +61,26 @@ void Table::add(TableSetBase *t)
     d->childTableSets.insert(t);
 }
 
-QString Table::primaryKey() const
-{
-    Q_D(const Table);
-    return d->model->primaryKey();
-}
+//QString Table::primaryKey() const
+//{
+//    Q_D(const Table);
+//    return d->model->primaryKey();
+//}
 
-bool Table::isPrimaryKeyAutoIncrement() const
-{
-    Q_D(const Table);
-    FieldModel *pk = d->model->field(d->model->primaryKey());
-    if (!pk)
-        return false;
-    return pk->isAutoIncrement;
-}
+//bool Table::isPrimaryKeyAutoIncrement() const
+//{
+//    Q_D(const Table);
+//    FieldModel *pk = d->model->field(d->model->primaryKey());
+//    if (!pk)
+//        return false;
+//    return pk->isAutoIncrement;
+//}
 
 
-QVariant Table::primaryValue() const
-{
-    return property(primaryKey().toLatin1().data());
-}
+//QVariant Table::primaryValue() const
+//{
+//    return property(primaryKey().toLatin1().data());
+//}
 
 void Table::propertyChanged(const QString &propName)
 {
@@ -104,6 +103,12 @@ void Table::propertyChanged(const QString &propName)
         d->status = Added;
 }
 
+void Table::setModel(TableModel *model)
+{
+    Q_D(Table);
+    d->model = model;
+}
+
 void Table::clear()
 {
     Q_D(Table);
@@ -116,21 +121,21 @@ QSet<QString> Table::changedProperties() const
     return d->changedProperties;
 }
 
-bool Table::setParentTable(Table *master)
+bool Table::setParentTable(Table *master, TableModel *masterModel, TableModel *model)
 {
     Q_D(Table);
 
     QString masterClassName = master->metaObject()->className();
     d->refreshModel();
 
-    if (!d->model)
-        d->model = TableModel::findByClassName(metaObject()->className());
+//    if (!d->model)
+//        d->model = TableModel::findByClassName(metaObject()->className());
 
-    foreach (RelationModel *r, d->model->foregionKeys())
+    foreach (RelationModel *r, model->foregionKeys())
         if(r->masterClassName == masterClassName)
         {
             setProperty(QString(r->localColumn).toLatin1().data(),
-                        master->primaryValue());
+                        master->property(masterModel->primaryKey().toUtf8().data()));
             d->changedProperties.insert(r->localColumn);
             return true;
         }
@@ -202,8 +207,8 @@ TablePrivate::TablePrivate(Table *parent) : q_ptr(parent),
 void TablePrivate::refreshModel()
 {
     Q_Q(Table);
-    if (!model)
-        model = TableModel::findByClassName(q->metaObject()->className());
+//    if (!model)
+//        model = TableModel::findByClassName(q->metaObject()->className());
 }
 
 NUT_END_NAMESPACE

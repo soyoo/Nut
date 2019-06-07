@@ -163,13 +163,15 @@ QString SqlServerGenerator::diff(FieldModel *oldField, FieldModel *newField)
 
 QString SqlServerGenerator::escapeValue(const QVariant &v) const
 {
-    if (v.type() == QMetaType::QString || v.type() == QMetaType::QChar)
+    auto mid = static_cast<QMetaType::Type>(v.userType());
+
+    if (mid == QMetaType::QString || mid == QMetaType::QChar)
         return "N'" + v.toString() + "'";
-    else if (v.type() == QMetaType::QPoint) {
+    else if (mid == QMetaType::QPoint) {
         QPoint pt = v.toPoint();
         return QString("geography::POINT(%1, %2, 4326)").arg(pt.x()).arg(
             pt.y());
-    } else if (v.type() == QMetaType::QPointF) {
+    } else if (mid == QMetaType::QPointF) {
         QPointF pt = v.toPointF();
         return QString("geography::POINT(%1, %2, 4326)").arg(pt.x()).arg(
             pt.y());

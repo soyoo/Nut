@@ -87,8 +87,10 @@ struct RelationModel{
 
     QJsonObject toJson() const;
 };
+
 bool operator ==(const RelationModel &l, const RelationModel &r);
 bool operator !=(const RelationModel &l, const RelationModel &r);
+
 class NUT_EXPORT TableModel
 {
 public:
@@ -97,10 +99,6 @@ public:
     virtual ~TableModel();
 
     QJsonObject toJson() const;
-
-//    static TableScheema *registerTable(int typeId, QString tableName);
-//    static void createForegionKeys();
-//    static TableModel* model(QString className);
 
     FieldModel *field(int n) const;
     FieldModel *field(const QString &name) const;
@@ -124,16 +122,6 @@ public:
     QList<RelationModel *> foregionKeys() const;
     QStringList fieldsNames() const;
 
-    Q_DECL_DEPRECATED
-    static QSet<TableModel *> allModels();
-
-    Q_DECL_DEPRECATED
-    static TableModel *findByTypeId(int typeId);
-//    static TableModel *findByName(QString name);
-
-    Q_DECL_DEPRECATED
-    static TableModel *findByClassName(const QString &className);
-
     bool operator ==(const TableModel &t) const;
     bool operator !=(const TableModel &t) const;
 
@@ -143,9 +131,9 @@ private:
     int _typeId;
     QList<FieldModel*> _fields;
     QList<RelationModel*> _foreignKeys;
+
+    Q_DECL_DEPRECATED
     static QSet<TableModel*>_allModels;
-//    bool checkClassInfo(const QMetaClassInfo &classInfo,
-//                        QString &type, QString &name, QString &value);
 };
 
 NUT_END_NAMESPACE
