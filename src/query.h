@@ -80,6 +80,10 @@ public:
     QList<T*> toList(int count = -1);
     template <typename F>
     QList<F> select(const FieldPhrase<F> f);
+
+    template<typename O>
+    QList<O> select(const std::function<O(const QSqlQuery &q)> allocator);
+
     int count();
     QVariant max(const FieldPhrase<int> &f);
     QVariant min(const FieldPhrase<int> &f);
@@ -98,6 +102,33 @@ public:
     //debug purpose
     QString sqlCommand() const;
 };
+
+template<typename T>
+template<typename O>
+Q_OUTOFLINE_TEMPLATE QList<O> Query<T>::select(const std::function<O (const QSqlQuery &)> allocator)
+{
+    Q_D(Query);
+    QList<O> ret;
+
+    d->joins.prepend(d->tableName);
+    d->sql = d->database->sqlGenertor()->selectCommand(
+                d->tableName,
+                SqlGeneratorBase::SignleField, "*",
+                d->wherePhrase,
+                d->relations,
+                d->skip, d->take);
+
+    QSqlQuery q = d->database->exec(d->sql);
+
+    while (q.next()) {
+        O obj = allocator(q);
+        ret.append(obj);
+    }
+
+    if (m_autoDelete)
+        deleteLater();
+    return ret;
+}
 
 //template <typename T>
 //inline Query<T> *createQuery(TableSet<T> *tableSet)
