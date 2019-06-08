@@ -30,18 +30,22 @@ class PostgreSqlGenerator : public SqlGeneratorBase
 {
 private:
     bool readInsideParentese(QString &ref, QString &out);
-
+    bool isPostGisType(const QVariant::Type &t) const;
 public:
     explicit PostgreSqlGenerator(Database *parent = nullptr);
 
-    QString fieldType(FieldModel *field);
+    QString fieldType(FieldModel *field) override;
 
-    QString diff(FieldModel *oldField, FieldModel *newField);
+    QString diff(FieldModel *oldField, FieldModel *newField) override;
 
     // SqlGeneratorBase interface
 public:
-    QString escapeValue(const QVariant &v) const;
-    QVariant unescapeValue(const QMetaType::Type &type, const QVariant &dbValue);
+    QString escapeValue(const QVariant &v) const override;
+    QVariant unescapeValue(const QMetaType::Type &type, const QVariant &dbValue) override;
+
+    // SqlGeneratorBase interface
+protected:
+    QString createConditionalPhrase(const PhraseData *d) const override;
 };
 
 NUT_END_NAMESPACE

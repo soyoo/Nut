@@ -62,6 +62,16 @@ bool PostgreSqlGenerator::readInsideParentese(QString &text, QString &out)
     return false;
 }
 
+bool PostgreSqlGenerator::isPostGisType(const QVariant::Type &t) const
+{
+    return t == QVariant::Point
+            || t == QVariant::PointF
+            || t == QVariant::Rect
+            || t == QVariant::RectF
+            || t == QVariant::Polygon
+            || t == QVariant::PolygonF;
+}
+
 PostgreSqlGenerator::PostgreSqlGenerator(Database *parent) : SqlGeneratorBase (parent)
 {
 
@@ -215,14 +225,14 @@ QString PostgreSqlGenerator::escapeValue(const QVariant &v) const
 
     if (v.type() == QVariant::Point) {
         QPoint pt = v.toPoint();
-        return QString("'(%1, %2)'").arg(pt.x()).arg(pt.y());
+        return QString("point(%1, %2)").arg(pt.x()).arg(pt.y());
     }
     if (v.type() == QVariant::PointF) {
         QPointF pt = v.toPointF();
-        return QString("'(%1, %2)'").arg(pt.x()).arg(pt.y());
+        return QString("point(%1, %2)").arg(pt.x()).arg(pt.y());
     }
     if (v.userType() == QMetaType::QJsonDocument) {
-        return "'" + QString(v.toJsonDocument().toJson()) + "'";
+        return "'" + QString(v.toJsonDocument().toJson(QJsonDocument::Compact)) + "'";
     }
 
 #ifdef QT_GUI_LIB
@@ -311,6 +321,22 @@ QVariant PostgreSqlGenerator::unescapeValue(const QMetaType::Type &type, const Q
     }
 #endif
     return SqlGeneratorBase::unescapeValue(type, dbValue);
+}
+
+QString PostgreSqlGenerator::createConditionalPhrase(const PhraseData *d) const
+{
+    if (!d)
+        return QString();
+
+    if (d->type == PhraseData::WithVariant) {
+        if (isPostGisType(d->operand.type()) && d->operatorCond == PhraseData::Equal) {
+            return QString("%1 ~= %2")
+                    .arg(SqlGeneratorBase::createConditionalPhrase(d->left),
+                         escapeValue(d->operand));
+        }
+    }
+
+    return SqlGeneratorBase::createConditionalPhrase(d);
 }
 
 
