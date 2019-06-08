@@ -624,6 +624,15 @@ Q_OUTOFLINE_TEMPLATE QString Query<T>::sqlCommand() const
     return d->sql;
 }
 
+//TODO: complete this class later
+//class RawQuery : public Query<void>
+//{
+//public:
+//    void setRawCommand(const QString &sql) {
+
+//    }
+//};
+
 NUT_END_NAMESPACE
 
 #endif // QUERY_H
