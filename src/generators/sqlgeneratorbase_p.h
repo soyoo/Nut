@@ -151,7 +151,7 @@ public:
     virtual QString primaryKeyConstraint(const TableModel *table) const;
 
 protected:
-    QString createConditionalPhrase(const PhraseData *d) const;
+    virtual QString createConditionalPhrase(const PhraseData *d) const;
     QString createFieldPhrase(const PhraseList &ph);
     QString createOrderPhrase(const PhraseList &ph);
     void createInsertPhrase(const AssignmentPhraseList &ph, QString &fields, QString &values);

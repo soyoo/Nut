@@ -118,7 +118,7 @@ Q_OUTOFLINE_TEMPLATE Query<T>::Query(Database *database, TableSetBase *tableSet,
     d->className = T::staticMetaObject.className();
     d->tableName =
             d->database->model()
-            .tableByClassName(T::staticMetaObject.className())
+            .tableByClassName(d->className)
             ->name();
 }
 

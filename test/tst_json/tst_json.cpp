@@ -35,7 +35,6 @@ void TestJson::initTestCase()
 
 void TestJson::store()
 {
-    DB db;
     initDb(db);
 
     db.open();
@@ -55,6 +54,11 @@ void TestJson::store()
 
     Q_ASSERT(newObj != nullptr);
     Q_ASSERT(newObj->doc() == t->doc());
+}
+
+void TestJson::cleanupTestCase()
+{
+    PRINT_FORM(db);
 }
 
 QTEST_APPLESS_MAIN(TestJson)

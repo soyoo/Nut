@@ -24,6 +24,8 @@ private slots:
     void version2();
     void version3();
 
+    void cleanupTestCase();
+
 };
 
 #endif // TST_UPGRADES_H
