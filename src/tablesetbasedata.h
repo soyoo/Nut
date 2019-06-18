@@ -34,6 +34,7 @@ public:
     TableSetBaseData(Database *parent) :
         database(parent), table(nullptr)
     { }
+
     TableSetBaseData(Table *parent) :
         database(nullptr), table(parent)
     { }
@@ -43,6 +44,7 @@ public:
     Database *database;
     Table *table;
     QString childClassName;
+    RowList<Table> rowList;
 };
 
 NUT_END_NAMESPACE

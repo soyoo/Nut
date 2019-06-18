@@ -30,7 +30,6 @@
 #include "tablesetbase_p.h"
 #include "table.h"
 #include "bulkinserter.h"
-//#include "database.h"
 #include "databasemodel.h"
 #include "tablesetbasedata.h"
 
@@ -41,6 +40,7 @@ class Query;
 
 class BulkInserter;
 class Database;
+
 template<class T>
 class NUT_EXPORT TableSet : public TableSetBase
 {
@@ -114,7 +114,7 @@ Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(Row<T> t)
 {
     data->tables.insert(t.data());
     data->childRows.append(t.data());
-
+    data->rowList.append(t);
 //    if (_database)
 //        t->setModel(_database->model().tableByClassName(t->metaObject()->className()));
 
@@ -133,6 +133,7 @@ Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(RowList<T> t)
 template<class T>
 Q_OUTOFLINE_TEMPLATE void TableSet<T>::remove(T *t)
 {
+    data->rowList.removeOne(t);
     data->tables.remove(t);
     t->setStatus(Table::Deleted);
 }

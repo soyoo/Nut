@@ -51,7 +51,7 @@ int TableSetBase::save(Database *db, bool cleanUp)
     if (data->table)
         masterModel = db->model().tableByClassName(data->table->metaObject()->className());
 
-    foreach (Row<Table> t, data->childRows) {
+    foreach (Table *t, data->childRows) {
         if(data->table)
             t->setParentTable(data->table,
                               masterModel,
@@ -82,18 +82,20 @@ void TableSetBase::clearChilds()
     data->childRows.clear();
 }
 
-void TableSetBase::add(Row<Table> t)
+void TableSetBase::add(Table *t)
 {
-    if(!data->tables.contains(t.data())){
-        data->tables.insert(t.data());
-        data->childRows.append(t);
+    if(!data->tables.contains(get(t))){
+        data.detach();
+        data->tables.insert(get(t));
+        data->childRows.append(get(t));
     }
 }
 
-void TableSetBase::remove(Row<Table> t)
+void TableSetBase::remove(Table *t)
 {
-    data->tables.remove(t.data());
-    data->childRows.removeOne(t);
+    data.detach();
+    data->tables.remove(get(t));
+    data->childRows.removeOne(get(t));
 }
 
 QString TableSetBase::childClassName() const
@@ -108,6 +110,7 @@ Database *TableSetBase::database() const
 
 void TableSetBase::setDatabase(Database *database)
 {
+    data.detach();
     data->database = database;
 }
 
