@@ -51,8 +51,8 @@ public:
     template<class T>
     void setTable(QList<QSharedPointer<T>> rows);
 
-    void setRows(TableType<Table>::RowList rows);
-    void append(TableType<Table>::Row table);
+    void setRows(RowList<Table> rows);
+    void append(Row<Table> table);
 //    void append(Table *table);
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Table *at(const int &i) const;
@@ -72,7 +72,7 @@ Q_OUTOFLINE_TEMPLATE void SqlModel::setTable(QList<QSharedPointer<T> > rows)
 {
     Q_D(SqlModel);
 
-    TableType<Table>::RowList tab;
+    RowList<Table> tab;
     foreach (auto t, rows)
         tab.append(t);
     setRows(tab);

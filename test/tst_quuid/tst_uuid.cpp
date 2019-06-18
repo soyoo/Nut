@@ -41,10 +41,10 @@ void UuidTest::initTestCase()
 void UuidTest::save()
 {
     TIC();
-    Test t;
-    t.setId(QUuid::createUuid());
-    t.setUuid(uuid);
-    db.tests()->append(&t);
+    auto t = Nut::create<Test>();
+    t->setId(QUuid::createUuid());
+    t->setUuid(uuid);
+    db.tests()->append(t);
     int n = db.saveChanges();
     TOC();
 

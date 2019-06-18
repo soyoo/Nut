@@ -75,7 +75,7 @@ QVariant SqlModel::data(const QModelIndex &index, int role) const
         return QVariant("-");
 
     if (role == Qt::DisplayRole) {
-        TableType<Table>::Row t = d->rows.at(index.row());
+        Row<Table> t = d->rows.at(index.row());
         QVariant v = t->property(d->model->field(index.column())->name.toLocal8Bit().data());
 //        emit beforeShowText(index.column(), v);
         if (_renderer != nullptr)
@@ -102,7 +102,7 @@ QVariant SqlModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void SqlModel::setRows(TableType<Table>::RowList rows)
+void SqlModel::setRows(RowList<Table> rows)
 {
     Q_D(SqlModel);
     beginRemoveRows(QModelIndex(), 0, d->rows.count());
@@ -113,7 +113,7 @@ void SqlModel::setRows(TableType<Table>::RowList rows)
     endInsertRows();
 }
 
-void SqlModel::append(TableType<Table>::Row table)
+void SqlModel::append(Row<Table> table)
 {
     Q_D(SqlModel);
     beginInsertRows(QModelIndex(), d->rows.count(), d->rows.count());

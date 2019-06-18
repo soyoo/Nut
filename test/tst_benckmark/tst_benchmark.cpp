@@ -45,7 +45,7 @@ void BenchmarkTest::insert1kPost()
     t.start();
 
     for (int i = 0; i < 100; ++i) {
-        Post *newPost = new Post;
+        auto newPost = Nut::create<Post>();
         newPost->setTitle("post title");
         newPost->setSaveDate(QDateTime::currentDateTime());
 

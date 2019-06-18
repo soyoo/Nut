@@ -12,8 +12,8 @@ class BasicTest : public QObject
     Q_OBJECT
     WeblogDatabase db;
     int postId;
-    Post *post;
-    User *user;
+    Nut::Row<Post> post;
+    Nut::Row<User> user;
 
 public:
     explicit BasicTest(QObject *parent = nullptr);

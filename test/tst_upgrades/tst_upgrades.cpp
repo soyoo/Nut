@@ -58,11 +58,11 @@ void Upgrades::version2()
     initDb(db);
     QTEST_ASSERT(db.open());
 
-    Table2 t;
-    t.setStr("0");
-    db.sampleTable()->append(&t);
+    auto t = Nut::create<Table2>();
+    t->setStr("0");
+    db.sampleTable()->append(t);
     db.saveChanges();
-    id = t.id();
+    id = t->id();
 }
 
 void Upgrades::version3()

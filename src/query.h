@@ -89,8 +89,8 @@ public:
     Query<T> *setWhere(const ConditionalPhrase &ph);
 
     //data selecting
-    typename TableType<T>::Row first();
-    typename TableType<T>::RowList toList(int count = -1);
+    Row<T> first();
+    RowList<T> toList(int count = -1);
     template <typename F>
     QList<F> select(const FieldPhrase<F> f);
 
@@ -175,11 +175,11 @@ Q_OUTOFLINE_TEMPLATE Query<T>::~Query()
 }
 
 template <class T>
-Q_OUTOFLINE_TEMPLATE typename TableType<T>::RowList Query<T>::toList(int count)
+Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
 {
     Q_UNUSED(count);
     Q_D(Query);
-    typename TableType<T>::RowList returnList;
+    RowList<T> returnList;
     d->select = "*";
 
     d->sql = d->database->sqlGenertor()->selectCommand(
@@ -378,11 +378,11 @@ Q_OUTOFLINE_TEMPLATE QList<F> Query<T>::select(const FieldPhrase<F> f)
 }
 
 template <class T>
-Q_OUTOFLINE_TEMPLATE typename TableType<T>::Row Query<T>::first()
+Q_OUTOFLINE_TEMPLATE Row<T> Query<T>::first()
 {
     skip(0);
     take(1);
-    typename TableType<T>::RowList list = toList(1);
+    RowList<T> list = toList(1);
 
     if (list.count())
         return list.first();

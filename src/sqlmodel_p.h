@@ -18,7 +18,7 @@ public:
 
     QString tableName;
 
-    TableType<Table>::RowList rows;
+    RowList<Table> rows;
     TableModel *model;
 };
 
