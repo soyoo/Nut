@@ -29,7 +29,11 @@
 #include <QtSql/QSqlResult>
 #include <QtSql/QSqlError>
 #include <QtSql/QSqlQueryModel>
-#include <QSqlQuery>
+#include <QtSql/QSqlQuery>
+
+#ifdef NUT_SHARED_POINTER
+#include <QtCore/QSharedPointer>
+#endif
 
 #include "table.h"
 #include "query_p.h"
@@ -40,6 +44,7 @@
 #include "querybase_p.h"
 #include "phrase.h"
 #include "tablemodel.h"
+#include "sqlmodel.h"
 
 NUT_BEGIN_NAMESPACE
 
@@ -52,6 +57,14 @@ template <class T>
     bool m_autoDelete;
 
 public:
+//#ifdef NUT_SHARED_POINTER
+//    typedef QList<QSharedPointer<T>> RowList;
+//    typedef QSharedPointer<T> Row;
+//#else
+//    typedef QList<T*> RowList;
+//    typedef T* Row;
+//#endif
+
     explicit Query(Database *database, TableSetBase *tableSet, bool autoDelete);
     ~Query();
 
@@ -76,8 +89,8 @@ public:
     Query<T> *setWhere(const ConditionalPhrase &ph);
 
     //data selecting
-    T *first();
-    QList<T*> toList(int count = -1);
+    typename TableType<T>::Row first();
+    typename TableType<T>::RowList toList(int count = -1);
     template <typename F>
     QList<F> select(const FieldPhrase<F> f);
 
@@ -98,6 +111,7 @@ public:
 
     QSqlQueryModel *toModel();
     void toModel(QSqlQueryModel *model);
+    void toModel(SqlModel *model);
 
     //debug purpose
     QString sqlCommand() const;
@@ -161,11 +175,11 @@ Q_OUTOFLINE_TEMPLATE Query<T>::~Query()
 }
 
 template <class T>
-Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
+Q_OUTOFLINE_TEMPLATE typename TableType<T>::RowList Query<T>::toList(int count)
 {
     Q_UNUSED(count);
     Q_D(Query);
-    QList<T*> returnList;
+    typename TableType<T>::RowList returnList;
     d->select = "*";
 
     d->sql = d->database->sqlGenertor()->selectCommand(
@@ -285,13 +299,17 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
             Table *table;
             if (data.table->className() == d->className) {
                 table = new T();
-                table->setParentTableSet(d->tableSet);
+#ifdef NUT_SHARED_POINTER
+                auto shp = QSharedPointer<T>(qobject_cast<T*>(table));
+                returnList.append(shp);
+#else
                 returnList.append(dynamic_cast<T*>(table));
+#endif
+                table->setParentTableSet(d->tableSet);
             } else {
                 const QMetaObject *childMetaObject
                         = QMetaType::metaObjectForType(data.table->typeId());
                 table = qobject_cast<Table *>(childMetaObject->newInstance());
-
                 if (!table)
                     qFatal("Could not create instance of %s",
                            qPrintable(data.table->name()));
@@ -323,8 +341,11 @@ Q_OUTOFLINE_TEMPLATE QList<T *> Query<T>::toList(int count)
             data.lastRow = table;
         } //while
     } // while
+
+#ifndef NUT_SHARED_POINTER
     if (m_autoDelete)
         deleteLater();
+#endif
 
     return returnList;
 }
@@ -357,11 +378,11 @@ Q_OUTOFLINE_TEMPLATE QList<F> Query<T>::select(const FieldPhrase<F> f)
 }
 
 template <class T>
-Q_OUTOFLINE_TEMPLATE T *Query<T>::first()
+Q_OUTOFLINE_TEMPLATE typename TableType<T>::Row Query<T>::first()
 {
     skip(0);
     take(1);
-    QList<T*> list = toList(1);
+    typename TableType<T>::RowList list = toList(1);
 
     if (list.count())
         return list.first();
@@ -615,6 +636,43 @@ Q_OUTOFLINE_TEMPLATE void Query<T>::toModel(QSqlQueryModel *model)
                                  f->displayName);
         }
     }
+}
+
+template<class T>
+Q_OUTOFLINE_TEMPLATE void Query<T>::toModel(SqlModel *model)
+{
+    Q_D(Query);
+
+    d->sql = d->database->sqlGenertor()->selectCommand(
+                d->tableName,
+                d->fieldPhrase,
+                d->wherePhrase, d->orderPhrase, d->relations,
+                d->skip, d->take);
+
+    model->setTable(toList());
+    /*
+    DatabaseModel dbModel = d->database->model();
+    model->setQuery(d->sql, d->database->database());
+
+    int fieldIndex = 0;
+
+    if (d->fieldPhrase.data.count()) {
+        foreach (const PhraseData *pd, d->fieldPhrase.data) {
+            QString displayName = dbModel.tableByClassName(pd->className)
+                    ->field(pd->fieldName)->displayName;
+
+            model->setHeaderData(fieldIndex++,
+                                 Qt::Horizontal,
+                                 displayName);
+        }
+    } else {
+        TableModel *tbl = d->database->model().tableByName(d->tableName);
+        foreach (FieldModel *f, tbl->fields()) {
+            model->setHeaderData(fieldIndex++,
+                                 Qt::Horizontal,
+                                 f->displayName);
+        }
+    }*/
 }
 
 template <class T>

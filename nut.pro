@@ -4,4 +4,3 @@ SUBDIRS += \
     src \
     test
 
-

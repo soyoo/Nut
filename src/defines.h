@@ -192,4 +192,32 @@ public:                                                                        \
 #define NUT_NOT_NULL(x)                     NUT_INFO(__nut_NOT_NULL, x, 1)
 #define NUT_INDEX(name, field, order)
 
+template <class T>
+struct TableType
+{
+#ifdef NUT_SHARED_POINTER
+    typedef QList<QSharedPointer<T>> RowList;
+    typedef QSet<QSharedPointer<T>> RowSet;
+    typedef QSharedPointer<T> Row;
+#else
+    typedef QList<T*> RowList;
+    typedef QSet<T*> RowSet;
+    typedef T* Row;
+#endif
+};
+
+//#ifdef NUT_SHARED_POINTER
+//    template <class T>
+//    using RowList = typename QList<QSharedPointer<T>>;
+
+//    template <typename T>
+//    using Row = typename QSharedPointer<T>;
+//#else
+//    template <typename T>
+//    using RowList = typename QList<T*>;
+
+//    template <typename T>
+//    using Row = typename T*
+//#endif
+
 #endif // SYNTAX_DEFINES_H

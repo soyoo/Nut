@@ -278,7 +278,7 @@ bool DatabasePrivate::getCurrectScheema()
 
 DatabaseModel DatabasePrivate::getLastScheema()
 {
-    ChangeLogTable *u = changeLogs->query()
+    typename TableType<ChangeLogTable>::Row u = changeLogs->query()
             ->orderBy(!ChangeLogTable::idField())
             ->first();
 

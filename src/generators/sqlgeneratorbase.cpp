@@ -834,6 +834,9 @@ QString SqlGeneratorBase::escapeValue(const QVariant &v) const
          return QString();
     }
 
+    if (v.type() == QVariant::List)
+        return serialized;
+
     return "'" + serialized + "'";
 }
 

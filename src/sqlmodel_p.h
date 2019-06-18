@@ -1,6 +1,7 @@
 #ifndef SQLMODEL_P_H
 #define SQLMODEL_P_H
 
+#include <QSharedPointer>
 #include <QString>
 #include "defines.h"
 
@@ -13,11 +14,11 @@ class SqlModelPrivate {
     SqlModel *q_ptr;
     Q_DECLARE_PUBLIC(SqlModel)
 public:
-    explicit SqlModelPrivate() = default;
+    explicit SqlModelPrivate(SqlModel *parent);
 
     QString tableName;
 
-    QList<Table*> rows;
+    TableType<Table>::RowList rows;
     TableModel *model;
 };
 
