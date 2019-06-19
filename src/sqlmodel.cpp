@@ -135,10 +135,10 @@ QVariant SqlModel::headerData(int section, Qt::Orientation orientation, int role
     return QAbstractItemModel::headerData(section, orientation, role);
 }
 
-Table *SqlModel::at(const int &i) const
+Row<Table> SqlModel::at(const int &i) const
 {
     Q_D(const SqlModel);
-    return d->rows.at(i).data();
+    return d->rows.at(i);
 }
 
 SqlModelPrivate::SqlModelPrivate(SqlModel *parent) : q_ptr(parent)

@@ -209,6 +209,11 @@ inline Row<T> create() {
     return QSharedPointer<T>(new T);
 }
 
+template<class T>
+inline Row<T> create(QObject *parent) {
+    return QSharedPointer<T>(new T(parent));
+}
+
 #else
 template <typename T>
 using RowList = QList<T*>;

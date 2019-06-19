@@ -45,6 +45,10 @@ template<class T>
 class NUT_EXPORT TableSet : public TableSetBase
 {
 public:
+    typedef T value_type;
+    typedef T *pointer;
+    typedef T &reference;
+
     explicit TableSet(Database *parent);
     explicit TableSet(Table *parent);
 
@@ -52,8 +56,6 @@ public:
     void append(RowList<T> t);
     void remove(T *t);
     void remove(QList<T *> t);
-
-    inline T *type() const {}
 
     int length() const;
     T *at(int i) const;
@@ -112,6 +114,8 @@ Q_OUTOFLINE_TEMPLATE const T &TableSet<T>::operator[](int i) const
 template<class T>
 Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(Row<T> t)
 {
+    data.detach();
+    data->childs.append(t);
     data->tables.insert(t.data());
     data->childRows.append(t.data());
 
@@ -133,6 +137,8 @@ Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(RowList<T> t)
 template<class T>
 Q_OUTOFLINE_TEMPLATE void TableSet<T>::remove(T *t)
 {
+    data.detach();
+    data->childs.removeOne(t);
     data->tables.remove(t);
     t->setStatus(Table::Deleted);
 }

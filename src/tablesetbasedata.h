@@ -40,6 +40,8 @@ public:
 
     QSet<Table*> tables;
     QList<Table*> childRows;
+    RowList<Table> childs;
+
     Database *database;
     Table *table;
     QString childClassName;

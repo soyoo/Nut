@@ -48,7 +48,6 @@ void UuidTest::save()
     int n = db.saveChanges();
     TOC();
 
-    TOC();
     QTEST_ASSERT(n == 1);
 }
 

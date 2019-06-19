@@ -58,8 +58,8 @@ protected:
     QExplicitlySharedDataPointer<TableSetBaseData> data;
 
 private:
-    void add(Row<Table> t);
-    void remove(Row<Table> t);
+    void add(Table* t);
+    void remove(Table *t);
 
     friend class Table;
     friend class QueryBase;
