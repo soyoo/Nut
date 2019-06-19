@@ -40,9 +40,8 @@ void SqlModel::setRenderer(const std::function<QVariant (int, QVariant)> &render
 }
 
 SqlModel::SqlModel(Database *database, TableSetBase *tableSet, QObject *parent) :
-    QAbstractTableModel(parent), d_ptr(new SqlModelPrivate(this)), _renderer(nullptr)
+    QAbstractTableModel(parent), d(new SqlModelPrivate(this)), _renderer(nullptr)
 {
-    Q_D(SqlModel);
     d->model = database->model()
             .tableByClassName(tableSet->childClassName());
     d->tableName = d->model->name();
@@ -54,20 +53,17 @@ SqlModel::SqlModel(Database *database, TableSetBase *tableSet, QObject *parent) 
 int SqlModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    Q_D(const SqlModel);
     return d->rows.count();
 }
 
 int SqlModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    Q_D(const SqlModel);
     return d->model->fields().count();
 }
 
 QVariant SqlModel::data(const QModelIndex &index, int role) const
 {
-    Q_D(const SqlModel);
     if (!index.isValid())
         return QVariant();
 
@@ -104,7 +100,7 @@ QVariant SqlModel::data(const QModelIndex &index, int role) const
 
 void SqlModel::setRows(RowList<Table> rows)
 {
-    Q_D(SqlModel);
+    d.detach();
     beginRemoveRows(QModelIndex(), 0, d->rows.count());
     d->rows.clear();
     endRemoveRows();
@@ -115,7 +111,7 @@ void SqlModel::setRows(RowList<Table> rows)
 
 void SqlModel::append(Row<Table> table)
 {
-    Q_D(SqlModel);
+    d.detach();
     beginInsertRows(QModelIndex(), d->rows.count(), d->rows.count());
     d->rows.append(table);
     endInsertRows();
@@ -129,7 +125,6 @@ void SqlModel::append(Row<Table> table)
 QVariant SqlModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-        Q_D(const SqlModel);
         return d->model->field(section)->displayName;
     }
     return QAbstractItemModel::headerData(section, orientation, role);
@@ -137,11 +132,10 @@ QVariant SqlModel::headerData(int section, Qt::Orientation orientation, int role
 
 Row<Table> SqlModel::at(const int &i) const
 {
-    Q_D(const SqlModel);
     return d->rows.at(i);
 }
 
-SqlModelPrivate::SqlModelPrivate(SqlModel *parent) : q_ptr(parent)
+SqlModelPrivate::SqlModelPrivate(SqlModel *parent)
 {
 
 }

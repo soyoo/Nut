@@ -57,14 +57,6 @@ template <class T>
     bool m_autoDelete;
 
 public:
-//#ifdef NUT_SHARED_POINTER
-//    typedef QList<QSharedPointer<T>> RowList;
-//    typedef QSharedPointer<T> Row;
-//#else
-//    typedef QList<T*> RowList;
-//    typedef T* Row;
-//#endif
-
     explicit Query(Database *database, TableSetBase *tableSet, bool autoDelete);
     ~Query();
 

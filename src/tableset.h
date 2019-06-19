@@ -54,8 +54,8 @@ public:
 
     void append(Row<T> t);
     void append(RowList<T> t);
-    void remove(T *t);
-    void remove(QList<T *> t);
+    void remove(Row<T> t);
+    void remove(RowList<T> t);
 
     int length() const;
     T *at(int i) const;
@@ -135,18 +135,19 @@ Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(RowList<T> t)
 }
 
 template<class T>
-Q_OUTOFLINE_TEMPLATE void TableSet<T>::remove(T *t)
+Q_OUTOFLINE_TEMPLATE void TableSet<T>::remove(Row<T> t)
 {
     data.detach();
+    data->childs.removeOne(t.data());
+    data->tables.remove(t.data());
     data->childs.removeOne(t);
-    data->tables.remove(t);
     t->setStatus(Table::Deleted);
 }
 
 template<class T>
-Q_OUTOFLINE_TEMPLATE void TableSet<T>::remove(QList<T *> t)
+Q_OUTOFLINE_TEMPLATE void TableSet<T>::remove(RowList<T> t)
 {
-    foreach (T* i, t)
+    foreach (Row<T> i, t)
         remove(i);
 }
 

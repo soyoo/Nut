@@ -210,6 +210,11 @@ inline Row<T> create() {
 }
 
 template<class T>
+inline Row<T> create(QObject *parent) {
+    return QSharedPointer<T>(new T(parent));
+}
+
+template<class T>
 inline T *get(T *row) {
     return row;
 }
