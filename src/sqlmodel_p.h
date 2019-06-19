@@ -13,7 +13,7 @@ class SqlModelPrivate {
     SqlModel *q_ptr;
     Q_DECLARE_PUBLIC(SqlModel)
 public:
-    explicit SqlModelPrivate() = default;
+    explicit SqlModelPrivate(SqlModel *parent);
 
     QString tableName;
 

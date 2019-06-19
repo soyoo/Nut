@@ -55,7 +55,7 @@ public:
     void append(Row<Table> table);
 //    void append(Table *table);
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    Table *at(const int &i) const;
+    Row<Nut::Table> at(const int &i) const;
 
     void setRenderer(const std::function<QVariant (int, QVariant)> &renderer);
 
