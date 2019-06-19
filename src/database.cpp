@@ -268,7 +268,7 @@ bool DatabasePrivate::getCurrectScheema()
                        qPrintable(f->typeName));
         }
 
-        foreach (RelationModel *fk, table->foregionKeys())
+        foreach (RelationModel *fk, table->foreignKeys())
             fk->masterTable = currentModel.tableByClassName(fk->masterClassName);
     }
 

@@ -102,8 +102,8 @@ public:
 
     FieldModel *field(int n) const;
     FieldModel *field(const QString &name) const;
-    RelationModel *foregionKey(const QString &otherTable) const;
-    RelationModel *foregionKeyByField(const QString &fieldName) const;
+    RelationModel *foreignKey(const QString &otherTable) const;
+    RelationModel *foreignKeyByField(const QString &fieldName) const;
 
     QString toString() const;
 
@@ -119,7 +119,7 @@ public:
     int typeId() const;
     void setTypeId(const int &typeId);
     QList<FieldModel *> fields() const;
-    QList<RelationModel *> foregionKeys() const;
+    QList<RelationModel *> foreignKeys() const;
     QStringList fieldsNames() const;
 
     bool operator ==(const TableModel &t) const;
