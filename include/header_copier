@@ -37,5 +37,6 @@ while read line; do
 		echo "#include \"../$src_dir/$header.h\"" >> "$Ns"
 		echo "#include \"../$src_dir/$header.h\"" >> "$ns.h"
 	fi
+	echo $Ns
 done <&3
 exec 3<&-

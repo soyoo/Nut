@@ -346,7 +346,6 @@ qDebug()<<d->sql;
     if (m_autoDelete)
         deleteLater();
 #endif
-qDebug() << "len="<<returnList.count();
     return returnList;
 }
 

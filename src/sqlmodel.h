@@ -49,7 +49,7 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
 
     template<class T>
-    void setTable(QList<QSharedPointer<T>> rows);
+    void setTable(RowList<T> rows);
 
     void setRows(RowList<Table> rows);
     void append(Row<Table> table);
@@ -68,7 +68,7 @@ signals:
 };
 
 template<class T>
-Q_OUTOFLINE_TEMPLATE void SqlModel::setTable(QList<QSharedPointer<T> > rows)
+Q_OUTOFLINE_TEMPLATE void SqlModel::setTable(RowList<T> rows)
 {
     Q_D(SqlModel);
 
