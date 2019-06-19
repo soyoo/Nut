@@ -23,6 +23,8 @@
 
 #include <QtCore/QAbstractTableModel>
 #include "defines.h"
+#include "sqlmodel_p.h"
+#include <QExplicitlySharedDataPointer>
 #include <QList>
 #include <functional>
 
@@ -30,7 +32,6 @@ NUT_BEGIN_NAMESPACE
 
 class Database;
 class TableSetBase;
-class SqlModelPrivate;
 class Table;
 class TableModel;
 
@@ -60,8 +61,7 @@ public:
     void setRenderer(const std::function<QVariant (int, QVariant)> &renderer);
 
 private:
-    SqlModelPrivate *d_ptr;
-    Q_DECLARE_PRIVATE(SqlModel)
+    QExplicitlySharedDataPointer<SqlModelPrivate> d;
 
 signals:
     void beforeShowText(int col, QVariant &value);
@@ -70,8 +70,6 @@ signals:
 template<class T>
 Q_OUTOFLINE_TEMPLATE void SqlModel::setTable(RowList<T> rows)
 {
-    Q_D(SqlModel);
-
     RowList<Table> tab;
     foreach (auto t, rows)
         tab.append(t);

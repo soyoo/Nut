@@ -170,7 +170,7 @@ QString PostgreSqlGenerator::fieldType(FieldModel *field)
     case QMetaType::QJsonValue:
     case QMetaType::QJsonObject:
     case QMetaType::QJsonDocument:
-        return "JSON";
+        return "JSONB";
 
     case QMetaType::QStringList:
         return "TEXT[]";

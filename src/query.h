@@ -57,14 +57,6 @@ template <class T>
     bool m_autoDelete;
 
 public:
-//#ifdef NUT_SHARED_POINTER
-//    typedef QList<QSharedPointer<T>> RowList;
-//    typedef QSharedPointer<T> Row;
-//#else
-//    typedef QList<T*> RowList;
-//    typedef T* Row;
-//#endif
-
     explicit Query(Database *database, TableSetBase *tableSet, bool autoDelete);
     ~Query();
 
@@ -185,7 +177,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
     d->sql = d->database->sqlGenertor()->selectCommand(
                 d->tableName, d->fieldPhrase, d->wherePhrase, d->orderPhrase,
                 d->relations, d->skip, d->take);
-qDebug()<<d->sql;
+
     QSqlQuery q = d->database->exec(d->sql);
     if (q.lastError().isValid()) {
         qDebug() << q.lastError().text();
