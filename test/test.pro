@@ -8,6 +8,5 @@ SUBDIRS += \
     tst_quuid \
     tst_generators \
     tst_upgrades \
-    tst_json \
-    tst_supported_datatypes
+    tst_json
 
