@@ -82,10 +82,10 @@ public:                                                                        \
         propertyChanged(#name);                                                \
     }
 
-#define NUT_FOREGION_KEY(type, keytype, name, read, write)                     \
+#define NUT_FOREIGN_KEY(type, keytype, name, read, write)                     \
     Q_PROPERTY(Nut::Row<type> name READ read WRITE write)                      \
     NUT_DECLARE_FIELD(keytype, name##Id, read##Id, write##Id)                  \
-    NUT_INFO(__nut_FOREGION_KEY, name, type)                                   \
+    NUT_INFO(__nut_FOREIGN_KEY, name, type)                                   \
     Nut::Row<type> m_##name;                                                   \
 public:                                                                        \
     Nut::Row<type> read() const { return m_##name ; }                          \

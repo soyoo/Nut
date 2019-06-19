@@ -146,7 +146,7 @@ RelationModel *DatabaseModel::relationByClassNames(const QString &masterClassNam
     if(!childTable)
         return nullptr;
 
-    foreach (RelationModel *rel, childTable->foregionKeys())
+    foreach (RelationModel *rel, childTable->foreignKeys())
         if(rel->masterClassName == masterClassName)
             return rel;
 
@@ -160,7 +160,7 @@ RelationModel *DatabaseModel::relationByTableNames(const QString &masterTableNam
     if(!childTable)
         return nullptr;
 
-    foreach (RelationModel *rel, childTable->foregionKeys())
+    foreach (RelationModel *rel, childTable->foreignKeys())
         if(rel->masterTable->name() == masterTableName)
             return rel;
 
@@ -210,7 +210,7 @@ void DatabaseModel::fixRelations()
 {
     /*TODO: fixme
     foreach (TableModel *table, currentModel)
-        foreach (RelationModel *fk, table->foregionKeys())
+        foreach (RelationModel *fk, table->foreignKeys())
             fk->masterTable = currentModel.tableByClassName(fk->masterClassName);
             */
 }

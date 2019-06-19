@@ -41,7 +41,7 @@
 #define __nut_DEFAULT_VALUE     "def"
 #define __nut_NOT_NULL          "notnull"
 
-#define __nut_FOREGION_KEY      "foregion_key"
+#define __nut_FOREIGN_KEY      "foreign_key"
 #define __nut_NEW               "new"
 #define __nut_REMOVE            "remove"
 #define __nut_CHANGE            "change"

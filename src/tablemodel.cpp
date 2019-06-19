@@ -88,7 +88,7 @@ QList<FieldModel *> TableModel::fields() const
     return _fields;
 }
 
-QList<RelationModel *> TableModel::foregionKeys() const
+QList<RelationModel *> TableModel::foreignKeys() const
 {
     return _foreignKeys;
 }
@@ -184,7 +184,7 @@ TableModel::TableModel(int typeId, const QString &tableName)
             continue;
         }
 
-        if(type == __nut_FOREGION_KEY){
+        if(type == __nut_FOREIGN_KEY){
             auto *fk = new RelationModel;
             fk->slaveTable = this;
             fk->localColumn = name + "Id";
@@ -322,7 +322,7 @@ QJsonObject TableModel::toJson() const
     return obj;
 }
 
-RelationModel *TableModel::foregionKey(const QString &otherTable) const
+RelationModel *TableModel::foreignKey(const QString &otherTable) const
 {
     foreach (RelationModel *fk, _foreignKeys)
         if(fk->masterClassName == otherTable)
@@ -331,7 +331,7 @@ RelationModel *TableModel::foregionKey(const QString &otherTable) const
     return nullptr;
 }
 
-RelationModel *TableModel::foregionKeyByField(const QString &fieldName) const
+RelationModel *TableModel::foreignKeyByField(const QString &fieldName) const
 {
     foreach (RelationModel *fk, _foreignKeys)
         if(fk->localColumn == fieldName)

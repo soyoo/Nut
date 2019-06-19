@@ -223,7 +223,7 @@ QStringList SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
         foreach (FieldModel *f, oldTable->fields())
             if (!fieldNames.contains(f->name))
                 fieldNames.append(f->name);
-        foreach (RelationModel *r, oldTable->foregionKeys())
+        foreach (RelationModel *r, oldTable->foreignKeys())
             if (!relations.contains(r->localColumn))
                 relations.append(r->localColumn);
     }
@@ -231,7 +231,7 @@ QStringList SqlGeneratorBase::diff(TableModel *oldTable, TableModel *newTable)
     foreach (FieldModel *f, newTable->fields())
         if (!fieldNames.contains(f->name))
             fieldNames.append(f->name);
-    foreach (RelationModel *r, newTable->foregionKeys())
+    foreach (RelationModel *r, newTable->foreignKeys())
         if (!relations.contains(r->localColumn))
             relations.append(r->localColumn);
 
@@ -291,20 +291,20 @@ QStringList SqlGeneratorBase::diffRelation(TableModel *oldTable, TableModel *new
     QList<QString> relations;
 
     if (oldTable)
-        foreach (RelationModel *r, oldTable->foregionKeys())
+        foreach (RelationModel *r, oldTable->foreignKeys())
             if (!relations.contains(r->localColumn))
                 relations.append(r->localColumn);
 
-    foreach (RelationModel *r, newTable->foregionKeys())
+    foreach (RelationModel *r, newTable->foreignKeys())
         if (!relations.contains(r->localColumn))
             relations.append(r->localColumn);
 
     QStringList columnSql;
     foreach (QString fieldName, relations) {
-        RelationModel *newRelation = newTable->foregionKeyByField(fieldName);
+        RelationModel *newRelation = newTable->foreignKeyByField(fieldName);
         RelationModel *oldRelation = nullptr;
         if (oldTable)
-            oldRelation = oldTable->foregionKeyByField(fieldName);
+            oldRelation = oldTable->foreignKeyByField(fieldName);
 
         QStringList buffer = diff(oldRelation, newRelation);
         if (!buffer.isEmpty())

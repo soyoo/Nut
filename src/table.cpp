@@ -131,7 +131,7 @@ bool Table::setParentTable(Table *master, TableModel *masterModel, TableModel *m
 //    if (!d->model)
 //        d->model = TableModel::findByClassName(metaObject()->className());
 
-    foreach (RelationModel *r, model->foregionKeys())
+    foreach (RelationModel *r, model->foreignKeys())
         if(r->masterClassName == masterClassName)
         {
             setProperty(QString(r->localColumn).toLatin1().data(),
