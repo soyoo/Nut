@@ -186,11 +186,4 @@ void SqlServerGenerator::appendSkipTake(QString &sql, int skip, int take)
                    .arg(skip).arg(take));
 }
 
-void SqlServerGenerator::replaceTableNames(QString &command)
-{
-    foreach (TableModel *m, TableModel::allModels())
-        command = command
-                .replace("[" + m->className() + "]", m->name() );
-}
-
 NUT_END_NAMESPACE
