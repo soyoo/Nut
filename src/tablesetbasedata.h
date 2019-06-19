@@ -34,6 +34,7 @@ public:
     TableSetBaseData(Database *parent) :
         database(parent), table(nullptr)
     { }
+
     TableSetBaseData(Table *parent) :
         database(nullptr), table(parent)
     { }

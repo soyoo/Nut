@@ -30,7 +30,6 @@
 #include "tablesetbase_p.h"
 #include "table.h"
 #include "bulkinserter.h"
-//#include "database.h"
 #include "databasemodel.h"
 #include "tablesetbasedata.h"
 
@@ -41,6 +40,7 @@ class Query;
 
 class BulkInserter;
 class Database;
+
 template<class T>
 class NUT_EXPORT TableSet : public TableSetBase
 {

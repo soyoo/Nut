@@ -210,8 +210,12 @@ inline Row<T> create() {
 }
 
 template<class T>
-inline Row<T> create(QObject *parent) {
-    return QSharedPointer<T>(new T(parent));
+inline T *get(T *row) {
+    return row;
+}
+template<class T>
+inline T *get(const QSharedPointer<T> row) {
+    return row.data();
 }
 
 #else
@@ -228,6 +232,17 @@ template<class T>
 inline Row<T> create() {
     return new T;
 }
+
+template<class T>
+inline T *get(const Row<T> row) {
+    return row;
+}
+
+template<class T>
+inline T *get(const QSharedPointer<T> row) {
+    return row.data();
+}
+
 #endif
 
 NUT_END_NAMESPACE

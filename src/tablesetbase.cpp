@@ -84,20 +84,18 @@ void TableSetBase::clearChilds()
 
 void TableSetBase::add(Table *t)
 {
-    if(!data->tables.contains(t)){
+    if(!data->tables.contains(get(t))){
         data.detach();
-        data->tables.insert(t);
-        data->childRows.append(t);
-//        data->childs.append(t);
+        data->tables.insert(get(t));
+        data->childRows.append(get(t));
     }
 }
 
 void TableSetBase::remove(Table *t)
 {
     data.detach();
-    data->tables.remove(t);
-    data->childRows.removeOne(t);
-//    data->childs.removeOne(t);
+    data->tables.remove(get(t));
+    data->childRows.removeOne(get(t));
 }
 
 QString TableSetBase::childClassName() const
@@ -112,6 +110,7 @@ Database *TableSetBase::database() const
 
 void TableSetBase::setDatabase(Database *database)
 {
+    data.detach();
     data->database = database;
 }
 
