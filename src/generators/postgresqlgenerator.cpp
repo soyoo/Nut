@@ -339,5 +339,4 @@ QString PostgreSqlGenerator::createConditionalPhrase(const PhraseData *d) const
     return SqlGeneratorBase::createConditionalPhrase(d);
 }
 
-
 NUT_END_NAMESPACE
