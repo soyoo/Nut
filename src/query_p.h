@@ -23,8 +23,9 @@
 
 #include "phrase.h"
 
-#include <QList>
-#include <QString>
+#include <QtCore/QList>
+#include <QtCore/QString>
+#include <QtCore/QSharedData>
 
 NUT_BEGIN_NAMESPACE
 
@@ -32,13 +33,13 @@ class Database;
 class TableSetBase;
 class QueryBase;
 struct RelationModel;
-class QueryPrivate{
+class QueryPrivate : public QSharedData {
     QueryBase *q_ptr;
     Q_DECLARE_PUBLIC(QueryBase)
 
 public:
     explicit QueryPrivate(QueryBase *parent);
-    ~QueryPrivate();
+    ~QueryPrivate() = default;
 
     QString sql;
     QString className;

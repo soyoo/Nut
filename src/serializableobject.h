@@ -6,7 +6,7 @@
 class SerializableObject
 {
 public:
-    SerializableObject();
+    SerializableObject() = default;
 
     virtual void load(const QVariant &value) = 0;
     virtual QVariant save() = 0;

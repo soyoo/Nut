@@ -23,7 +23,10 @@
 
 #include <QtCore/QObject>
 #include <QtCore/qglobal.h>
+#include <QtCore/QExplicitlySharedDataPointer>
+
 #include "defines.h"
+#include "query_p.h"
 
 NUT_BEGIN_NAMESPACE
 
@@ -33,11 +36,15 @@ class TableSetBase;
 class QueryBase : public QObject
 {
     Q_OBJECT
+
+protected:
+    QExplicitlySharedDataPointer<QueryPrivate> d;
+
 public:
     explicit QueryBase(QObject *parent = 0);
 
 protected:
-    void addTableToSet(TableSetBase *set, Table *table);
+//    void addTableToSet(TableSetBase *set, Table *table);
 
 public slots:
 };

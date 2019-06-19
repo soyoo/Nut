@@ -35,7 +35,7 @@ class ChangeLogTable : public Table
 
     NUT_DECLARE_FIELD(QString, data, data, setData)
 
-    NUT_DECLARE_FIELD(QString, version, version, setVersion)
+    NUT_DECLARE_FIELD(int, version, version, setVersion)
 
 public:
     explicit ChangeLogTable(QObject *parentTableSet = Q_NULLPTR);

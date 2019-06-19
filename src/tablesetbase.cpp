@@ -22,27 +22,40 @@
 #include "database.h"
 #include "tablesetbase_p.h"
 #include "databasemodel.h"
+#include "tablesetbasedata.h"
 
 NUT_BEGIN_NAMESPACE
 
-TableSetBase::TableSetBase(Database *parent) : QObject(parent), _database(parent), _table(0),
-    _tableName(QString())
+TableSetBase::TableSetBase(Database *parent) : QObject(parent),
+    data(new TableSetBaseData(parent))
 {
     parent->add(this);
 }
 
-TableSetBase::TableSetBase(Table *parent) : QObject(parent), _database(0), _table(parent),
-    _tableName(QString())
+TableSetBase::TableSetBase(Table *parent) : QObject(parent),
+    data(new TableSetBaseData(parent))
 {
     parent->add(this);
+}
+
+TableSetBase::~TableSetBase()
+{
+    foreach (Table *t, data->tables)
+        t->setParentTableSet(nullptr);
 }
 
 int TableSetBase::save(Database *db, bool cleanUp)
 {
     int rowsAffected = 0;
-    foreach (Table *t, _tablesList) {
-        if(_table)
-            t->setParentTable(_table);
+    TableModel *masterModel = nullptr;
+    if (data->table)
+        masterModel = db->model().tableByClassName(data->table->metaObject()->className());
+
+    foreach (Table *t, data->childRows) {
+        if(data->table)
+            t->setParentTable(data->table,
+                              masterModel,
+                              db->model().tableByClassName(t->metaObject()->className()));
 
         if(t->status() == Table::Added
                 || t->status() == Table::Modified
@@ -55,39 +68,50 @@ int TableSetBase::save(Database *db, bool cleanUp)
     }
 
     if (cleanUp)
-        _tablesList.clear();
+        data->childRows.clear();
 
     return rowsAffected;
 }
 
 void TableSetBase::clearChilds()
 {
-    foreach (Table *t, _tablesList)
+#ifndef NUT_SHARED_POINTER
+    foreach (Table *t, data->_childRows)
         t->deleteLater();
-    _tablesList.clear();
+#endif
+    data->childRows.clear();
 }
 
 void TableSetBase::add(Table *t)
 {
-    if(!_tables.contains(t)){
-        _tables.insert(t);
-        _tablesList.append(t);
+    if(!data->tables.contains(get(t))){
+        data.detach();
+        data->tables.insert(get(t));
+        data->childRows.append(get(t));
     }
+}
+
+void TableSetBase::remove(Table *t)
+{
+    data.detach();
+    data->tables.remove(get(t));
+    data->childRows.removeOne(get(t));
 }
 
 QString TableSetBase::childClassName() const
 {
-    return _childClassName;
+    return data->childClassName;
 }
 
 Database *TableSetBase::database() const
 {
-    return _database;
+    return data->database;
 }
 
 void TableSetBase::setDatabase(Database *database)
 {
-    _database = database;
+    data.detach();
+    data->database = database;
 }
 
 NUT_END_NAMESPACE

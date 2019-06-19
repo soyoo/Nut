@@ -36,16 +36,16 @@ struct RelationModel;
 class DatabaseModel : public QList<TableModel *>
 {
     QString _databaseClassName;
-    QString _version;
+    int _version;
     static QMap<QString, DatabaseModel *> _models;
 
 public:
     DatabaseModel(const QString &name = QString());
     DatabaseModel(const DatabaseModel &other);
     DatabaseModel(const QJsonObject &json);
-    ~DatabaseModel();
+    ~DatabaseModel() = default;
 
-    TableModel *tableByName(QString tableName) const;
+    TableModel *tableByName(const QString &tableName) const;
     TableModel *tableByClassName(QString className) const;
 
     RelationModel *relationByClassNames(const QString &masterClassName,
@@ -54,15 +54,15 @@ public:
                                         const QString &childClassName);
 
     bool operator==(const DatabaseModel &other) const;
-    DatabaseModel operator +(const DatabaseModel &other);
+//    DatabaseModel operator +(const DatabaseModel &other);
 
     Q_DECL_DEPRECATED
     static DatabaseModel fromJson(QJsonObject &json);
     QJsonObject toJson() const;
     operator QJsonObject();
 
-    QString version() const;
-    void setVersion(QString version);
+    int version() const;
+    void setVersion(int version);
 
     bool remove(const QString &tableName);
 
@@ -72,6 +72,9 @@ public:
     static DatabaseModel *modelByName(const QString &name);
     static void deleteAllModels();
 };
+
+DatabaseModel operator +(const DatabaseModel &l, const DatabaseModel &r);
+DatabaseModel operator |(const DatabaseModel &l, const DatabaseModel &r);
 
 NUT_END_NAMESPACE
 

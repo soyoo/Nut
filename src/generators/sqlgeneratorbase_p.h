@@ -27,6 +27,8 @@
 #include "../phrase.h"
 //#include "../wherephrase.h"
 
+class SqlSerializer;
+
 NUT_BEGIN_NAMESPACE
 
 class Table;
@@ -40,6 +42,11 @@ class SqlGeneratorBase : public QObject
 //    Q_OBJECT
 
     Database *_database;
+protected:
+    SqlSerializer *_serializer;
+
+    bool isNumeric(const QMetaType::Type &type);
+
 public:
     //TODO: remove this enum
     enum CommandType{
@@ -58,24 +65,38 @@ public:
     };
 
     explicit SqlGeneratorBase(Database *parent);
-    virtual ~SqlGeneratorBase();
+    virtual ~SqlGeneratorBase() = default;
+
+    virtual bool supportPrimaryKey(const QMetaType::Type &type) {
+        Q_UNUSED(type);
+        return true;
+    }
+    virtual bool supportAutoIncrement(const QMetaType::Type &type) {
+        Q_UNUSED(type);
+        return true;
+    }
+
+    //fields
+    virtual QString fieldType(FieldModel *field) = 0;
+    virtual QString fieldDeclare(FieldModel *field);
+    virtual QStringList constraints(TableModel *table);
+    virtual QString escapeValue(const QVariant &v) const;
+    virtual QVariant unescapeValue(const QMetaType::Type &type, const QVariant &dbValue);
 
     virtual QString masterDatabaseName(QString databaseName);
 
     virtual QString createTable(TableModel *table);
 
-    virtual QString fieldType(FieldModel *field) = 0;
-    virtual QString fieldDeclare(FieldModel *field);
     virtual QString relationDeclare(const RelationModel *relation);
 
-    virtual QStringList diff(DatabaseModel lastModel, DatabaseModel newModel);
+    virtual QStringList diff(const DatabaseModel &lastModel, const DatabaseModel &newModel);
     virtual QString diff(FieldModel *oldField, FieldModel *newField);
-    virtual QString diff(TableModel *oldTable, TableModel *newTable);
-    virtual QString diffRelation(TableModel *oldTable, TableModel *newTable);
-    virtual QString diff(RelationModel *oldRel, RelationModel *newRel);
+    virtual QStringList diff(TableModel *oldTable, TableModel *newTable);
+    virtual QStringList diffRelation(TableModel *oldTable, TableModel *newTable);
+    virtual QStringList diff(RelationModel *oldRel, RelationModel *newRel);
 
     virtual QString join(const QString &mainTable,
-                         const QList<RelationModel*> list,
+                         const QList<RelationModel*> &list,
                          QStringList *order = Q_NULLPTR);
     virtual QString join(const QStringList &list, QStringList *order = Q_NULLPTR);
 
@@ -83,16 +104,17 @@ public:
 
     virtual QString recordsPhrase(TableModel *table);
 
+    virtual QString insertBulk(const QString &tableName, const PhraseList &ph, const QList<QVariantList> &vars);
     virtual QString insertRecord(Table *t, QString tableName);
     virtual QString updateRecord(Table *t, QString tableName);
     virtual QString deleteRecord(Table *t, QString tableName);
-    virtual QString deleteRecords(QString tableName, QString where);
+    virtual QString deleteRecords(const QString &tableName, const QString &where);
 
     virtual QString selectCommand(const QString &tableName,
                                   const PhraseList &fields,
                                   const ConditionalPhrase &where,
                                   const PhraseList &order,
-                                  const QList<RelationModel*> joins,
+                                  const QList<RelationModel *> &joins,
                                   const int skip = -1,
                                   const int take = -1);
 
@@ -123,18 +145,13 @@ public:
 
 //    virtual QString updateCommand(WherePhrase &phrase, QList<WherePhrase> &wheres, QString tableName);
 
-    virtual QString escapeValue(const QVariant &v) const;
-    virtual QVariant readValue(const QVariant::Type &type, const QVariant &dbValue);
     virtual QString phrase(const PhraseData *d) const;
     virtual QString operatorString(const PhraseData::Condition &cond) const;
     virtual void appendSkipTake(QString &sql, int skip = -1, int take = -1);
-
-
-    virtual void replaceTableNames(QString &command);
-    virtual void removeTableNames(QString &command);
+    virtual QString primaryKeyConstraint(const TableModel *table) const;
 
 protected:
-    QString createConditionalPhrase(const PhraseData *d) const;
+    virtual QString createConditionalPhrase(const PhraseData *d) const;
     QString createFieldPhrase(const PhraseList &ph);
     QString createOrderPhrase(const PhraseList &ph);
     void createInsertPhrase(const AssignmentPhraseList &ph, QString &fields, QString &values);

@@ -40,8 +40,7 @@ struct FieldModel{
     explicit FieldModel(const QJsonObject &json);
 
     QString name;
-    //TODO: QMetaType::Type??
-    QVariant::Type type;
+    QMetaType::Type type;
     QString typeName;
     int length;
     QString defaultValue;
@@ -70,8 +69,9 @@ struct FieldModel{
 };
 
 struct RelationModel{
-    RelationModel() : localColumn(QString()), localProperty(QString()), slaveTable(0),
-        foreignColumn(QString()), masterTable(0), masterClassName(QString())
+    RelationModel() : localColumn(QString()), localProperty(QString()),
+        slaveTable(nullptr), foreignColumn(QString()), masterTable(nullptr),
+        masterClassName(QString())
     {}
     explicit RelationModel(const QJsonObject &obj);
 
@@ -87,29 +87,28 @@ struct RelationModel{
 
     QJsonObject toJson() const;
 };
+
 bool operator ==(const RelationModel &l, const RelationModel &r);
 bool operator !=(const RelationModel &l, const RelationModel &r);
-class   TableModel
+
+class NUT_EXPORT TableModel
 {
 public:
-    explicit TableModel(int typeId, QString tableName = QString());
-    explicit TableModel(QJsonObject json, QString tableName);
+    explicit TableModel(int typeId, const QString &tableName = QString());
+    explicit TableModel(const QJsonObject &json, const QString &tableName);
     virtual ~TableModel();
 
     QJsonObject toJson() const;
 
-//    static TableScheema *registerTable(int typeId, QString tableName);
-//    static void createForegionKeys();
-//    static TableModel* model(QString className);
-
     FieldModel *field(int n) const;
-    FieldModel *field(QString name) const;
+    FieldModel *field(const QString &name) const;
     RelationModel *foregionKey(const QString &otherTable) const;
     RelationModel *foregionKeyByField(const QString &fieldName) const;
 
     QString toString() const;
 
     QString primaryKey() const;
+    bool isPrimaryKeyAutoIncrement() const;
 
     QString name() const;
     void setName(const QString &name);
@@ -123,11 +122,6 @@ public:
     QList<RelationModel *> foregionKeys() const;
     QStringList fieldsNames() const;
 
-    static QSet<TableModel *> allModels();
-    static TableModel *findByTypeId(int typeId);
-//    static TableModel *findByName(QString name);
-    static TableModel *findByClassName(QString className);
-
     bool operator ==(const TableModel &t) const;
     bool operator !=(const TableModel &t) const;
 
@@ -137,9 +131,9 @@ private:
     int _typeId;
     QList<FieldModel*> _fields;
     QList<RelationModel*> _foreignKeys;
+
+    Q_DECL_DEPRECATED
     static QSet<TableModel*>_allModels;
-//    bool checkClassInfo(const QMetaClassInfo &classInfo,
-//                        QString &type, QString &name, QString &value);
 };
 
 NUT_END_NAMESPACE

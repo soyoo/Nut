@@ -21,19 +21,32 @@
 #include "database.h"
 #include "tablesetbase_p.h"
 #include "databasemodel.h"
-
+#include "tablemodel.h"
+#include "table.h"
 #include "sqlmodel_p.h"
 #include "sqlmodel.h"
+#include "query.h"
 
 NUT_BEGIN_NAMESPACE
 
+//SqlModel::SqlModel(Query *q) : QAbstractItemModel(q.)
+//{
+
+//}
+
+void SqlModel::setRenderer(const std::function<QVariant (int, QVariant)> &renderer)
+{
+    _renderer = renderer;
+}
+
 SqlModel::SqlModel(Database *database, TableSetBase *tableSet, QObject *parent) :
-    QAbstractTableModel(parent)
+    QAbstractTableModel(parent), d_ptr(new SqlModelPrivate(this)), _renderer(nullptr)
 {
     Q_D(SqlModel);
     d->model = database->model()
             .tableByClassName(tableSet->childClassName());
     d->tableName = d->model->name();
+
 
     //     setQuery("SELECT * FROM " + d->tableName, database->databaseName());
 }
@@ -62,8 +75,12 @@ QVariant SqlModel::data(const QModelIndex &index, int role) const
         return QVariant("-");
 
     if (role == Qt::DisplayRole) {
-        Table *t = d->rows.at(index.row());
-        return t->property(d->model->field(index.column())->name.toLocal8Bit().data());
+        Row<Table> t = d->rows.at(index.row());
+        QVariant v = t->property(d->model->field(index.column())->name.toLocal8Bit().data());
+//        emit beforeShowText(index.column(), v);
+        if (_renderer != nullptr)
+            v = _renderer(index.column(), v);
+        return v;
 //        LogData *d = dataList.at(index.row());
 
 //        switch (index.column()) {
@@ -85,9 +102,49 @@ QVariant SqlModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-SqlModelPrivate::SqlModelPrivate()
+void SqlModel::setRows(RowList<Table> rows)
+{
+    Q_D(SqlModel);
+    beginRemoveRows(QModelIndex(), 0, d->rows.count());
+    d->rows.clear();
+    endRemoveRows();
+    beginInsertRows(QModelIndex(), 0, rows.count());
+    d->rows = rows;
+    endInsertRows();
+}
+
+void SqlModel::append(Row<Table> table)
+{
+    Q_D(SqlModel);
+    beginInsertRows(QModelIndex(), d->rows.count(), d->rows.count());
+    d->rows.append(table);
+    endInsertRows();
+}
+
+//void SqlModel::append(Table *table)
+//{
+//    append(TableType<Table>::Row(table));
+//}
+
+QVariant SqlModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+        Q_D(const SqlModel);
+        return d->model->field(section)->displayName;
+    }
+    return QAbstractItemModel::headerData(section, orientation, role);
+}
+
+Row<Table> SqlModel::at(const int &i) const
+{
+    Q_D(const SqlModel);
+    return d->rows.at(i);
+}
+
+SqlModelPrivate::SqlModelPrivate(SqlModel *parent) : q_ptr(parent)
 {
 
 }
+
 
 NUT_END_NAMESPACE

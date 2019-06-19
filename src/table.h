@@ -34,12 +34,16 @@ NUT_BEGIN_NAMESPACE
 class Database;
 class TableSetBase;
 class TableModel;
+class TablePrivate;
 class NUT_EXPORT Table : public QObject
 {
     Q_OBJECT
+    TablePrivate *d_ptr;
+    Q_DECLARE_PRIVATE(Table)
 
 public:
     explicit Table(QObject *parentTableSet = nullptr);
+    virtual ~Table();
 
     enum Status{
         NewCreated,
@@ -51,9 +55,15 @@ public:
 
     int save(Database *db);
 
-    QString primaryKey() const;
-    bool isPrimaryKeyAutoIncrement() const;
-    QVariant primaryValue() const;
+//    Q_DECL_DEPRECATED
+//    QString primaryKey() const;
+
+//    Q_DECL_DEPRECATED
+//    bool isPrimaryKeyAutoIncrement() const;
+
+//    Q_DECL_DEPRECATED
+//    QVariant primaryValue() const;
+
     Status status() const;
     void setStatus(const Status &status);
 
@@ -64,28 +74,31 @@ public:
 
     QSet<QString> changedProperties() const;
 
-    bool setParentTable(Table *master);
+    bool setParentTable(Table *master, TableModel *masterModel, TableModel *model);
 signals:
 
 public slots:
 
 protected:
-    void propertyChanged(QString propName);
+    void propertyChanged(const QString &propName);
 
 private:
-    TableModel *myModel;
-    Status _status;
-    QSet<QString> _changedProperties;
+    void setModel(TableModel *model);
+//    TableModel *myModel;
+//    Status _status;
+//    QSet<QString> _changedProperties;
     //TODO: is this removable?
-    TableSetBase *_parentTableSet;
+//    TableSetBase *_parentTableSet;
 
-    QSet<TableSetBase*> childTableSets;
+//    QSet<TableSetBase*> childTableSets;
     void clear();
     void add(TableSetBase *);
 
     template<class T>
     friend class Query;
 
+    template<class T>
+    friend class TableSet;
     friend class TableSetBase;
 };
 

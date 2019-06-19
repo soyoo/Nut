@@ -1,4 +1,4 @@
-/**************************************************************************
+﻿/**************************************************************************
 **
 ** This file is part of Nut project.
 ** https://github.com/HamedMasafi/Nut
@@ -69,18 +69,18 @@ void TableModel::setTypeId(const int &typeId)
 FieldModel *TableModel::field(int n) const
 {
     if (n < 0 || n >= _fields.count())
-        return 0;
+        return nullptr;
 
     return _fields.at(n);
 }
 
-FieldModel *TableModel::field(QString name) const
+FieldModel *TableModel::field(const QString &name) const
 {
     foreach (FieldModel *f, _fields)
         if(f->name == name)
             return f;
     
-    return 0;
+    return nullptr;
 }
 
 QList<FieldModel *> TableModel::fields() const
@@ -99,37 +99,6 @@ QStringList TableModel::fieldsNames() const
     foreach (FieldModel *f, _fields)
         ret.append(f->name);
     return ret;
-}
-
-QSet<TableModel *> TableModel::allModels()
-{
-    return _allModels;
-}
-
-/*
- * This is not used anywhere
- */
-TableModel *TableModel::findByTypeId(int typeId)
-{
-    foreach (TableModel *model, _allModels)
-        if(model->typeId() == typeId)
-            return model;
-    return 0;
-}
-
-/**
- * @brief TableModel::findByClassName
- *  Find a table model by class name
- * @param className
- * @return
- */
-TableModel *TableModel::findByClassName(QString className)
-{
-    foreach (TableModel *model, _allModels)
-        if(model->className() == className)
-            return model;
-
-    return 0;
 }
 
 bool TableModel::operator ==(const TableModel &t) const{
@@ -156,24 +125,7 @@ bool TableModel::operator !=(const TableModel &t) const
     return !(*this == t);
 }
 
-//bool TableModel::checkClassInfo(const QMetaClassInfo &classInfo,
-//                                QString &type, QString &name, QString &value)
-//{
-//    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
-//        return false;
-//    } else {
-//        QStringList parts = QString(classInfo.value()).split("\n");
-//        if (parts.count() != 3)
-//            return false;
-
-//        type = parts[0];
-//        name = parts[1];
-//        value = parts[2];
-//        return true;
-//    }
-//}
-
-TableModel::TableModel(int typeId, QString tableName)
+TableModel::TableModel(int typeId, const QString &tableName)
 {
     //TODO: check that
 //    if  (findByTypeId(typeId))
@@ -202,7 +154,7 @@ TableModel::TableModel(int typeId, QString tableName)
         }
 
         if(type == __nut_FIELD){
-            FieldModel *f = new FieldModel;
+            auto *f = new FieldModel;
             f->name = f->displayName = name;
             _fields.append(f);
         }
@@ -217,7 +169,7 @@ TableModel::TableModel(int typeId, QString tableName)
                 f = fieldObj;
         if(!fieldObj)
             continue;
-        fieldObj->type = fieldProperty.type();
+        fieldObj->type = static_cast<QMetaType::Type>(fieldProperty.type());
         fieldObj->typeName = QString(fieldProperty.typeName());
     }
 
@@ -233,7 +185,7 @@ TableModel::TableModel(int typeId, QString tableName)
         }
 
         if(type == __nut_FOREGION_KEY){
-            RelationModel *fk = new RelationModel;
+            auto *fk = new RelationModel;
             fk->slaveTable = this;
             fk->localColumn = name + "Id";
             fk->localProperty = name;
@@ -270,9 +222,6 @@ TableModel::TableModel(int typeId, QString tableName)
             f->isAutoIncrement = true;
         }
     }
-
-    if(!findByTypeId(typeId) && !tableName.isNull())
-        _allModels.insert(this);
 }
 
 /*
@@ -291,7 +240,7 @@ TableModel::TableModel(int typeId, QString tableName)
         "primary_key": "id"
     },
 */
-TableModel::TableModel(QJsonObject json, QString tableName)
+TableModel::TableModel(const QJsonObject &json, const QString &tableName) : _typeId(0)
 {
     _name = tableName;
 
@@ -299,9 +248,11 @@ TableModel::TableModel(QJsonObject json, QString tableName)
     QJsonObject relations = json.value(__FOREIGN_KEYS).toObject();
     foreach (QString key, fields.keys()) {
         QJsonObject fieldObject = fields.value(key).toObject();
-        FieldModel *f = new FieldModel;
+        //TODO: use FieldModel(QJsonObject) ctor
+        auto *f = new FieldModel;
         f->name = fieldObject.value(__NAME).toString();
-        f->type = QVariant::nameToType(fieldObject.value(__TYPE).toString().toLatin1().data());
+        f->type = static_cast<QMetaType::Type>(QMetaType::type(fieldObject.value(__TYPE).toString().toLatin1().data()));
+        f->typeName = QMetaType::typeName(f->type);
 
         if(fieldObject.contains(__nut_NOT_NULL))
             f->notNull = fieldObject.value(__nut_NOT_NULL).toBool();
@@ -377,7 +328,7 @@ RelationModel *TableModel::foregionKey(const QString &otherTable) const
         if(fk->masterClassName == otherTable)
             return fk;
 
-    return 0;
+    return nullptr;
 }
 
 RelationModel *TableModel::foregionKeyByField(const QString &fieldName) const
@@ -386,7 +337,7 @@ RelationModel *TableModel::foregionKeyByField(const QString &fieldName) const
         if(fk->localColumn == fieldName)
             return fk;
 
-    return 0;
+    return nullptr;
 }
 
 QString TableModel::toString() const
@@ -396,8 +347,7 @@ QString TableModel::toString() const
         sl.append(f->name + " " + QVariant::typeToName(f->type));
 
     QString ret = QString("%1 (%2)")
-            .arg(_name)
-            .arg(sl.join(", "));
+            .arg(_name, sl.join(", "));
     return ret;
 }
 
@@ -409,10 +359,18 @@ QString TableModel::primaryKey() const
     return QString();
 }
 
+bool TableModel::isPrimaryKeyAutoIncrement() const
+{
+    FieldModel *pk = field(primaryKey());
+    if (!pk)
+        return false;
+    return pk->isAutoIncrement;
+}
+
 FieldModel::FieldModel(const QJsonObject &json)
 {
     name = json.value(__NAME).toString();
-    type = static_cast<QVariant::Type>(json.value(__TYPE).toInt());
+    type = static_cast<QMetaType::Type>(json.value(__TYPE).toInt());
     length = json.value(__nut_LEN).toInt();
     notNull = json.value(__nut_NOT_NULL).toBool();
     isAutoIncrement = json.value(__nut_AUTO_INCREMENT).toBool();
@@ -440,7 +398,7 @@ RelationModel::RelationModel(const QJsonObject &obj)
     localProperty = obj.value("localProperty").toString();
     masterClassName = obj.value("masterClassName").toString();
     foreignColumn = obj.value("foreignColumn").toString();
-    slaveTable = masterTable = 0;
+    slaveTable = masterTable = nullptr;
 }
 
 QJsonObject RelationModel::toJson() const

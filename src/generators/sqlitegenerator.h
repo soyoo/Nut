@@ -29,11 +29,18 @@ NUT_BEGIN_NAMESPACE
 class SqliteGenerator : public SqlGeneratorBase
 {
 public:
-    explicit SqliteGenerator(Database *parent = 0);
+    explicit SqliteGenerator(Database *parent = nullptr);
 
-    QString fieldType(FieldModel *field);
+    QString fieldType(FieldModel *field) override;
+    QString fieldDeclare(FieldModel *field) override;
 
-    void appendSkipTake(QString &sql, int skip, int take);
+    bool supportAutoIncrement(const QMetaType::Type &type) override;
+
+    void appendSkipTake(QString &sql, int skip, int take) override;
+
+    QString primaryKeyConstraint(const TableModel *table) const override;
+    QStringList diff(TableModel *oldTable, TableModel *newTable) override;
+
 };
 
 NUT_END_NAMESPACE

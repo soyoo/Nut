@@ -3,11 +3,10 @@
 src_dir="src"
 namespace_name="nut"
 
-ns=$(echo $namespace_name|awk '{print tolower($0)}')
+#ns=$(echo $namespace_name|awk '{print tolower($0)}')
 Ns="Nut"
 NS=$(echo $namespace_name|awk '{print toupper($0)}')
-echo $NS
-exit
+
 
 create_sub_folder=true
 
@@ -38,5 +37,6 @@ while read line; do
 		echo "#include \"../$src_dir/$header.h\"" >> "$Ns"
 		echo "#include \"../$src_dir/$header.h\"" >> "$ns.h"
 	fi
+	echo $Ns
 done <&3
 exec 3<&-

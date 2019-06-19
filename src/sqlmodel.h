@@ -23,6 +23,8 @@
 
 #include <QtCore/QAbstractTableModel>
 #include "defines.h"
+#include <QList>
+#include <functional>
 
 NUT_BEGIN_NAMESPACE
 
@@ -31,21 +33,51 @@ class TableSetBase;
 class SqlModelPrivate;
 class Table;
 class TableModel;
-class SqlModel : public QAbstractTableModel
+
+class NUT_EXPORT SqlModel : public QAbstractTableModel
 {
     Q_OBJECT
 
+    std::function <QVariant(int, QVariant)> _renderer;
+
 public:
+//    explicit SqlModel(Query *q);
     explicit SqlModel(Database *database, TableSetBase *tableSet, QObject *parent = Q_NULLPTR);
 
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
 
+    template<class T>
+    void setTable(RowList<T> rows);
+
+    void setRows(RowList<Table> rows);
+    void append(Row<Table> table);
+//    void append(Table *table);
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    Row<Nut::Table> at(const int &i) const;
+
+    void setRenderer(const std::function<QVariant (int, QVariant)> &renderer);
+
 private:
     SqlModelPrivate *d_ptr;
     Q_DECLARE_PRIVATE(SqlModel)
+
+signals:
+    void beforeShowText(int col, QVariant &value);
 };
+
+template<class T>
+Q_OUTOFLINE_TEMPLATE void SqlModel::setTable(RowList<T> rows)
+{
+    Q_D(SqlModel);
+
+    RowList<Table> tab;
+    foreach (auto t, rows)
+        tab.append(t);
+    setRows(tab);
+}
+
 
 NUT_END_NAMESPACE
 

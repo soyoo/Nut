@@ -13,29 +13,23 @@ compiler:
 
 env:
   matrix:
-    - QT=5  BREW=
-    - QT=5  BREW=ex   PPA=ubuntu-sdk-team/ppa
-    - QT=51 BREW=ex   PPA=beineri/opt-qt511-trusty
-    - QT=52 BREW=ex   PPA=beineri/opt-qt521-trusty
-    - QT=53 BREW=ex   PPA=beineri/opt-qt532-trusty
-    - QT=54 BREW=ex   PPA=beineri/opt-qt542-trusty
-    - QT=55 BREW=@5.5 PPA=beineri/opt-qt551-trusty
-    - QT=56 BREW=ex   PPA=beineri/opt-qt562-trusty
-    - QT=56 BREW=ex   PPA=beineri/opt-qt563-trusty
-    - QT=57 BREW=@5.7 PPA=beineri/opt-qt571-trusty
-    - QT=58 BREW=ex   PPA=beineri/opt-qt58-trusty
-    - QT=59 BREW=@5.9 PPA=beineri/opt-qt591-trusty
-
+    - QT=59 BREW=ex  PPA=beineri/opt-qt591-trusty
+    - QT=59 BREW=ex  PPA=beineri/opt-qt592-trusty
+    - QT=59 BREW=ex  PPA=beineri/opt-qt593-trusty
+    - QT=59 BREW=ex  PPA=beineri/opt-qt594-trusty
+    - QT=59 BREW=ex  PPA=beineri/opt-qt595-trusty
+    - QT=59 BREW=ex  PPA=beineri/opt-qt596-trusty
+    - QT=510 BREW=ex PPA=beineri/opt-qt-5.10.1-trusty
+    
 matrix:
   exclude:
-    - { os: osx, env: QT=5  BREW=ex   PPA=ubuntu-sdk-team/ppa      }
-    - { os: osx, env: QT=51 BREW=ex   PPA=beineri/opt-qt511-trusty }
-    - { os: osx, env: QT=52 BREW=ex   PPA=beineri/opt-qt521-trusty }
-    - { os: osx, env: QT=53 BREW=ex   PPA=beineri/opt-qt532-trusty }
-    - { os: osx, env: QT=54 BREW=ex   PPA=beineri/opt-qt542-trusty }
-    - { os: osx, env: QT=56 BREW=ex   PPA=beineri/opt-qt562-trusty }
-    - { os: osx, env: QT=56 BREW=ex   PPA=beineri/opt-qt563-trusty }
-    - { os: osx, env: QT=58 BREW=ex   PPA=beineri/opt-qt58-trusty  }
+    - { os: osx, env: QT=59 BREW=ex  PPA=beineri/opt-qt591-trusty }
+    - { os: osx, env: QT=59 BREW=ex  PPA=beineri/opt-qt592-trusty }
+    - { os: osx, env: QT=59 BREW=ex  PPA=beineri/opt-qt593-trusty }
+    - { os: osx, env: QT=59 BREW=ex  PPA=beineri/opt-qt594-trusty }
+    - { os: osx, env: QT=59 BREW=ex  PPA=beineri/opt-qt595-trusty }
+    - { os: osx, env: QT=59 BREW=ex  PPA=beineri/opt-qt596-trusty }
+    - { os: osx, env: QT=510 BREW=ex PPA=beineri/opt-qt-5.10.1-trusty }
 
 addons:
   coverity_scan:
@@ -72,7 +66,8 @@ before_script:
   - '[[ "$TRAVIS_OS_NAME" != linux || "$PPA" != */opt-* ]] || . /opt/qt$QT/bin/qt$QT-env.sh'
   - '[[ "$TRAVIS_OS_NAME" != linux || "$PPA" == */opt-* ]] || export QT_SELECT=qt5'
   - mkdir -p "$TRAVIS_BUILD_DIR-build"
-  - qmake -o "$TRAVIS_BUILD_DIR-build" -r -Wall -Wlogic -Wparser CONFIG+=debug_and_release "$TRAVIS_BUILD_DIR"
+  - cd "$TRAVIS_BUILD_DIR-build"
+  - qmake -r -Wall -Wlogic -Wparser CONFIG+=debug_and_release "$TRAVIS_BUILD_DIR/nut.pro"
 
 script:
   - make -C "$TRAVIS_BUILD_DIR-build" all

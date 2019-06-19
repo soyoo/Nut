@@ -24,6 +24,7 @@
 #include <QtCore/qglobal.h>
 #include <QtCore/QList>
 #include <QtSql/QSqlDatabase>
+#include <QSharedDataPointer>
 
 #include "defines.h"
 #include "tableset.h"
@@ -39,11 +40,12 @@ class NUT_EXPORT Database : public QObject
 {
     Q_OBJECT
 
+//    QSharedDataPointer<DatabasePrivate> *_d;
     DatabasePrivate *d_ptr;
     Q_DECLARE_PRIVATE(Database)
 
 public:
-    explicit Database(QObject *parent = 0);
+    explicit Database(QObject *parent = nullptr);
     explicit Database(const Database &other);
     explicit Database(const QSqlDatabase &other);
     ~Database();
@@ -52,7 +54,7 @@ public:
     bool open(bool updateDatabase);
     void close();
 
-    QSqlQuery exec(QString sql);
+    QSqlQuery exec(const QString& sql);
 
     int saveChanges(bool cleanUp = false);
     void cleanUp();
@@ -73,7 +75,8 @@ public:
 
 protected:
     //remove minor version
-    virtual void databaseUpdated(QString oldVersion, QString newVersion);
+    virtual void databaseCreated();
+    virtual void databaseUpdated(int oldVersion, int newVersion);
 
 public slots:
     void setDatabaseName(QString databaseName);

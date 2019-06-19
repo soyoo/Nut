@@ -20,10 +20,14 @@
 
 #include <QMetaMethod>
 #include <QVariant>
+#include <QSqlQuery>
+
 #include "table.h"
+#include "table_p.h"
 #include "database.h"
 #include "databasemodel.h"
 #include "generators/sqlgeneratorbase_p.h"
+#include "tablesetbase_p.h"
 
 NUT_BEGIN_NAMESPACE
 
@@ -39,73 +43,100 @@ NUT_BEGIN_NAMESPACE
  *  This should be fixed to v1.2
  */
 
-Table::Table(QObject *parent) : QObject(parent), myModel(0), _parentTableSet(0)
+Table::Table(QObject *parent) : QObject(parent),
+    d_ptr(new TablePrivate(this))
+{ }
+
+Table::~Table()
 {
-    setStatus(NewCreated);
+    Q_D(Table);
+
+    if (d->parentTableSet)
+        d->parentTableSet->remove(this);
 }
 
 void Table::add(TableSetBase *t)
 {
-    this->childTableSets.insert(t);
+    Q_D(Table);
+    d->childTableSets.insert(t);
 }
 
+//QString Table::primaryKey() const
+//{
+//    Q_D(const Table);
+//    return d->model->primaryKey();
+//}
 
-QString Table::primaryKey() const
+//bool Table::isPrimaryKeyAutoIncrement() const
+//{
+//    Q_D(const Table);
+//    FieldModel *pk = d->model->field(d->model->primaryKey());
+//    if (!pk)
+//        return false;
+//    return pk->isAutoIncrement;
+//}
+
+
+//QVariant Table::primaryValue() const
+//{
+//    return property(primaryKey().toLatin1().data());
+//}
+
+void Table::propertyChanged(const QString &propName)
 {
-    return myModel->primaryKey();
+    Q_D(Table);
+//    if (!d->model)
+//         d->model = TableModel::findByClassName(metaObject()->className());
+
+//    if (!d->model)
+//        qFatal ("model for class '%s' not found", qPrintable(metaObject()->className()));
+
+//    foreach (FieldModel *f, d->model->fields())
+//        if(f->isPrimaryKey && propName == f->name && f->isAutoIncrement)
+//            return;
+
+    d->changedProperties.insert(propName);
+    if (d->status == FeatchedFromDB)
+        d->status = Modified;
+
+    if (d->status == NewCreated)
+        d->status = Added;
 }
 
-bool Table::isPrimaryKeyAutoIncrement() const
+void Table::setModel(TableModel *model)
 {
-    return myModel->field(myModel->primaryKey())->isAutoIncrement;
-}
-
-
-QVariant Table::primaryValue() const
-{
-    return property(primaryKey().toLatin1().data());
-}
-
-void Table::propertyChanged(QString propName)
-{
-    if (!myModel)
-         myModel = TableModel::findByClassName(metaObject()->className());
-
-    if (!myModel)
-        qFatal ("model for this class not found");
-
-    foreach (FieldModel *f, myModel->fields())
-        if(f->isPrimaryKey && propName == f->name && f->isAutoIncrement)
-            return;
-
-    _changedProperties.insert(propName);
-    if (_status == FeatchedFromDB)
-        _status = Modified;
-
-    if (_status == NewCreated)
-        _status = Added;
+    Q_D(Table);
+    d->model = model;
 }
 
 void Table::clear()
 {
-    _changedProperties.clear();
+    Q_D(Table);
+    d->changedProperties.clear();
 }
 
 QSet<QString> Table::changedProperties() const
 {
-    return _changedProperties;
+    Q_D(const Table);
+    return d->changedProperties;
 }
 
-bool Table::setParentTable(Table *master)
+bool Table::setParentTable(Table *master, TableModel *masterModel, TableModel *model)
 {
-    QString masterClassName = master->metaObject()->className();
+    Q_D(Table);
 
-    foreach (RelationModel *r, myModel->foregionKeys())
+    QString masterClassName = master->metaObject()->className();
+    d->refreshModel();
+
+//    if (!d->model)
+//        d->model = TableModel::findByClassName(metaObject()->className());
+
+    foreach (RelationModel *r, model->foregionKeys())
         if(r->masterClassName == masterClassName)
         {
             setProperty(QString(r->localColumn).toLatin1().data(),
-                        master->primaryValue());
-            _changedProperties.insert(r->localColumn);
+                        master->property(masterModel->primaryKey().toUtf8().data()));
+            d->changedProperties.insert(r->localColumn);
             return true;
         }
 
@@ -114,18 +145,23 @@ bool Table::setParentTable(Table *master)
 
 TableSetBase *Table::parentTableSet() const
 {
-    return _parentTableSet;
+    Q_D(const Table);
+    return d->parentTableSet;
 }
 
 void Table::setParentTableSet(TableSetBase *parent)
 {
-    _parentTableSet = parent;
-    _parentTableSet->add(this);
+    Q_D(Table);
+    d->parentTableSet = parent;
+
+    if (parent)
+        d->parentTableSet->add(this);
 }
 
 TableSetBase *Table::childTableSet(const QString &name) const
 {
-    foreach (TableSetBase *t, childTableSets)
+    Q_D(const Table);
+    foreach (TableSetBase *t, d->childTableSets)
         if (t->childClassName() == name)
             return t;
     return Q_NULLPTR;
@@ -133,12 +169,15 @@ TableSetBase *Table::childTableSet(const QString &name) const
 
 int Table::save(Database *db)
 {
+    Q_D(Table);
+
     QSqlQuery q = db->exec(db->sqlGenertor()->saveRecord(this, db->tableName(metaObject()->className())));
 
-    if(status() == Added && isPrimaryKeyAutoIncrement())
-        setProperty(primaryKey().toLatin1().data(), q.lastInsertId());
+    auto model = db->model().tableByClassName(metaObject()->className());
+    if(status() == Added && model->isPrimaryKeyAutoIncrement())
+        setProperty(model->primaryKey().toLatin1().data(), q.lastInsertId());
 
-    foreach(TableSetBase *ts, childTableSets)
+    foreach(TableSetBase *ts, d->childTableSets)
         ts->save(db);
     setStatus(FeatchedFromDB);
 
@@ -147,12 +186,29 @@ int Table::save(Database *db)
 
 Table::Status Table::status() const
 {
-    return _status;
+    Q_D(const Table);
+    return static_cast<Status>(d->status);
 }
 
 void Table::setStatus(const Status &status)
 {
-    _status = status;
+    Q_D(Table);
+    d->status = status;
+}
+
+
+
+TablePrivate::TablePrivate(Table *parent) : q_ptr(parent),
+    model(nullptr), status(Table::NewCreated), parentTableSet(nullptr)
+{
+
+}
+
+void TablePrivate::refreshModel()
+{
+    Q_Q(Table);
+//    if (!model)
+//        model = TableModel::findByClassName(q->metaObject()->className());
 }
 
 NUT_END_NAMESPACE

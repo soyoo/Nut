@@ -29,102 +29,117 @@
 
 #include "tablesetbase_p.h"
 #include "table.h"
+#include "bulkinserter.h"
+#include "databasemodel.h"
+#include "tablesetbasedata.h"
 
 NUT_BEGIN_NAMESPACE
 
 template<class T>
 class Query;
 
+class BulkInserter;
+class Database;
+
 template<class T>
 class NUT_EXPORT TableSet : public TableSetBase
 {
 public:
+    typedef T value_type;
+    typedef T *pointer;
+    typedef T &reference;
+
     explicit TableSet(Database *parent);
     explicit TableSet(Table *parent);
 
-    void append(T *t);
-    void append(QList<T *> t);
+    void append(Row<T> t);
+    void append(RowList<T> t);
     void remove(T *t);
     void remove(QList<T *> t);
-
-    inline T *type() const {}
 
     int length() const;
     T *at(int i) const;
     const T &operator[](int i) const;
 
-    Query<T> *query();
-    Query<T> *query(bool autoDelete);
+    Query<T> *query(bool autoDelete = true);
+    BulkInserter *bulkInserter();
 };
 
 template<class T>
 Q_OUTOFLINE_TEMPLATE TableSet<T>::TableSet(Database *parent) : TableSetBase(parent)
 {
-    _childClassName = T::staticMetaObject.className();
+    data->childClassName = T::staticMetaObject.className();
 }
 
 template<class T>
 Q_OUTOFLINE_TEMPLATE TableSet<T>::TableSet(Table *parent) : TableSetBase(parent)
 {
-    _childClassName = T::staticMetaObject.className();
-}
-
-template<class T>
-Q_OUTOFLINE_TEMPLATE Query<T> *TableSet<T>::query()
-{
-    Query<T> *q = new Query<T>(_database, this, true);
-
-    return q;
+    data->childClassName = T::staticMetaObject.className();
 }
 
 template<class T>
 Q_OUTOFLINE_TEMPLATE Query<T> *TableSet<T>::query(bool autoDelete)
 {
-    Query<T> *q = new Query<T>(_database, this, autoDelete);
+    Query<T> *q = new Query<T>(data->database, this, autoDelete);
 
     return q;
 }
 
 template<class T>
+Q_OUTOFLINE_TEMPLATE BulkInserter *TableSet<T>::bulkInserter()
+{
+    BulkInserter *bi = new BulkInserter(data->database, data->childClassName);
+    return bi;
+}
+
+template<class T>
 Q_OUTOFLINE_TEMPLATE int TableSet<T>::length() const
 {
-    return _tables.count();
+    return data->tables.count();
 }
 
 template<class T>
 Q_OUTOFLINE_TEMPLATE T *TableSet<T >::at(int i) const
 {
-    return (T*)_tablesList.at(i);
+    //TODO: check
+    return reinterpret_cast<T*>(data->childRows.at(i));
 }
 
 template<class T>
 Q_OUTOFLINE_TEMPLATE const T &TableSet<T>::operator[](int i) const
 {
-    return _tablesList[i];
+    return data->childRows[i];
 }
 
 template<class T>
-Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(T *t)
+Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(Row<T> t)
 {
-    _tables.insert(t);
-    _tablesList.append(t);
-//    rows.append(t);
+    data.detach();
+    data->childs.append(t);
+    data->tables.insert(t.data());
+    data->childRows.append(t.data());
+
+//    if (_database)
+//        t->setModel(_database->model().tableByClassName(t->metaObject()->className()));
+
     t->setParentTableSet(this);
     if(t->status() != Table::FeatchedFromDB)
         t->setStatus(Table::Added);
 }
 
 template<class T>
-Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(QList<T *> t)
+Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(RowList<T> t)
 {
-    foreach (T* i, t)
+    foreach (Row<T> i, t)
         append(i);
 }
 
 template<class T>
 Q_OUTOFLINE_TEMPLATE void TableSet<T>::remove(T *t)
 {
-    _tables.remove(t);
+    data.detach();
+    data->childs.removeOne(t);
+    data->tables.remove(t);
     t->setStatus(Table::Deleted);
 }
 

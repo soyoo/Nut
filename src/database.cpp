@@ -45,7 +45,9 @@
 #include <iostream>
 #include <cstdarg>
 
-#define __CHANGE_LOG_TABLE_NAME "__change_logs"
+#ifndef __CHANGE_LOG_TABLE_NAME
+#   define __CHANGE_LOG_TABLE_NAME "__change_logs"
+#endif
 
 NUT_BEGIN_NAMESPACE
 
@@ -53,7 +55,7 @@ qulonglong DatabasePrivate::lastId = 0;
 QMap<QString, DatabaseModel> DatabasePrivate::allTableMaps;
 
 DatabasePrivate::DatabasePrivate(Database *parent) : q_ptr(parent),
-    port(0), sqlGenertor(0), changeLogs(0),
+    port(0), sqlGenertor(nullptr), changeLogs(nullptr),
     isDatabaseNew(false)
 {
 }
@@ -69,12 +71,13 @@ bool DatabasePrivate::open(bool update)
 
     db = QSqlDatabase::addDatabase(driver, connectionName);
     db.setHostName(hostName);
-    db.setPort(port);
+    if (port)
+        db.setPort(port);
     db.setDatabaseName(databaseName);
     db.setUserName(userName);
     db.setPassword(password);
 
-    if (driver.toLower().startsWith("qsqlite")
+    if (driver.startsWith("qsqlite", Qt::CaseInsensitive)
             && !QFile::exists(databaseName)) {
         //Force to execute update database
         isDatabaseNew = true;
@@ -108,18 +111,18 @@ bool DatabasePrivate::open(bool update)
 
                 isDatabaseNew = true;
                 return open(update);
-            } else {
-                qWarning("Unknown error detecting change logs, %s",
-                         db.lastError().text().toLatin1().data());
             }
+            qWarning("Unknown error detecting change logs, %s",
+                     db.lastError().text().toLatin1().data());
+
         }
         return false;
     }
 
-    if(update)
+//    if(update)
         return updateDatabase();
-    else
-        return true;
+//    else
+//        return true;
 }
 
 bool DatabasePrivate::updateDatabase()
@@ -134,24 +137,39 @@ bool DatabasePrivate::updateDatabase()
 
     if (last == current) {
         qDebug("Databse is up-to-date");
+        //TODO: crash without this and I don't know why!
+        changeLogs->clearChilds();
         return true;
     }
 
+    foreach (TableModel *tm, current) {
+        foreach (FieldModel *fm, tm->fields()) {
+            if (sqlGenertor->fieldType(fm).isEmpty()) {
+                qWarning("The type (%s) is not supported for field %s::%s",
+                         QMetaType::typeName(fm->type),
+                         qPrintable(tm->className()),
+                         qPrintable(fm->name));
+                return false;
+            }
+        }
+    }
     if (!last.count())
         qDebug("Databse is new");
     else
         qDebug("Databse is changed");
 
     QStringList sql = sqlGenertor->diff(last, current);
-qDebug()<<"database Sql =\n"<<sql;
+
     db.transaction();
     foreach (QString s, sql) {
         db.exec(s);
 
-        if (db.lastError().type() != QSqlError::NoError)
+        if (db.lastError().type() != QSqlError::NoError) {
             qWarning("Error executing sql command `%s`, %s",
                      qPrintable(s),
                      db.lastError().text().toLatin1().data());
+            return false;
+        }
     }
     putModelToDatabase();
     bool ok = db.commit();
@@ -159,15 +177,9 @@ qDebug()<<"database Sql =\n"<<sql;
     if (db.lastError().type() == QSqlError::NoError) {
 
         q->databaseUpdated(last.version(), current.version());
+        if (!last.count())
+            q->databaseCreated();
 
-        for (int i = 0; i < q->metaObject()->methodCount(); i++) {
-            QMetaMethod m = q->metaObject()->method(i);
-            if (m.name() == "update" + current.version()) {
-                m.invoke(q, Qt::DirectConnection,
-                         Q_ARG(QString, current.version()));
-                break;
-            }
-        }
     } else {
         qWarning("Unable update database, error = %s",
                  db.lastError().text().toLatin1().data());
@@ -186,6 +198,7 @@ bool DatabasePrivate::getCurrectScheema()
         return false;
     }
 
+    QMap<QString, QString> tables;
     tables.clear();
 
     // TODO: change logs must not be in model
@@ -205,7 +218,9 @@ bool DatabasePrivate::getCurrectScheema()
 
         if (!nutClassInfoString(q->metaObject()->classInfo(i),
                                 type, name, value)) {
-            qDebug() << "No valid table in" << q->metaObject()->classInfo(i).value();
+
+            errorMessage = QString("No valid table in %1")
+                    .arg(q->metaObject()->classInfo(i).value());
             continue;
         }
         if (type == __nut_TABLE) {
@@ -222,23 +237,13 @@ bool DatabasePrivate::getCurrectScheema()
             currentModel.append(sch);
         }
 
-        if (type == __nut_DB_VERSION)
-            currentModel.setVersion(name);
-
-            /* TODO: remove
-            QStringList version
-                = QString(ci.value()).replace("\"", "").split('.');
-            bool ok = false;
-            if (version.length() == 1) {
-                currentModel.setVersion(version.at(0).toInt(&ok));
-            } else if (version.length() == 2) {
-                currentModel.setVersionMajor(version.at(0).toInt(&ok));
-                currentModel.setVersionMinor(version.at(1).toInt(&ok));
-            }
-
+        if (type == __nut_DB_VERSION) {
+            bool ok;
+            int version = value.toInt(&ok);
             if (!ok)
-                qFatal("NUT_DB_VERSION macro accept version in format 'x' or "
-                       "'x[.y]' only, and x,y must be integer values\n");*/
+                qFatal("NUT_DB_VERSION macro accept version in format 'x'");
+            currentModel.setVersion(version);
+        }
     }
 
     for (int i = 1; i < q->metaObject()->propertyCount(); i++) {
@@ -252,42 +257,37 @@ bool DatabasePrivate::getCurrectScheema()
         }
     }
 
-    foreach (TableModel *table, currentModel)
+    foreach (TableModel *table, currentModel) {
+        foreach (FieldModel *f, table->fields()) {
+            if (f->isPrimaryKey && ! sqlGenertor->supportPrimaryKey(f->type))
+                qFatal("The field of type %s does not support as primary key",
+                       qPrintable(f->typeName));
+
+            if (f->isAutoIncrement && ! sqlGenertor->supportAutoIncrement(f->type))
+                qFatal("The field of type %s does not support as auto increment",
+                       qPrintable(f->typeName));
+        }
+
         foreach (RelationModel *fk, table->foregionKeys())
             fk->masterTable = currentModel.tableByClassName(fk->masterClassName);
+    }
 
     allTableMaps.insert(q->metaObject()->className(), currentModel);
     return true;
 }
 
-//bool DatabasePrivate::checkClassInfo(const QMetaClassInfo &classInfo, QString &type, QString &name, QString &value)
-//{
-//    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
-//        return false;
-//    } else {
-//        QStringList parts = QString(classInfo.value()).split("\n");
-//        if (parts.count() != 3)
-//            return false;
-
-//        type = parts[0];
-//        name = parts[1];
-//        value = parts[2];
-//        return true;
-//    }
-//}
-
 DatabaseModel DatabasePrivate::getLastScheema()
 {
-    ChangeLogTable *u = changeLogs->query()
+    Row<ChangeLogTable> u = changeLogs->query()
             ->orderBy(!ChangeLogTable::idField())
             ->first();
 
 //    DatabaseModel ret(q->metaObject()->className());
 
     if (u) {
+        QJsonParseError e;
         QJsonObject json
-            = QJsonDocument::fromJson(
-                  QByteArray(u->data().toLocal8Bit().data())).object();
+            = QJsonDocument::fromJson(u->data().replace("\\\"", "\"").toUtf8(), &e).object();
 
         DatabaseModel ret = json;
         return ret;
@@ -321,11 +321,11 @@ bool DatabasePrivate::putModelToDatabase()
     DatabaseModel current = currentModel;
     /*current.remove(__CHANGE_LOG_TABLE_NAME)*/;
 
-    ChangeLogTable *changeLog = new ChangeLogTable();
-    changeLog->setData(QJsonDocument(current.toJson()).toJson());
+    auto changeLog = create<ChangeLogTable>();
+    changeLog->setData(QJsonDocument(current.toJson()).toJson(QJsonDocument::Compact));
     changeLog->setVersion(current.version());
     changeLogs->append(changeLog);
-    q->saveChanges();
+    q->saveChanges(true);
     changeLog->deleteLater();
 
     return true;
@@ -344,9 +344,10 @@ bool DatabasePrivate::putModelToDatabase()
 void DatabasePrivate::createChangeLogs()
 {
     //    currentModel.model("change_log")
-    QString diff = sqlGenertor->diff(0, currentModel.tableByName("__change_log"));
+    QStringList diff = sqlGenertor->diff(nullptr, currentModel.tableByName("__change_log"));
 
-    db.exec(diff);
+    foreach (QString s, diff)
+        db.exec(s);
 }
 
 /*!
@@ -357,6 +358,7 @@ void DatabasePrivate::createChangeLogs()
 Database::Database(QObject *parent)
     : QObject(parent), d_ptr(new DatabasePrivate(this))
 {
+//    _d = new QSharedDataPointer<DatabasePrivate>(new DatabasePrivate(this));
     DatabasePrivate::lastId++;
 }
 
@@ -364,6 +366,7 @@ Database::Database(const Database &other)
     : QObject(other.parent()), d_ptr(new DatabasePrivate(this))
 {
     DatabasePrivate::lastId++;
+//    _d = other._d;
 
     setDriver(other.driver());
     setHostName(other.hostName());
@@ -393,8 +396,7 @@ Database::~Database()
     if (d->db.isOpen())
         d->db.close();
 
-    if (d_ptr)
-        delete d_ptr;
+    delete d_ptr;
 }
 
 QString Database::databaseName() const
@@ -516,7 +518,12 @@ QSqlDatabase Database::database()
     return d->db;
 }
 
-void Database::databaseUpdated(QString oldVersion, QString newVersion)
+void Database::databaseCreated()
+{
+
+}
+
+void Database::databaseUpdated(int oldVersion, int newVersion)
 {
     Q_UNUSED(oldVersion);
     Q_UNUSED(newVersion);
@@ -559,10 +566,9 @@ bool Database::open(bool updateDatabase)
     if (!d->sqlGenertor) {
         qFatal("Sql generator for driver %s not found",
                  driver().toLatin1().constData());
-        return false;
-    } else {
-        return d->open(updateDatabase);
     }
+
+    return d->open(updateDatabase);
 }
 
 void Database::close()
@@ -571,7 +577,7 @@ void Database::close()
     d->db.close();
 }
 
-QSqlQuery Database::exec(QString sql)
+QSqlQuery Database::exec(const QString &sql)
 {
     Q_D(Database);
 
@@ -592,6 +598,12 @@ void Database::add(TableSetBase *t)
 int Database::saveChanges(bool cleanUp)
 {
     Q_D(Database);
+
+    if (!d->db.isOpen()) {
+        qWarning("Database is not open");
+        return 0;
+    }
+
     int rowsAffected = 0;
     foreach (TableSetBase *ts, d->tableSets)
         rowsAffected += ts->save(this, cleanUp);
