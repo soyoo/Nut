@@ -1,9 +1,12 @@
+DEFINES += NUT_SHARED_POINTER
+
 HEADERS += \
     $$PWD/generators/sqlgeneratorbase_p.h \
     $$PWD/generators/postgresqlgenerator.h \
     $$PWD/generators/mysqlgenerator.h \
     $$PWD/generators/sqlitegenerator.h \
     $$PWD/generators/sqlservergenerator.h \
+    $$PWD/tablesetbasedata.h \
     $$PWD/types/dbgeography.h \
     $$PWD/tableset.h \
     $$PWD/defines_p.h \

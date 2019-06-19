@@ -8,3 +8,5 @@ win32 {
 LIBS += -L$$LIBDIR -lnut
 INCLUDEPATH += $$PWD/../../src $$PWD/../common
 #include(../../src/src.pri)
+
+DEFINES += NUT_SHARED_POINTER

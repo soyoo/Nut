@@ -3,6 +3,7 @@ QT += core sql
 CONFIG += c++11
 
 INCLUDEPATH += $$PWD/include
+DEFINES += NUT_SHARED_POINTER
 include(3rdparty/serializer/src/src.pri)
 
 HEADERS += \

@@ -1,6 +1,7 @@
 #ifndef SQLMODEL_P_H
 #define SQLMODEL_P_H
 
+#include <QSharedPointer>
 #include <QString>
 #include "defines.h"
 
@@ -17,7 +18,7 @@ public:
 
     QString tableName;
 
-    QList<Table*> rows;
+    RowList<Table> rows;
     TableModel *model;
 };
 

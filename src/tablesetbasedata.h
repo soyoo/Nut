@@ -18,37 +18,36 @@
 **
 **************************************************************************/
 
-#ifndef QUERYBASE_H
-#define QUERYBASE_H
+#ifndef TABLESETBASEDATA_H
+#define TABLESETBASEDATA_H
 
-#include <QtCore/QObject>
-#include <QtCore/qglobal.h>
-#include <QtCore/QExplicitlySharedDataPointer>
-
+#include <QSharedData>
 #include "defines.h"
-#include "query_p.h"
 
 NUT_BEGIN_NAMESPACE
 
-//TODO: remove this class
 class Table;
-class TableSetBase;
-class QueryBase : public QObject
+class Database;
+class TableSetBaseData : public QSharedData
 {
-    Q_OBJECT
-
-protected:
-    QExplicitlySharedDataPointer<QueryPrivate> d;
-
 public:
-    explicit QueryBase(QObject *parent = 0);
+    TableSetBaseData(Database *parent) :
+        database(parent), table(nullptr)
+    { }
 
-protected:
-//    void addTableToSet(TableSetBase *set, Table *table);
+    TableSetBaseData(Table *parent) :
+        database(nullptr), table(parent)
+    { }
 
-public slots:
+    QSet<Table*> tables;
+    QList<Table*> childRows;
+    RowList<Table> childs;
+
+    Database *database;
+    Table *table;
+    QString childClassName;
 };
 
 NUT_END_NAMESPACE
 
-#endif // QUERYBASE_H
+#endif // TABLESETBASEDATA_H

@@ -56,7 +56,7 @@ void BasicTest::dataScheema()
 
 void BasicTest::createUser()
 {
-    user = new User;
+    user = Nut::create<User>();
     user->setUsername("admin");
     user->setPassword("123456");
     db.users()->append(user);
@@ -66,7 +66,7 @@ void BasicTest::createUser()
 void BasicTest::createPost()
 {
     TIC();
-    Post *newPost = new Post;
+    auto newPost = Nut::create<Post>();
     newPost->setTitle("post title");
     newPost->setSaveDate(QDateTime::currentDateTime());
     newPost->setPublic(false);
@@ -74,14 +74,14 @@ void BasicTest::createPost()
     db.posts()->append(newPost);
 
     for(int i = 0 ; i < 3; i++){
-        auto *comment = new Comment;
+        auto comment = Nut::create<Comment>();
         comment->setMessage("comment #" + QString::number(i));
         comment->setSaveDate(QDateTime::currentDateTime());
         comment->setAuthorId(user->id());
-        newPost->comments()->append(comment);
+        db.comments()->append(comment);
     }
     for (int i = 0; i < 10; ++i) {
-        auto *score = new Score;
+        auto score = Nut::create<Score>();
         score->setScore(i % 5);
         newPost->scores()->append(score);
     }
@@ -106,7 +106,7 @@ void BasicTest::createPost2()
     int postId = postIdVar.toInt();
 
     for(int i = 0 ; i < 3; i++){
-        auto *comment = new Comment;
+        auto comment = Nut::create<Comment>();
         comment->setMessage("comment #" + QString::number(i + 2));
         comment->setSaveDate(QDateTime::currentDateTime());
         comment->setAuthor(user);
@@ -205,7 +205,7 @@ void BasicTest::testDate()
     QTime t = QTime(d.time().hour(), d.time().minute(), d.time().second());
     d.setTime(t);
 
-    Post *newPost = new Post;
+    auto newPost = Nut::create<Post>();
     newPost->setTitle("post title");
     newPost->setSaveDate(d);
 
@@ -249,7 +249,7 @@ void BasicTest::modifyPost()
     auto q = db.posts()->query();
     q->setWhere(Post::idField() == postId);
 
-    Post *post = q->first();
+    Nut::Row<Post> post = q->first();
 
     QTEST_ASSERT(post != nullptr);
 

@@ -209,6 +209,15 @@ inline Row<T> create() {
     return QSharedPointer<T>(new T);
 }
 
+template<class T>
+inline T *get(T *row) {
+    return row;
+}
+template<class T>
+inline T *get(const QSharedPointer<T> row) {
+    return row.data();
+}
+
 #else
 template <typename T>
 using RowList = QList<T*>;
@@ -223,6 +232,17 @@ template<class T>
 inline Row<T> create() {
     return new T;
 }
+
+template<class T>
+inline T *get(const Row<T> row) {
+    return row;
+}
+
+template<class T>
+inline T *get(const QSharedPointer<T> row) {
+    return row.data();
+}
+
 #endif
 
 NUT_END_NAMESPACE

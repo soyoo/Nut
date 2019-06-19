@@ -278,7 +278,7 @@ bool DatabasePrivate::getCurrectScheema()
 
 DatabaseModel DatabasePrivate::getLastScheema()
 {
-    ChangeLogTable *u = changeLogs->query()
+    Row<ChangeLogTable> u = changeLogs->query()
             ->orderBy(!ChangeLogTable::idField())
             ->first();
 
@@ -321,7 +321,7 @@ bool DatabasePrivate::putModelToDatabase()
     DatabaseModel current = currentModel;
     /*current.remove(__CHANGE_LOG_TABLE_NAME)*/;
 
-    auto *changeLog = new ChangeLogTable();
+    auto changeLog = create<ChangeLogTable>();
     changeLog->setData(QJsonDocument(current.toJson()).toJson(QJsonDocument::Compact));
     changeLog->setVersion(current.version());
     changeLogs->append(changeLog);

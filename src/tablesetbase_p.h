@@ -24,6 +24,7 @@
 #include <QtCore/QObject>
 #include <QtCore/qglobal.h>
 #include <QtCore/QSet>
+#include <QExplicitlySharedDataPointer>
 
 #include "defines.h"
 
@@ -31,6 +32,7 @@ NUT_BEGIN_NAMESPACE
 
 class Table;
 class Database;
+class TableSetBaseData;
 class TableSetBase : public QObject
 {
 
@@ -47,16 +49,17 @@ public:
     void setDatabase(Database *database);
 
 protected:
-    QSet<Table*> _tables;
-    QList<Table*> _childRows;
-    Database *_database;
-    Table *_table;
-//    QString _tableName;
-    QString _childClassName;
+//    QSet<Table*> _tables;
+//    RowList<Table> _childRows;
+//    Database *_database;
+//    Table *_table;
+////    QString _tableName;
+//    QString _childClassName;
+    QExplicitlySharedDataPointer<TableSetBaseData> data;
 
 private:
     void add(Table* t);
-    void remove(Table* t);
+    void remove(Table *t);
 
     friend class Table;
     friend class QueryBase;

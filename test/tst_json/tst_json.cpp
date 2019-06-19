@@ -39,7 +39,7 @@ void TestJson::store()
 
     db.open();
 
-    Table *t = new Table;
+    auto t = Nut::create<Table>();
     QJsonParseError e;
     QJsonDocument doc = QJsonDocument::fromJson(R"({"a": 4, "b":3.14})", &e);
     qDebug() << e.errorString();

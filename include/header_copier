@@ -3,7 +3,7 @@
 src_dir="src"
 namespace_name="nut"
 
-ns=$(echo $namespace_name|awk '{print tolower($0)}')
+#ns=$(echo $namespace_name|awk '{print tolower($0)}')
 Ns="Nut"
 NS=$(echo $namespace_name|awk '{print toupper($0)}')
 

@@ -85,53 +85,54 @@ void DataTypesTest::initTestCase()
 
 void DataTypesTest::insert()
 {
-    SampleTable t;
-    t.setInt8(f_int8);
-    t.setInt16(f_int16);
-    t.setInt32(f_int32);
-    t.setInt64(f_int64);
+    auto t = Nut::create<SampleTable>();
 
-    t.setUint8(f_uint8);
-    t.setUint16(f_uint16);
-    t.setUint32(f_uint32);
-    t.setUint64(f_uint64);
+    t->setInt8(f_int8);
+    t->setInt16(f_int16);
+    t->setInt32(f_int32);
+    t->setInt64(f_int64);
 
-    t.setReal(f_real);
-    t.setFloat(f_float);
+    t->setUint8(f_uint8);
+    t->setUint16(f_uint16);
+    t->setUint32(f_uint32);
+    t->setUint64(f_uint64);
 
-    t.setUrl(f_url);
+    t->setReal(f_real);
+    t->setFloat(f_float);
 
-    t.setTime(f_time);
-    t.setDate(f_date);
-    t.setDateTime(f_dateTime);
-    t.setUuid(f_uuid);
+    t->setUrl(f_url);
 
-    t.setJsonDoc(f_jsonDoc);
-    t.setJsonObj(f_jsonObj);
-    t.setJsonArray(f_jsonArray);
-    t.setJsonValue(f_jsonValue);
+    t->setTime(f_time);
+    t->setDate(f_date);
+    t->setDateTime(f_dateTime);
+    t->setUuid(f_uuid);
 
-    t.setString(f_string);
-    t.setStringList(f_stringList);
-    t.setQchar(f_qchar);
+    t->setJsonDoc(f_jsonDoc);
+    t->setJsonObj(f_jsonObj);
+    t->setJsonArray(f_jsonArray);
+    t->setJsonValue(f_jsonValue);
+
+    t->setString(f_string);
+    t->setStringList(f_stringList);
+    t->setQchar(f_qchar);
 #ifdef QT_GUI_LIB
-    t.setColor(f_color);
+    t->setColor(f_color);
 
-    t.setPoint(f_point);
-    t.setPointf(f_pointf);
+    t->setPoint(f_point);
+    t->setPointf(f_pointf);
 
-    t.setPolygon(f_polygon);
-    t.setPolygonf(f_polygonf);
+    t->setPolygon(f_polygon);
+    t->setPolygonf(f_polygonf);
 #endif
-    db.sampleTables()->append(&t);
+    db.sampleTables()->append(t);
     db.saveChanges();
 }
 
 void DataTypesTest::retrive()
 {
-    QList<SampleTable*> list = db.sampleTables()->query()->toList();
+    Nut::RowList<SampleTable> list = db.sampleTables()->query()->toList();
     QTEST_ASSERT(list.count() == 1);
-    SampleTable *t = list.first();
+    Nut::Row<SampleTable> t = list.first();
 
     QTEST_ASSERT(t->f_int8() == f_int8);
     QTEST_ASSERT(t->f_int16() == f_int16);
