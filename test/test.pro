@@ -3,12 +3,11 @@ TEMPLATE = subdirs
 SUBDIRS += \
     tst_basic \
     tst_benckmark  \
-#    tst_commands  \
     tst_datatypes \
-    #tst_join  \
     tst_phrases \
     tst_quuid \
     tst_generators \
     tst_upgrades \
-    tst_json
+    tst_json \
+    tst_supported_datatypes
 
