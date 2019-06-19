@@ -159,8 +159,6 @@ protected:
     QString agregateText(const AgregateType &t, const QString &arg = QString()) const;
     QString fromTableText(const QString &tableName, QString &joinClassName, QString &orderBy) const;
 //    QString createWhere(QList<WherePhrase> &wheres);
-    void replaceTableNames(QString &command);
-    void removeTableNames(QString &command);
 };
 
 NUT_END_NAMESPACE

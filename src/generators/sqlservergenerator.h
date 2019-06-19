@@ -39,6 +39,8 @@ public:
     QString escapeValue(const QVariant &v) const;
     void appendSkipTake(QString &sql, int skip, int take);
 
+    void replaceTableNames(QString &command);
+
 };
 
 NUT_END_NAMESPACE
