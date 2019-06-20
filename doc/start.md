@@ -1,10 +1,3 @@
-Welcome to the Nut wiki!
-
-# What is Nut
-
-Nut is advanced, Powerful and easy to use ORM for Qt5
-
-## Sample Codes
 ### Read data from database:
 
 ```cpp
@@ -50,12 +43,3 @@ if(post) {
 }
 ```
 
-## How to use nut
-
-* [Create database class](database.md)
-
-* [Create table class](table.md)
-
-* [Using queries](query.md)
-
-* [SUpported data types](datatypes.md)

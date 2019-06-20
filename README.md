@@ -19,7 +19,13 @@ Badge](https://api.codacy.com/project/badge/Grade/f3802610beb946068f6cd2c2b6608a
  - Table join detect 
  - Suppor every Qt types. [Full list](doc/datatypes.md)
 
-[Getting start](doc/start.md)
+##Getting start
+* [Sample codes](doc/start.md)
+* [Shared pointer and regular mode](sharedpointer.md)
+* [Create database class](database.md)
+* [Create table class](table.md)
+* [Using queries](query.md)
+* [Supported data types](datatypes.md)
 
 ### Donate
 Butcoin address: 1Dn1WHKkaxanXe4cTGDk4cFRRABxLUpEVj

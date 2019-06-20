@@ -56,12 +56,12 @@ auto count = q.count(Post::idField());
 ## Checking field exists in list of values
 ```cpp
 auto post = db.posts().query()
-    ->setWhete(Post::idField().in(QList<int>() << 1 << 2 << 3 << 4) || Post::isAccepted())
+    ->where(Post::idField().in(QList<int>() << 1 << 2 << 3 << 4) || Post::isAccepted())
     ->first();
 ```
 Or
 ```cpp
 auto post = db.posts().query()
-    ->setWhete(Post::idField().in({1, 2, 3, 4}) || Post::isAccepted())
+    ->where(Post::idField().in({1, 2, 3, 4}) || Post::isAccepted())
     ->first();
 ```

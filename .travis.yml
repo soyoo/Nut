@@ -1,6 +1,10 @@
 #Based on https://github.com/pcolby/libqtaws/blob/master/.travis.yml
 language: cpp
 
+branches:
+  only:
+  - master
+
 os:
   - linux
   - osx
