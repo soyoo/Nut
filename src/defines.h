@@ -84,14 +84,32 @@ public:                                                                        \
 
 #define NUT_FOREIGN_KEY(type, keytype, name, read, write)                     \
     Q_PROPERTY(Nut::Row<type> name READ read WRITE write)                      \
-    NUT_DECLARE_FIELD(keytype, name##Id, read##Id, write##Id)                  \
+    /*NUT_DECLARE_FIELD(keytype, name##Id, read##Id, write##Id)*/                  \
     NUT_INFO(__nut_FOREIGN_KEY, name, type)                                   \
-    Nut::Row<type> m_##name;                                                   \
+    Nut::ForeignKeyData<type, keytype> m_##name; \
 public:                                                                        \
-    Nut::Row<type> read() const { return m_##name ; }                          \
+    Nut::Row<type> read() const { return m_##name.table() ; }                          \
     void write(Nut::Row<type> name){                                           \
-        m_##name = name;                                                       \
+        m_##name.setTable(name);                                                       \
+    }\
+    \
+    Q_PROPERTY(keytype name##Id READ read##Id WRITE write##Id)                                \
+    NUT_INFO(__nut_FIELD, name##Id, 0)                                             \
+public:                                                                        \
+    static NUT_WRAP_NAMESPACE(FieldPhrase<keytype>)& name##Id ## Field(){             \
+        static NUT_WRAP_NAMESPACE(FieldPhrase<keytype>) f =                       \
+                NUT_WRAP_NAMESPACE(FieldPhrase<keytype>)                          \
+                        (staticMetaObject.className(), #name);                 \
+        return f;                                                              \
+    }                                                                          \
+    keytype read##Id() const{                                                         \
+        return m_##name.value();                                                       \
+    }                                                                          \
+    void write##Id(keytype name##Id){                                                     \
+        m_##name.setValue(name##Id);                                                       \
+        propertyChanged(QT_STRINGIFY2(name##Id));                                                \
     }
+
 
 #define NUT_DECLARE_CHILD_TABLE(type, n)                                       \
     private:                                                                   \
@@ -110,9 +128,18 @@ public:                                                                        \
     }
 
 #define NUT_FIELD(name)                     NUT_INFO(__nut_FIELD, name, 0)
-#define NUT_PRIMARY_KEY(x)                  NUT_INFO(__nut_PRIMARY_KEY,  x, 0)
+#define NUT_PRIMARY_KEY(x)                  NUT_INFO(__nut_PRIMARY_KEY,  x, 0)  \
+    QVariant primaryValue() const override {                                    \
+        return property(#x);                                                    \
+    }                                                                           \
+    void setPrimaryValue(const QVariant &value) override {                      \
+        setProperty(#x, value);                                                 \
+    }
+
+
 #define NUT_AUTO_INCREMENT(x)               NUT_INFO(__nut_AUTO_INCREMENT, x, 0)
-#define NUT_PRIMARY_AUTO_INCREMENT(x)       NUT_INFO(__nut_PRIMARY_KEY_AI, x, 0)
+#define NUT_PRIMARY_AUTO_INCREMENT(x)       NUT_INFO(__nut_PRIMARY_KEY_AI, x, 0)\
+            NUT_PRIMARY_KEY(X) NUT_AUTO_INCREMENT(X)
 #define NUT_DISPLAY_NAME(field, name)       NUT_INFO(__nut_DISPLAY, field, name)
 #define NUT_UNIQUE(x)                       NUT_INFO(__nut_UNIQUE, x, 0)
 #define NUT_LEN(field, len)                 NUT_INFO(__nut_LEN, field, len)
@@ -249,6 +276,32 @@ inline T *get(const QSharedPointer<T> row) {
 }
 
 #endif
+
+template<class C, typename T>
+struct ForeignKeyData {
+    Nut::Row<C> _table;
+    T _id;
+
+    ForeignKeyData() : _table(nullptr)
+    {}
+
+    void setTable(Nut::Row<C> t) {
+        _table = t;
+        _id = t->primaryValue().value<T>();
+    }
+    Nut::Row<C> table() const {
+        return _table;
+    }
+    void setValue(const T& val) {
+        _table = nullptr;
+        _id = val;
+    }
+    T value() const {
+        if (_table)
+            return _table->primaryValue().value<T>();
+        return _id;
+    }
+};
 
 NUT_END_NAMESPACE
 

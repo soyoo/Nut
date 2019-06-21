@@ -140,7 +140,7 @@ void GeneratorsTest::cleanupTestCase()
                      i.value().psql, i.value().mssql));
     }
 
-    QFile file(DOC_PATH "/datatypes.md");
+    QFile file(NUT_PATH "/doc/datatypes.md");
     if (file.open(QIODevice::WriteOnly)) {
         file.write(p.toUtf8());
         file.close();

@@ -55,14 +55,8 @@ public:
 
     int save(Database *db);
 
-//    Q_DECL_DEPRECATED
-//    QString primaryKey() const;
-
-//    Q_DECL_DEPRECATED
-//    bool isPrimaryKeyAutoIncrement() const;
-
-//    Q_DECL_DEPRECATED
-//    QVariant primaryValue() const;
+    virtual QVariant primaryValue() const = 0;
+    virtual void setPrimaryValue(const QVariant &value) = 0;
 
     Status status() const;
     void setStatus(const Status &status);
