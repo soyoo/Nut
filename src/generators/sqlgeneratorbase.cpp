@@ -446,16 +446,17 @@ QString SqlGeneratorBase::insertRecord(Table *t, QString tableName)
 
     QStringList values;
 
-    foreach (QString f, t->changedProperties())
-        if (f != key)
-            values.append(escapeValue(t->property(f.toLatin1().data())));
-
-    QString changedPropertiesText = QString();
     QSet<QString> props = t->changedProperties();
-    foreach (QString s, props) {
+    QString changedPropertiesText = QString();
+    foreach (QString f, props) {
+        if (f == key)
+            continue;
+
+        values.append(escapeValue(t->property(f.toLatin1().data())));
+
         if (changedPropertiesText != "")
             changedPropertiesText.append(", ");
-        changedPropertiesText.append(s);
+        changedPropertiesText.append(f);
     }
     sql = QString("INSERT INTO %1 (%2) VALUES (%3)")
               .arg(tableName, changedPropertiesText, values.join(", "));
