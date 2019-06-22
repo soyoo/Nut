@@ -80,11 +80,11 @@ void BasicTest::createPost()
         comment->setAuthorId(user->id());
         db.comments()->append(comment);
     }
-    for (int i = 0; i < 10; ++i) {
-        auto score = Nut::create<Score>();
-        score->setScore(i % 5);
-        newPost->scores()->append(score);
-    }
+//    for (int i = 0; i < 10; ++i) {
+//        auto score = Nut::create<Score>();
+//        score->setScore(i % 5);
+//        newPost->scores()->append(score);
+//    }
 
     db.saveChanges();
 
