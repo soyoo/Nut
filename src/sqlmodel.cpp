@@ -101,9 +101,11 @@ QVariant SqlModel::data(const QModelIndex &index, int role) const
 void SqlModel::setRows(RowList<Table> rows)
 {
     d.detach();
-    beginRemoveRows(QModelIndex(), 0, d->rows.count());
-    d->rows.clear();
-    endRemoveRows();
+    if (d->rows.count()) {
+        beginRemoveRows(QModelIndex(), 0, d->rows.count());
+        d->rows.clear();
+        endRemoveRows();
+    }
     beginInsertRows(QModelIndex(), 0, rows.count());
     d->rows = rows;
     endInsertRows();
