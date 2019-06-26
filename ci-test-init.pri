@@ -1,3 +1,3 @@
 #QT -= gui
 
-DEFINES += DOC_PATH=\\\"$$PWD/../../doc\\\"
+DEFINES += NUT_PATH=\\\"$$PWD/../../\\\"
