@@ -83,10 +83,22 @@ public:                                                                        \
     }
 
 #define NUT_FOREIGN_KEY(type, keytype, name, read, write)                     \
+    Q_PROPERTY(Nut::Row<type> name READ read WRITE write)                      \
+    NUT_DECLARE_FIELD(keytype, name##Id, read##Id, write##Id)                  \
+    NUT_INFO(__nut_FOREIGN_KEY, name, type)                                   \
+    Nut::Row<type> m_##name;                                                   \
+public:                                                                        \
+    Nut::Row<type> read() const { return m_##name ; }                          \
+    void write(Nut::Row<type> name){                                           \
+        m_##name = name;                                                       \
+    }
+
+#define NUT_FOREIGN_KEY_DECLARE(type, keytype, name, read, write)                     \
     NUT_INFO(__nut_FIELD, name##Id, 0)                                             \
     NUT_INFO(__nut_FOREIGN_KEY, name, type)                                   \
     Nut::Row<type> m_##name; \
     keytype m_##name##Id; \
+    Q_PROPERTY(Nut::Row<type> name READ read WRITE write)                                \
     Q_PROPERTY(keytype name##Id READ read##Id WRITE write##Id)                                \
 public:                                                                        \
     Nut::Row<type> read() const;                          \
@@ -115,6 +127,7 @@ public:                                                                        \
         return m_##name##Id;                                                       \
     }                                                                          \
     void class::write##Id(keytype name##Id){                                                     \
+        propertyChanged(QT_STRINGIFY2(name##Id));                                                \
         m_##name##Id = name##Id;                                                       \
         m_##name = nullptr; \
         propertyChanged(QT_STRINGIFY2(name##Id));                                                \
