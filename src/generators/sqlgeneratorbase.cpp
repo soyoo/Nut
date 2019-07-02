@@ -991,7 +991,12 @@ QString SqlGeneratorBase::createConditionalPhrase(const PhraseData *d) const
         else if (op == PhraseData::AddSeconds)
             ret = QString("DATEADD(second, %1, %2)")
                     .arg(d->operand.toString(), createConditionalPhrase(d->left));
-        else if (op == PhraseData::DatePartYear)
+        else if (op == PhraseData::Between) {
+            QVariantList list = d->operand.toList();
+            ret = QString("%1 BETWEEN %2 AND %3")
+                    .arg(createConditionalPhrase(d->left), escapeValue(list.at(0)), escapeValue(list.at(1)));
+
+        } else if (op == PhraseData::DatePartYear)
             ret = QString("DATEPART(year, %1)")
                     .arg(d->operand.toString());
         else if (op == PhraseData::DatePartMonth)
