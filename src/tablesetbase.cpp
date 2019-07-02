@@ -61,9 +61,10 @@ int TableSetBase::save(Database *db, bool cleanUp)
                 || t->status() == Table::Modified
                 || t->status() == Table::Deleted){
             rowsAffected += t->save(db);
-
+#ifndef NUT_SHARED_POINTER
             if(cleanUp)
                 t->deleteLater();
+#endif
         }
     }
 
@@ -76,7 +77,7 @@ int TableSetBase::save(Database *db, bool cleanUp)
 void TableSetBase::clearChilds()
 {
 #ifndef NUT_SHARED_POINTER
-    foreach (Table *t, data->_childRows)
+    foreach (Table *t, data->childRows)
         t->deleteLater();
 #endif
     data->childRows.clear();
