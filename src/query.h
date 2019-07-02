@@ -317,9 +317,20 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
 
             for (int i = 0; i < data.masters.count(); ++i) {
                 int master = data.masters[i];
-                table->setProperty(data.masterFields[i].toLocal8Bit().data(),
+#ifdef NUT_SHARED_POINTER
+                QString mName = QString("set%1").arg(levels[master].lastRow->metaObject()->className());
+                QString type = QString("Nut::Row<%1>").arg(levels[master].lastRow->metaObject()->className());
+                bool ok = table->metaObject()->invokeMethod(table,
+                                                  mName.toLocal8Bit().data(),
+                                                  QGenericArgument(type.toLatin1().data(), levels[master].lastRow));
+#else
+                bool ok = table->setProperty(data.masterFields[i].toLocal8Bit().data(),
                                    QVariant::fromValue(levels[master].lastRow));
+#endif
 
+                if (!ok)
+                    qWarning("Unable to set property %s::%s",
+                             table->metaObject()->className(), data.masterFields[i].toLocal8Bit().data());
                 table->setParentTableSet(
                             levels[master].lastRow->childTableSet(
                                 data.table->className()));
@@ -330,7 +341,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
             table->clear();
 
             //set last created row
-            data.lastRow = table;
+            data.lastRow = /*QSharedPointer<Table>*/(table);
         } //while
     } // while
 

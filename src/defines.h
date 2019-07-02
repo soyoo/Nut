@@ -87,9 +87,9 @@ public:                                                                        \
     NUT_DECLARE_FIELD(keytype, name##Id, read##Id, write##Id)                  \
     NUT_INFO(__nut_FOREIGN_KEY, name, type)                                   \
     Nut::Row<type> m_##name;                                                   \
-public:                                                                        \
+public slots:                                                                        \
     Nut::Row<type> read() const { return m_##name ; }                          \
-    void write(Nut::Row<type> name){                                           \
+    Q_INVOKABLE void write(Nut::Row<type> name){                                           \
         m_##name = name;                                                       \
     }
 
