@@ -73,27 +73,10 @@ QVariant SqlModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole) {
         Row<Table> t = d->rows.at(index.row());
         QVariant v = t->property(d->model->field(index.column())->name.toLocal8Bit().data());
-//        emit beforeShowText(index.column(), v);
+
         if (_renderer != nullptr)
             v = _renderer(index.column(), v);
         return v;
-//        LogData *d = dataList.at(index.row());
-
-//        switch (index.column()) {
-//        case COL_ID:
-//            return index.row() + 1;
-//        case COL_Type: {
-//            return typeText(d->type);
-//        }
-//        case COL_TITLE:
-//            return d->title;
-//        case COL_File:
-//            return d->file;
-//        case COL_Function:
-//            return d->function;
-//        case COL_Line:
-//            return d->line;
-//        }
     }
     return QVariant();
 }
