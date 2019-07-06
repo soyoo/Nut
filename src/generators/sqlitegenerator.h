@@ -41,6 +41,7 @@ public:
     QString primaryKeyConstraint(const TableModel *table) const override;
     QStringList diff(TableModel *oldTable, TableModel *newTable) override;
 
+    QString createConditionalPhrase(const PhraseData *d) const override;
 };
 
 NUT_END_NAMESPACE

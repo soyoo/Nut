@@ -328,12 +328,38 @@ QString PostgreSqlGenerator::createConditionalPhrase(const PhraseData *d) const
     if (!d)
         return QString();
 
+    PhraseData::Condition op = d->operatorCond;
+    //apply not (!)
+    if (d->isNot) {
+        if (op < 20)
+            op = static_cast<PhraseData::Condition>((op + 10) % 20);
+    }
+
     if (d->type == PhraseData::WithVariant) {
         if (isPostGisType(d->operand.type()) && d->operatorCond == PhraseData::Equal) {
             return QString("%1 ~= %2")
                     .arg(SqlGeneratorBase::createConditionalPhrase(d->left),
                          escapeValue(d->operand));
         }
+        if (op == PhraseData::AddYears)
+            return QString("DATEADD(year, %1, %2)")
+                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
+        else if (op == PhraseData::AddMonths)
+            return QString("DATEADD(month, %1, %2)")
+                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
+        else if (op == PhraseData::AddDays)
+            return QString("DATEADD(day, %1, %2)")
+                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
+        else if (op == PhraseData::AddHours)
+            return QString("DATEADD(hour, %1, %2)")
+                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
+        else if (op == PhraseData::AddMinutes)
+            return QString("DATEADD(minute, %1, %2)")
+                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
+        else if (op == PhraseData::AddSeconds)
+            return QString("DATEADD(second, %1, %2)")
+                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
+
     }
 
     return SqlGeneratorBase::createConditionalPhrase(d);

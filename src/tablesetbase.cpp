@@ -61,9 +61,11 @@ int TableSetBase::save(Database *db, bool cleanUp)
                 || t->status() == Table::Modified
                 || t->status() == Table::Deleted){
             rowsAffected += t->save(db);
-#ifndef NUT_SHARED_POINTER
             if(cleanUp)
+#ifndef NUT_SHARED_POINTER
                 t->deleteLater();
+#else
+                remove(t);
 #endif
         }
     }

@@ -290,4 +290,41 @@ bool MySqlGenerator::readInsideParentese(QString &text, QString &out)
 //    return command;
 //}
 
+QString MySqlGenerator::createConditionalPhrase(const PhraseData *d) const
+{
+    if (!d)
+        return QString();
+
+    PhraseData::Condition op = d->operatorCond;
+    //apply not (!)
+    if (d->isNot) {
+        if (op < 20)
+            op = static_cast<PhraseData::Condition>((op + 10) % 20);
+    }
+
+    if (d->type == PhraseData::WithVariant) {
+        if (op == PhraseData::AddYears)
+            return QString("DATE_ADD(%2, INTERVAL %1 YEAR)")
+                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
+        else if (op == PhraseData::AddMonths)
+            return QString("DATE_ADD(%2, INTERVAL %1 MONTH)")
+                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
+        else if (op == PhraseData::AddDays)
+            return QString("DATE_ADD(%2, INTERVAL %1 DAY)")
+                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
+        else if (op == PhraseData::AddHours)
+            return QString("DATE_ADD(%2, INTERVAL %1 HOUR)")
+                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
+        else if (op == PhraseData::AddMinutes)
+            return QString("DATE_ADD(%2, INTERVAL %1 MINUTE)")
+                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
+        else if (op == PhraseData::AddSeconds)
+            return QString("DATE_ADD(%2, INTERVAL %1 SECOND)")
+                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
+
+    }
+
+    return SqlGeneratorBase::createConditionalPhrase(d);
+}
+
 NUT_END_NAMESPACE

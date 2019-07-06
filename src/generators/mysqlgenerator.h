@@ -31,11 +31,12 @@ class MySqlGenerator : public SqlGeneratorBase
 public:
     explicit MySqlGenerator(Database *parent = 0);
 
-    QString fieldType(FieldModel *field);
-    QString escapeValue(const QVariant &v) const;
-    QVariant unescapeValue(const QMetaType::Type &type, const QVariant &dbValue);
+    QString fieldType(FieldModel *field) override;
+    QString escapeValue(const QVariant &v) const override;
+    QVariant unescapeValue(const QMetaType::Type &type, const QVariant &dbValue) override;
 //    QString phrase(const PhraseData *d) const;
     //    QString selectCommand(AgregateType t, QString agregateArg, QString tableName, QList<WherePhrase> &wheres, QList<WherePhrase> &orders, QList<RelationModel *> joins, int skip, int take);
+    QString createConditionalPhrase(const PhraseData *d) const override;
 private:
     bool readInsideParentese(QString &text, QString &out);
 };

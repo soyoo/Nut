@@ -205,4 +205,36 @@ QString SqliteGenerator::primaryKeyConstraint(const TableModel *table) const
 //    return sql;
 }
 
+QString SqliteGenerator::createConditionalPhrase(const PhraseData *d) const
+{
+    if (!d)
+        return QString();
+
+    PhraseData::Condition op = d->operatorCond;
+    //apply not (!)
+    if (d->isNot) {
+        if (op < 20)
+            op = static_cast<PhraseData::Condition>((op + 10) % 20);
+    }
+
+    if (d->type == PhraseData::WithVariant) {
+        QString part;
+        switch (op) {
+        case PhraseData::AddYears:
+        case PhraseData::AddMonths:
+        case PhraseData::AddDays:
+        case PhraseData::AddHours:
+        case PhraseData::AddMinutes:
+        case PhraseData::AddSeconds:
+            int i = d->operand.toInt();
+            return QString("DATE(%1,'%2 %3')")
+                    .arg(createConditionalPhrase(d->left),
+                         (i < 0 ? "-" : "+") + QString::number(i),
+                         dateTimePartName(op));
+        }
+    }
+
+    return SqlGeneratorBase::createConditionalPhrase(d);
+}
+
 NUT_END_NAMESPACE

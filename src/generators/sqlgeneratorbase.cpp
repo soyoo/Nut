@@ -785,6 +785,19 @@ void SqlGeneratorBase::removeTableNames(QString &command)
         command = command.replace("[" + m->className() + "].", "");
 }
 
+QString SqlGeneratorBase::dateTimePartName(const PhraseData::Condition &op) const
+{
+    switch (op) {
+    case PhraseData::AddYears:      return "YEAR";
+    case PhraseData::AddMonths:     return "MONTH";
+    case PhraseData::AddDays:       return "DAY";
+    case PhraseData::AddHours:      return "HOUR";
+    case PhraseData::AddMinutes:    return "MINUTE";
+    case PhraseData::AddSeconds:    return "SECOND";
+    }
+    return QString();
+}
+
 //QString SqlGeneratorBase::deleteCommand(QList<WherePhrase> &wheres,
 //                                        QString tableName)
 //{
@@ -973,7 +986,7 @@ QString SqlGeneratorBase::createConditionalPhrase(const PhraseData *d) const
         break;
 
     case PhraseData::WithVariant:
-        if (op == PhraseData::AddYears)
+       /* if (op == PhraseData::AddYears)
             ret = QString("DATEADD(year, %1, %2)")
                     .arg(d->operand.toString(), createConditionalPhrase(d->left));
         else if (op == PhraseData::AddMonths)
@@ -991,7 +1004,7 @@ QString SqlGeneratorBase::createConditionalPhrase(const PhraseData *d) const
         else if (op == PhraseData::AddSeconds)
             ret = QString("DATEADD(second, %1, %2)")
                     .arg(d->operand.toString(), createConditionalPhrase(d->left));
-        else if (op == PhraseData::Between) {
+        else */if (op == PhraseData::Between) {
             QVariantList list = d->operand.toList();
             ret = QString("%1 BETWEEN %2 AND %3")
                     .arg(createConditionalPhrase(d->left), escapeValue(list.at(0)), escapeValue(list.at(1)));
