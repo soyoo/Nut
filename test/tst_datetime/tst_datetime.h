@@ -33,6 +33,9 @@ private slots:
     void dateAdd();
     void timeAdd();
     void dateTimeAdd();
+    void datePart();
+    void timePart();
+    void dateTimePart();
     void cleanupTestCase();
 };
 

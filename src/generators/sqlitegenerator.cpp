@@ -218,8 +218,6 @@ QString SqliteGenerator::createConditionalPhrase(const PhraseData *d) const
     }
 
     if (d->type == PhraseData::WithVariant) {
-        QString part;
-
         switch (op) {
         case PhraseData::AddYears:
         case PhraseData::AddMonths:
@@ -254,6 +252,37 @@ QString SqliteGenerator::createConditionalPhrase(const PhraseData *d) const
                          dateTimePartName(op));
             break;
         }
+        }
+    }
+    if (d->type == PhraseData::WithoutOperand) {
+        switch (op) {
+        case PhraseData::DatePartYear:
+            return QString("CAST(strftime('%Y', %1) AS INT)")
+                    .arg(createConditionalPhrase(d->left));
+
+        case PhraseData::DatePartMonth:
+            return QString("CAST(strftime('%m', %1) AS INT)")
+                    .arg(createConditionalPhrase(d->left));
+
+        case PhraseData::DatePartDay:
+            return QString("CAST(strftime('%d', %1) AS INT)")
+                    .arg(createConditionalPhrase(d->left));
+
+        case PhraseData::DatePartHour:
+            return QString("CAST(strftime('%H', %1) AS INT)")
+                    .arg(createConditionalPhrase(d->left));
+
+        case PhraseData::DatePartMinute:
+            return QString("CAST(strftime('%M', %1) AS INT)")
+                    .arg(createConditionalPhrase(d->left));
+
+        case PhraseData::DatePartSecond:
+            return QString("CAST(strftime('%S', %1) AS INT)")
+                    .arg(createConditionalPhrase(d->left));
+
+            //        case PhraseData::DatePartMilisecond:
+            //            return QString("CAST(strftime('%Y', %1) AS INT)")
+            //                    .arg(createConditionalPhrase(d->left));
         }
     }
 
