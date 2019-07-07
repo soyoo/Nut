@@ -30,7 +30,9 @@ signals:
 
 private slots:
     void initTestCase();
-    void date();
+    void dateAdd();
+    void timeAdd();
+    void dateTimeAdd();
     void cleanupTestCase();
 };
 

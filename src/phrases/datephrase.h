@@ -102,32 +102,45 @@ public:
     ConditionalPhrase addYears(int val) {
         if (!is_valid_template<T, QDate>())
             return ConditionalPhrase();
+        if (std::is_same<T, QDateTime>::value)
+            return ConditionalPhrase(this, PhraseData::AddYearsDateTime, val);
+
         return ConditionalPhrase(this, PhraseData::AddYears, val);
     }
     ConditionalPhrase addMonths(int val) {
         if (!is_valid_template<T, QDate>())
             return ConditionalPhrase();
+        if (std::is_same<T, QDateTime>::value)
+            return ConditionalPhrase(this, PhraseData::AddMonthsDateTime, val);
         return ConditionalPhrase(this, PhraseData::AddMonths, val);
     }
     ConditionalPhrase addDays(int val) {
         if (!is_valid_template<T, QDate>())
             return ConditionalPhrase();
+        if (std::is_same<T, QDateTime>::value)
+            return ConditionalPhrase(this, PhraseData::AddDaysDateTime, val);
         return ConditionalPhrase(this, PhraseData::AddDays, val);
     }
 
     ConditionalPhrase addHours(int val) {
         if (!is_valid_template<T, QTime>())
             return ConditionalPhrase();
+        if (std::is_same<T, QDateTime>::value)
+            return ConditionalPhrase(this, PhraseData::AddHoursDateTime, val);
         return ConditionalPhrase(this, PhraseData::AddHours, val);
     }
     ConditionalPhrase addMinutes(int val) {
         if (!is_valid_template<T, QTime>())
             return ConditionalPhrase();
+        if (std::is_same<T, QDateTime>::value)
+            return ConditionalPhrase(this, PhraseData::AddMinutesDateTime, val);
         return ConditionalPhrase(this, PhraseData::AddMinutes, val);
     }
     ConditionalPhrase addSeconds(int val) {
         if (!is_valid_template<T, QTime>())
             return ConditionalPhrase();
+        if (std::is_same<T, QDateTime>::value)
+            return ConditionalPhrase(this, PhraseData::AddSecondsDateTime, val);
         return ConditionalPhrase(this, PhraseData::AddSeconds, val);
     }
 

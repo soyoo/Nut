@@ -35,19 +35,103 @@ void DateTimeTest::initTestCase()
     db.sampleTables()->query()->remove();
 }
 
-void DateTimeTest::date()
+#define TEST_DATE(date, command, n) \
+do { \
+    auto s = Nut::create<SampleTable>(); \
+    s->setD(date); \
+    db.sampleTables()->append(s); \
+    db.saveChanges(); \
+    auto count = db.sampleTables()->query() \
+            ->where(SampleTable::dField().command(n) == date.command(n)) \
+            ->count(); \
+    QTEST_ASSERT(count); \
+} while (false)
+
+#define TEST_TIME(time, command, n, num) \
+do { \
+    auto s = Nut::create<SampleTable>(); \
+    s->setT(time); \
+    db.sampleTables()->append(s); \
+    db.saveChanges(); \
+    auto count = db.sampleTables()->query() \
+            ->where(SampleTable::tField().command(n) == time.addSecs(num)) \
+            ->count(); \
+    QTEST_ASSERT(count); \
+} while (false)
+
+#define TEST_DATE2(datetime, command, n) \
+do { \
+    auto s = Nut::create<SampleTable>(); \
+    s->setDT(datetime); \
+    db.sampleTables()->append(s); \
+    db.saveChanges(); \
+    auto count = db.sampleTables()->query() \
+            ->where(SampleTable::dtField().command(n) == datetime.command(n)); \
+            ->count(); \
+    QTEST_ASSERT(count); \
+} while (false)
+
+#define TEST_TIME2(datetime, command, n, num) \
+do { \
+    auto s = Nut::create<SampleTable>(); \
+    s->setDT(datetime); \
+    db.sampleTables()->append(s); \
+    db.saveChanges(); \
+    auto count = db.sampleTables()->query() \
+            ->where(SampleTable::dtField().command(n) == datetime.addSecs(num)); \
+            ->count(); \
+    QTEST_ASSERT(count); \
+} while (false)
+
+#define MINUTE(m) m * 60
+#define HOUR(h) MINUTE(h) * 60
+
+void DateTimeTest::dateAdd()
 {
-    auto s = Nut::create<SampleTable>();
-    s->setD(_baseDateTime.addDays(10).date());
-    db.sampleTables()->append(s);
-    db.saveChanges();
+    QDate d = QDate::currentDate();
 
-    auto q = db.sampleTables()->query()
-            ->where(SampleTable::dField().addDays(9) < QDate::currentDate().addDays(10));
+    TEST_DATE(d, addYears, 10);
+    TEST_DATE(d, addMonths, 10);
+    TEST_DATE(d, addDays, 10);
 
-    auto count = q->count();
-    qDebug() << q->sqlCommand();
-    QTEST_ASSERT(count);
+    TEST_DATE(d, addYears, -10);
+    TEST_DATE(d, addMonths, -10);
+    TEST_DATE(d, addDays, -10);
+}
+
+void DateTimeTest::timeAdd()
+{
+    QTime t = QTime::currentTime();
+
+    TEST_TIME(t, addHours, 10, HOUR(10));
+    TEST_TIME(t, addMinutes, 10, MINUTE(10));
+    TEST_TIME(t, addSeconds, 10, 10);
+
+    TEST_TIME(t, addHours, -10, HOUR(-10));
+    TEST_TIME(t, addMinutes, -10, MINUTE(-10));
+    TEST_TIME(t, addSeconds, -10, -10);
+}
+
+void DateTimeTest::dateTimeAdd()
+{
+    QDateTime dt = QDateTime::currentDateTime();
+
+    TEST_DATE2(dt, addYears, 10);
+    TEST_DATE2(dt, addMonths, 10);
+    TEST_DATE2(dt, addDays, 10);
+
+    TEST_DATE2(dt, addYears, -10);
+    TEST_DATE2(dt, addMonths, -10);
+    TEST_DATE2(dt, addDays, -10);
+
+
+    TEST_TIME2(dt, addHours, 10, HOUR(10));
+    TEST_TIME2(dt, addMinutes, 10, MINUTE(10));
+    TEST_TIME2(dt, addSeconds, 10, 10);
+
+    TEST_TIME2(dt, addHours, -10, HOUR(-10));
+    TEST_TIME2(dt, addMinutes, -10, MINUTE(-10));
+    TEST_TIME2(dt, addSeconds, -10, -10);
 }
 
 void DateTimeTest::cleanupTestCase()
