@@ -289,11 +289,13 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
 
             //create table row
             Table *table;
+            Row<T> shp;
             if (data.table->className() == d->className) {
                 table = new T();
 #ifdef NUT_SHARED_POINTER
-                auto shp = QSharedPointer<T>(qobject_cast<T*>(table));
+                shp = QSharedPointer<T>(qobject_cast<T*>(table));
                 returnList.append(shp);
+                d->tableSet->add(shp);
 #else
                 returnList.append(dynamic_cast<T*>(table));
 #endif
@@ -331,9 +333,13 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
                 if (!ok)
                     qWarning("Unable to set property %s::%s",
                              table->metaObject()->className(), data.masterFields[i].toLocal8Bit().data());
-                table->setParentTableSet(
-                            levels[master].lastRow->childTableSet(
-                                data.table->className()));
+
+                auto tableset = levels[master].lastRow->childTableSet(
+                            data.table->className());
+                table->setParentTableSet(tableset);
+#ifdef NUT_SHARED_POINTER
+                tableset->add(qSharedPointerCast<Table>(shp));
+#endif
             }
 
             table->setStatus(Table::FeatchedFromDB);

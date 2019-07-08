@@ -42,6 +42,9 @@ TableSetBase::~TableSetBase()
 {
     foreach (Table *t, data->tables)
         t->setParentTableSet(nullptr);
+
+    foreach (Row<Table> t, data->childs)
+        t->setParentTableSet(nullptr);
 }
 
 int TableSetBase::save(Database *db, bool cleanUp)
@@ -99,6 +102,18 @@ void TableSetBase::remove(Table *t)
     data.detach();
     data->tables.remove(get(t));
     data->childRows.removeOne(get(t));
+}
+
+void TableSetBase::add(Row<Table> t)
+{
+    data.detach();
+    data->childs.append(t);
+}
+
+void TableSetBase::remove(Row<Table> t)
+{
+    data.detach();
+    data->childs.removeOne(t);
 }
 
 QString TableSetBase::childClassName() const

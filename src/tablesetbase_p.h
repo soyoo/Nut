@@ -57,9 +57,12 @@ protected:
 //    QString _childClassName;
     QExplicitlySharedDataPointer<TableSetBaseData> data;
 
-private:
+public://TODO: change this to private
     void add(Table* t);
     void remove(Table *t);
+
+    void add(Row<Table> t);
+    void remove(Row<Table> t);
 
     friend class Table;
     friend class QueryBase;
