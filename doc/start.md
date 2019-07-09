@@ -2,8 +2,8 @@
 
 ```cpp
 auto posts = db.posts()->query()
-    where(Post::idField() == postId)
-    toList();
+    ->where(Post::idField() == postId)
+    ->toList();
 // now posts is a QList<Post*> contain all posts in
 //  database that has id equal to postId variable
 auto post = q->first();
