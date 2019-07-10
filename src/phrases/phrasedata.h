@@ -64,6 +64,14 @@ public:
         AddMinutes,
         AddSeconds,
 
+        // sqlite need to know works with qdate, qtime or qdatetime
+        AddYearsDateTime,
+        AddMonthsDateTime,
+        AddDaysDateTime,
+        AddHoursDateTime,
+        AddMinutesDateTime,
+        AddSecondsDateTime,
+
         DatePartYear,
         DatePartMonth,
         DatePartDay,

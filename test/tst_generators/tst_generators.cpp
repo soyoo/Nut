@@ -139,7 +139,12 @@ void GeneratorsTest::cleanupTestCase()
                  .arg(i.key(), i.value().sqlite, i.value().mysql,
                      i.value().psql, i.value().mssql));
     }
-    qDebug() << p.toStdString().c_str();
+
+    QFile file(NUT_PATH "/doc/datatypes.md");
+    if (file.open(QIODevice::WriteOnly)) {
+        file.write(p.toUtf8());
+        file.close();
+    }
 }
 
 QTEST_MAIN(GeneratorsTest)

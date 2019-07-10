@@ -205,4 +205,116 @@ QString SqliteGenerator::primaryKeyConstraint(const TableModel *table) const
 //    return sql;
 }
 
+QString SqliteGenerator::createConditionalPhrase(const PhraseData *d) const
+{
+    if (!d)
+        return QString();
+
+    PhraseData::Condition op = d->operatorCond;
+    //apply not (!)
+    if (d->isNot) {
+        if (op < 20)
+            op = static_cast<PhraseData::Condition>((op + 10) % 20);
+    }
+
+    if (d->type == PhraseData::WithVariant) {
+        switch (op) {
+        case PhraseData::AddYears:
+        case PhraseData::AddMonths:
+        case PhraseData::AddDays: {
+            int i = d->operand.toInt();
+            return QString("DATE(%1,'%2 %3')")
+                    .arg(createConditionalPhrase(d->left),
+                         (i < 0 ? "" : "+") + QString::number(i),
+                         dateTimePartName(op));
+            break;
+        }
+        case PhraseData::AddHours:
+        case PhraseData::AddMinutes:
+        case PhraseData::AddSeconds: {
+            int i = d->operand.toInt();
+            return QString("TIME(%1,'%2 %3')")
+                    .arg(createConditionalPhrase(d->left),
+                         (i < 0 ? "" : "+") + QString::number(i),
+                         dateTimePartName(op));
+            break;
+        }
+        case PhraseData::AddYearsDateTime:
+        case PhraseData::AddMonthsDateTime:
+        case PhraseData::AddDaysDateTime:
+        case PhraseData::AddHoursDateTime:
+        case PhraseData::AddMinutesDateTime:
+        case PhraseData::AddSecondsDateTime: {
+            int i = d->operand.toInt();
+            return QString("DATETIME(%1,'%2 %3')")
+                    .arg(createConditionalPhrase(d->left),
+                         (i < 0 ? "" : "+") + QString::number(i),
+                         dateTimePartName(op));
+            break;
+        }
+        }
+    }
+    if (d->type == PhraseData::WithoutOperand) {
+        switch (op) {
+        case PhraseData::DatePartYear:
+            return QString("CAST(strftime('%Y', %1) AS INT)")
+                    .arg(createConditionalPhrase(d->left));
+
+        case PhraseData::DatePartMonth:
+            return QString("CAST(strftime('%m', %1) AS INT)")
+                    .arg(createConditionalPhrase(d->left));
+
+        case PhraseData::DatePartDay:
+            return QString("CAST(strftime('%d', %1) AS INT)")
+                    .arg(createConditionalPhrase(d->left));
+
+        case PhraseData::DatePartHour:
+            return QString("CAST(strftime('%H', %1) AS INT)")
+                    .arg(createConditionalPhrase(d->left));
+
+        case PhraseData::DatePartMinute:
+            return QString("CAST(strftime('%M', %1) AS INT)")
+                    .arg(createConditionalPhrase(d->left));
+
+        case PhraseData::DatePartSecond:
+            return QString("CAST(strftime('%S', %1) AS INT)")
+                    .arg(createConditionalPhrase(d->left));
+
+            //        case PhraseData::DatePartMilisecond:
+            //            return QString("CAST(strftime('%Y', %1) AS INT)")
+            //                    .arg(createConditionalPhrase(d->left));
+        }
+    }
+
+    return SqlGeneratorBase::createConditionalPhrase(d);
+}
+
+QString SqliteGenerator::escapeValue(const QVariant &v) const
+{
+    if (v.type() == QVariant::Time)
+        return "'" + v.toTime().toString("HH:mm:ss") + "'";
+
+    if (v.type() == QVariant::Date)
+        return "'" + v.toDate().toString("yyyy-MM-dd") + "'";
+
+    if (v.type() == QVariant::DateTime)
+        return "'" + v.toDateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
+
+    return SqlGeneratorBase::escapeValue(v);
+}
+
+QVariant SqliteGenerator::unescapeValue(const QMetaType::Type &type, const QVariant &dbValue)
+{
+    if (type == QMetaType::QDateTime)
+        return dbValue.toDateTime();
+
+    if (type == QMetaType::QTime)
+        return dbValue.toTime();
+
+    if (type == QMetaType::QDate)
+        return dbValue.toDate();
+
+    return SqlGeneratorBase::unescapeValue(type, dbValue);
+}
+
 NUT_END_NAMESPACE

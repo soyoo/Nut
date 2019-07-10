@@ -78,7 +78,7 @@ void BasicTest::createPost()
         comment->setMessage("comment #" + QString::number(i));
         comment->setSaveDate(QDateTime::currentDateTime());
         comment->setAuthorId(user->id());
-        db.comments()->append(comment);
+        newPost->comments()->append(comment);
     }
     for (int i = 0; i < 10; ++i) {
         auto score = Nut::create<Score>();

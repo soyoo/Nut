@@ -27,145 +27,96 @@
 
 NUT_BEGIN_NAMESPACE
 
+#define COMMON_OPERATORS_DECL(T) \
+    AssignmentPhrase operator =(const T &other); \
+    ConditionalPhrase operator <(const QVariant &other);                   \
+    ConditionalPhrase operator <=(const QVariant &other);  \
+    ConditionalPhrase operator >(const QVariant &other);   \
+    ConditionalPhrase operator >=(const QVariant &other);  \
+    ConditionalPhrase between(const QVariant &min, const QVariant &max);
 
-template<typename>
-struct __is_date_helper
-        : public std::false_type { };
+#define COMMON_OPERATORS_IMPL(T) \
+    AssignmentPhrase FieldPhrase<T>::operator =(const T &other) { \
+        return AssignmentPhrase(this, other); \
+    } \
+    ConditionalPhrase FieldPhrase<T>::operator <(const QVariant &other) {                   \
+        return ConditionalPhrase(this, PhraseData::Less, other);    \
+    }   \
+    ConditionalPhrase FieldPhrase<T>::operator <=(const QVariant &other) {  \
+        return ConditionalPhrase(this, PhraseData::LessEqual, other);   \
+    }   \
+    ConditionalPhrase FieldPhrase<T>::operator >(const QVariant &other) {   \
+        return ConditionalPhrase(this, PhraseData::Greater, other); \
+    }   \
+    ConditionalPhrase FieldPhrase<T>::operator >=(const QVariant &other) {  \
+        return ConditionalPhrase(this, PhraseData::GreaterEqual, other);    \
+    }   \
+    ConditionalPhrase FieldPhrase<T>::between(const QVariant &min, const QVariant &max) \
+    {   \
+        return ConditionalPhrase(this, PhraseData::Between, \
+                                 QVariantList() << min << max); \
+    }
 
 template<>
-struct __is_date_helper<QTime>
-        : public std::true_type { };
-
-template<>
-struct __is_date_helper<QDate>
-        : public std::true_type { };
-
-template<>
-struct __is_date_helper<QDateTime>
-        : public std::true_type { };
-
-template<typename _Tp>
-struct is_date
-        : public __is_date_helper<typename std::remove_cv<_Tp>::type>::type
-{ };
-
-
-template <class T, class P>
-inline bool is_valid_template() {return false;}
-
-template <>
-inline bool is_valid_template<QDateTime, QTime>() {return true;}
-
-template <>
-inline bool is_valid_template<QDateTime, QDate>() {return true;}
-
-template <>
-inline bool is_valid_template<QDate, QDate>() {return true;}
-
-template <>
-inline bool is_valid_template<QTime, QTime>() {return true;}
-
-template <typename T>
-class NUT_EXPORT FieldPhrase<T, typename std::enable_if<is_date<T>::value>::type>
-        : public AbstractFieldPhrase
+class NUT_EXPORT FieldPhrase<QDate> : public AbstractFieldPhrase
 {
 public:
-    FieldPhrase(const char *className, const char *s) :
-        AbstractFieldPhrase(className, s)
-    {}
+    FieldPhrase(const char *className, const char *s);
 
-    AssignmentPhrase operator =(const T &other) {
-        return AssignmentPhrase(this, other);
-    }
+    COMMON_OPERATORS_DECL(QDate)
 
-    ConditionalPhrase operator <(const QVariant &other) {
-        return ConditionalPhrase(this, PhraseData::Less, other);
-    }
-    ConditionalPhrase operator <=(const QVariant &other) {
-        return ConditionalPhrase(this, PhraseData::LessEqual, other);
-    }
-    ConditionalPhrase operator >(const QVariant &other) {
-        return ConditionalPhrase(this, PhraseData::Greater, other);
-    }
-    ConditionalPhrase operator >=(const QVariant &other) {
-        return ConditionalPhrase(this, PhraseData::GreaterEqual, other);
-    }
+    ConditionalPhrase addYears(int years);
+    ConditionalPhrase addMonths(int months);
+    ConditionalPhrase addDays(int days);
 
-    ConditionalPhrase between(const QVariant &min, const QVariant &max)
-    {
-        return ConditionalPhrase(this, PhraseData::Between,
-                                 QVariantList() << min << max);
-    }
+    ConditionalPhrase year();
+    ConditionalPhrase month();
+    ConditionalPhrase day();
+};
 
-//    template<class P = T,
-//             class std::enable_if<std::is_same<P, QDateTime>::value, int>::type = 0>
-    ConditionalPhrase addYears(int val) {
-        if (!is_valid_template<T, QDate>())
-            return ConditionalPhrase();
-        return ConditionalPhrase(this, PhraseData::AddYears, val);
-    }
-    ConditionalPhrase addMonths(int val) {
-        if (!is_valid_template<T, QDate>())
-            return ConditionalPhrase();
-        return ConditionalPhrase(this, PhraseData::AddMonths, val);
-    }
-    ConditionalPhrase addDays(int val) {
-        if (!is_valid_template<T, QDate>())
-            return ConditionalPhrase();
-        return ConditionalPhrase(this, PhraseData::AddDays, val);
-    }
+template<>
+class NUT_EXPORT FieldPhrase<QTime> : public AbstractFieldPhrase
+{
+public:
+    FieldPhrase(const char *className, const char *s);
 
-    ConditionalPhrase addHours(int val) {
-        if (!is_valid_template<T, QTime>())
-            return ConditionalPhrase();
-        return ConditionalPhrase(this, PhraseData::AddHours, val);
-    }
-    ConditionalPhrase addMinutes(int val) {
-        if (!is_valid_template<T, QTime>())
-            return ConditionalPhrase();
-        return ConditionalPhrase(this, PhraseData::AddMinutes, val);
-    }
-    ConditionalPhrase addSeconds(int val) {
-        if (!is_valid_template<T, QTime>())
-            return ConditionalPhrase();
-        return ConditionalPhrase(this, PhraseData::AddSeconds, val);
-    }
+    COMMON_OPERATORS_DECL(QTime)
 
-    ConditionalPhrase year() {
-        if (!is_valid_template<T, QDate>())
-            return ConditionalPhrase();
-        return ConditionalPhrase(this, PhraseData::DatePartYear);
-    }
-    ConditionalPhrase month() {
-        if (!is_valid_template<T, QDate>())
-            return ConditionalPhrase();
-        return ConditionalPhrase(this, PhraseData::DatePartMonth);
-    }
-    ConditionalPhrase day() {
-        if (!is_valid_template<T, QDate>())
-            return ConditionalPhrase();
-        return ConditionalPhrase(this, PhraseData::DatePartDay);
-    }
-    ConditionalPhrase hour() {
-        if (!is_valid_template<T, QTime>())
-            return ConditionalPhrase();
-        return ConditionalPhrase(this, PhraseData::DatePartHour);
-    }
-    ConditionalPhrase minute() {
-        if (!is_valid_template<T, QTime>())
-            return ConditionalPhrase();
-        return ConditionalPhrase(this, PhraseData::DatePartMinute);
-    }
-    ConditionalPhrase second() {
-        if (!is_valid_template<T, QTime>())
-            return ConditionalPhrase();
-        return ConditionalPhrase(this, PhraseData::DatePartSecond);
-    }
-    ConditionalPhrase msec() {
-        if (!is_valid_template<T, QTime>())
-            return ConditionalPhrase();
-        return ConditionalPhrase(this, PhraseData::DatePartMilisecond);
-    }
+    ConditionalPhrase addHours(int hours);
+    ConditionalPhrase addMinutes(int minutes);
+    ConditionalPhrase addSeconds(int seconds);
+
+    ConditionalPhrase hour();
+    ConditionalPhrase minute();
+    ConditionalPhrase second();
+    ConditionalPhrase msec();
+};
+
+template<>
+class NUT_EXPORT FieldPhrase<QDateTime> : public AbstractFieldPhrase
+{
+public:
+    FieldPhrase(const char *className, const char *s);
+
+    COMMON_OPERATORS_DECL(QDateTime)
+
+    ConditionalPhrase addYears(int year);
+    ConditionalPhrase addMonths(int months);
+    ConditionalPhrase addDays(int days);
+
+
+    ConditionalPhrase addHours(int hours);
+    ConditionalPhrase addMinutes(int minutes);
+    ConditionalPhrase addSeconds(int seconds);
+
+    ConditionalPhrase year();
+    ConditionalPhrase month();
+    ConditionalPhrase day();
+
+    ConditionalPhrase hour();
+    ConditionalPhrase minute();
+    ConditionalPhrase second();
+    ConditionalPhrase msec();
 };
 
 NUT_END_NAMESPACE

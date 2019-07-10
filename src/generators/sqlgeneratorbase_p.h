@@ -162,6 +162,7 @@ protected:
 
     void replaceTableNames(QString &command);
     void removeTableNames(QString &command);
+    QString dateTimePartName(const PhraseData::Condition &op) const;
 };
 
 NUT_END_NAMESPACE
