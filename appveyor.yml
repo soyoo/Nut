@@ -1,6 +1,6 @@
 install:
-  - set QTDIR=C:\Qt\5.9.2\winrt_x64_msvc2017
-  - set PATH=%PATH%;%QTDIR%\bin;C:\MinGW\bin
+  - set QTDIR=C:\Qt\5.12.2\msvc2017_64
+  - set PATH=%PATH%;%QTDIR%\bin;C:\Qt\Tools\mingw530_32
 build_script:
   - qmake
   - mingw32-make 
