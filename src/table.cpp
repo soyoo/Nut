@@ -51,8 +51,8 @@ Table::~Table()
 {
     //Q_D(Table);
 
-    if (d->parentTableSet)
-        d->parentTableSet->remove(this);
+//    if (d->parentTableSet)
+//        d->parentTableSet->remove(this);
 }
 
 void Table::add(TableSetBase *t)
@@ -156,8 +156,8 @@ void Table::setParentTableSet(TableSetBase *parent)
     //Q_D(Table);
     d->parentTableSet = parent;
 
-    if (parent)
-        d->parentTableSet->add(this);
+//    if (parent)
+//        d->parentTableSet->add(this);
 }
 
 TableSetBase *Table::childTableSet(const QString &name) const

@@ -272,14 +272,14 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
             // check if key value is changed
             if (data.lastKeyValue == q.value(data.keyFiledname)) {
                 --p;
-                qDebug() << "key os not changed for" << data.keyFiledname;
+//                qDebug() << "key os not changed for" << data.keyFiledname;
                 continue;
             }
 
             // check if master if current table has processed
             foreach (int m, data.masters)
                 if (!checked[m]) {
-                    qDebug() << "row is checked";
+//                    qDebug() << "row is checked";
                     continue;
                 }
 
@@ -288,25 +288,28 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
             data.lastKeyValue = q.value(data.keyFiledname);
 
             //create table row
-            Table *table;
-            Row<T> shp;
+            Table *tbl;
+            Row<Table> table;
             if (data.table->className() == d->className) {
-                table = new T();
+                tbl = new T;
+//                table = Nut::create<T>();
 #ifdef NUT_SHARED_POINTER
-                shp = QSharedPointer<T>(qobject_cast<T*>(table));
-                returnList.append(shp);
-                d->tableSet->add(shp);
+                table.reset(tbl);
+                returnList.append(qSharedPointerCast<T>(table));
 #else
-                returnList.append(dynamic_cast<T*>(table));
+                returnList.append(qobject_cast<T>(table1));
 #endif
-                table->setParentTableSet(d->tableSet);
+                d->tableSet->add(table);
+//                table->setParentTableSet(d->tableSet);
             } else {
                 const QMetaObject *childMetaObject
                         = QMetaType::metaObjectForType(data.table->typeId());
-                table = qobject_cast<Table *>(childMetaObject->newInstance());
-                if (!table)
+                tbl = qobject_cast<Table *>(childMetaObject->newInstance());
+                if (!tbl)
                     qFatal("Could not create instance of %s",
                            qPrintable(data.table->name()));
+
+                table.reset(tbl);
 
             }
 
@@ -322,7 +325,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
 #ifdef NUT_SHARED_POINTER
                 QString mName = QString("set%1").arg(levels[master].lastRow->metaObject()->className());
                 QString type = QString("Nut::Row<%1>").arg(levels[master].lastRow->metaObject()->className());
-                bool ok = table->metaObject()->invokeMethod(table,
+                bool ok = tbl->metaObject()->invokeMethod(tbl,
                                                   mName.toLocal8Bit().data(),
                                                   QGenericArgument(type.toLatin1().data(), levels[master].lastRow));
 #else
@@ -336,10 +339,10 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
 
                 auto tableset = levels[master].lastRow->childTableSet(
                             data.table->className());
-                table->setParentTableSet(tableset);
-#ifdef NUT_SHARED_POINTER
-                tableset->add(qSharedPointerCast<Table>(shp));
-#endif
+//                table->setParentTableSet(tableset);
+//#ifdef NUT_SHARED_POINTER
+                tableset->add(table);
+//#endif
             }
 
             table->setStatus(Table::FeatchedFromDB);
@@ -347,7 +350,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
             table->clear();
 
             //set last created row
-            data.lastRow = /*QSharedPointer<Table>*/(table);
+            data.lastRow = tbl;///*QSharedPointer<Table>*/(table.data());
         } //while
     } // while
 

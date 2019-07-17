@@ -49,17 +49,11 @@ public:
     void setDatabase(Database *database);
 
 protected:
-//    QSet<Table*> _tables;
-//    RowList<Table> _childRows;
-//    Database *_database;
-//    Table *_table;
-////    QString _tableName;
-//    QString _childClassName;
     QExplicitlySharedDataPointer<TableSetBaseData> data;
 
 public://TODO: change this to private
-    void add(Table* t);
-    void remove(Table *t);
+//    void add(Table* t);
+//    void remove(Table *t);
 
     void add(Row<Table> t);
     void remove(Row<Table> t);

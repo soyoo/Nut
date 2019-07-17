@@ -44,7 +44,8 @@ TableSetBase::~TableSetBase()
         t->setParentTableSet(nullptr);
 
     foreach (Row<Table> t, data->childs)
-        t->setParentTableSet(nullptr);
+        if (t)
+            t->setParentTableSet(nullptr);
 }
 
 int TableSetBase::save(Database *db, bool cleanUp)
@@ -54,7 +55,7 @@ int TableSetBase::save(Database *db, bool cleanUp)
     if (data->table)
         masterModel = db->model().tableByClassName(data->table->metaObject()->className());
 
-    foreach (Table *t, data->childRows) {
+    foreach (Row<Table> t, data->childs) {
         if(data->table)
             t->setParentTable(data->table,
                               masterModel,
@@ -88,26 +89,27 @@ void TableSetBase::clearChilds()
     data->childRows.clear();
 }
 
-void TableSetBase::add(Table *t)
-{
-    if(!data->tables.contains(get(t))){
-        data.detach();
-        data->tables.insert(get(t));
-        data->childRows.append(get(t));
-    }
-}
+//void TableSetBase::add(Table *t)
+//{
+//    if(!data->tables.contains(get(t))){
+//        data.detach();
+//        data->tables.insert(get(t));
+//        data->childRows.append(get(t));
+//    }
+//}
 
-void TableSetBase::remove(Table *t)
-{
-    data.detach();
-    data->tables.remove(get(t));
-    data->childRows.removeOne(get(t));
-}
+//void TableSetBase::remove(Table *t)
+//{
+//    data.detach();
+//    data->tables.remove(get(t));
+//    data->childRows.removeOne(get(t));
+//}
 
 void TableSetBase::add(Row<Table> t)
 {
     data.detach();
     data->childs.append(t);
+    t->setParentTableSet(this);
 }
 
 void TableSetBase::remove(Row<Table> t)
