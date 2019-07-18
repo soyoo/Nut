@@ -102,14 +102,15 @@ public slots:                                                                   
     Q_PROPERTY(keytype name##Id READ read##Id WRITE write##Id)                                \
 public:                                                                        \
     Nut::Row<type> read() const;                          \
-    void write(Nut::Row<type> name); \
+    keytype read##Id() const;                                                   \
     static NUT_WRAP_NAMESPACE(FieldPhrase<keytype>)& name##Id ## Field(){             \
         static NUT_WRAP_NAMESPACE(FieldPhrase<keytype>) f =                       \
                 NUT_WRAP_NAMESPACE(FieldPhrase<keytype>)                          \
                         (staticMetaObject.className(), #name);                 \
         return f;                                                              \
     }                                                                          \
-    keytype read##Id() const;                                                   \
+public slots: \
+    void write(Nut::Row<type> name); \
     void write##Id(keytype name##Id);
 
 #define NUT_FOREIGN_KEY_IMPLEMENT(class, type, keytype, name, read, write)                     \

@@ -288,34 +288,35 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
             data.lastKeyValue = q.value(data.keyFiledname);
 
             //create table row
-            Table *tbl;
-            Row<Table> table;
+            Table *table;
+            Row<Table> tablePointer;
+            const QMetaObject *childMetaObject;
             if (data.table->className() == d->className) {
-                tbl = new T;
+                table = new T;
+                childMetaObject = &T::staticMetaObject;
 //                table = Nut::create<T>();
 #ifdef NUT_SHARED_POINTER
-                table.reset(tbl);
-                returnList.append(qSharedPointerCast<T>(table));
+                tablePointer.reset(table);
+                returnList.append(qSharedPointerCast<T>(tablePointer));
 #else
                 returnList.append(qobject_cast<T>(table1));
 #endif
-                d->tableSet->add(table);
+                d->tableSet->add(tablePointer);
 //                table->setParentTableSet(d->tableSet);
             } else {
-                const QMetaObject *childMetaObject
-                        = QMetaType::metaObjectForType(data.table->typeId());
-                tbl = qobject_cast<Table *>(childMetaObject->newInstance());
-                if (!tbl)
+                childMetaObject = QMetaType::metaObjectForType(data.table->typeId());
+                table = qobject_cast<Table *>(childMetaObject->newInstance());
+                if (!table)
                     qFatal("Could not create instance of %s",
                            qPrintable(data.table->name()));
 
-                table.reset(tbl);
+                tablePointer.reset(table);
 
             }
 
             QList<FieldModel*> childFields = data.table->fields();
             foreach (FieldModel *field, childFields)
-                table->setProperty(field->name.toLatin1().data(),
+                tablePointer->setProperty(field->name.toLatin1().data(),
                                    d->database->sqlGenertor()->unescapeValue(
                                        field->type,
                                        q.value(data.table->name() + "." + field->name)));
@@ -325,7 +326,11 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
 #ifdef NUT_SHARED_POINTER
                 QString mName = QString("set%1").arg(levels[master].lastRow->metaObject()->className());
                 QString type = QString("Nut::Row<%1>").arg(levels[master].lastRow->metaObject()->className());
-                bool ok = tbl->metaObject()->invokeMethod(tbl,
+                for (int i = 0; i < table->metaObject()->methodCount(); ++i) {
+                    QMetaMethod m = table->metaObject()->method(i);
+                    qDebug() << m.name();
+                }
+                bool ok = table->metaObject()->invokeMethod(table,
                                                   mName.toLocal8Bit().data(),
                                                   QGenericArgument(type.toLatin1().data(), levels[master].lastRow));
 #else
@@ -335,22 +340,22 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
 
                 if (!ok)
                     qWarning("Unable to set property %s::%s",
-                             table->metaObject()->className(), data.masterFields[i].toLocal8Bit().data());
+                             tablePointer->metaObject()->className(), data.masterFields[i].toLocal8Bit().data());
 
                 auto tableset = levels[master].lastRow->childTableSet(
                             data.table->className());
 //                table->setParentTableSet(tableset);
 //#ifdef NUT_SHARED_POINTER
-                tableset->add(table);
+                tableset->add(tablePointer);
 //#endif
             }
 
-            table->setStatus(Table::FeatchedFromDB);
-            table->setParent(this);
-            table->clear();
+            tablePointer->setStatus(Table::FeatchedFromDB);
+            tablePointer->setParent(this);
+            tablePointer->clear();
 
             //set last created row
-            data.lastRow = tbl;///*QSharedPointer<Table>*/(table.data());
+            data.lastRow = table;///*QSharedPointer<Table>*/(table.data());
         } //while
     } // while
 
