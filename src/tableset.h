@@ -58,8 +58,8 @@ public:
     void remove(RowList<T> t);
 
     int length() const;
-    T *at(int i) const;
-    const T &operator[](int i) const;
+    Row<T> at(int i) const;
+    const Row<T> operator[](int i) const;
 
     Query<T> *query(bool autoDelete = true);
     BulkInserter *bulkInserter();
@@ -95,20 +95,27 @@ Q_OUTOFLINE_TEMPLATE BulkInserter *TableSet<T>::bulkInserter()
 template<class T>
 Q_OUTOFLINE_TEMPLATE int TableSet<T>::length() const
 {
-    return data->tables.count();
+    return data->childs.count();
 }
 
 template<class T>
-Q_OUTOFLINE_TEMPLATE T *TableSet<T >::at(int i) const
+Q_OUTOFLINE_TEMPLATE Row<T> TableSet<T >::at(int i) const
 {
-    //TODO: check
-    return reinterpret_cast<T*>(data->childRows.at(i));
+#ifdef NUT_SHARED_POINTER
+    return data->childs.at(i).objectCast<T>();
+#else
+    return reinterpret_cast<T*>(data->childs.at(i));
+#endif
 }
 
 template<class T>
-Q_OUTOFLINE_TEMPLATE const T &TableSet<T>::operator[](int i) const
+Q_OUTOFLINE_TEMPLATE const Row<T> TableSet<T>::operator[](int i) const
 {
-    return data->childRows[i];
+#ifdef NUT_SHARED_POINTER
+    return data->childs.at(i).objectCast<T>();
+#else
+    return reinterpret_cast<T*>(data->childs.at(i));
+#endif
 }
 
 template<class T>
@@ -116,8 +123,8 @@ Q_OUTOFLINE_TEMPLATE void TableSet<T>::append(Row<T> t)
 {
     data.detach();
     data->childs.append(t);
-    data->tables.insert(t.data());
-    data->childRows.append(t.data());
+//    data->tables.insert(t.data());
+//    data->childRows.append(t.data());
 
 //    if (_database)
 //        t->setModel(_database->model().tableByClassName(t->metaObject()->className()));
@@ -138,8 +145,8 @@ template<class T>
 Q_OUTOFLINE_TEMPLATE void TableSet<T>::remove(Row<T> t)
 {
     data.detach();
-    data->childs.removeOne(t.data());
-    data->tables.remove(t.data());
+//    data->childs.removeOne(t.data());
+//    data->tables.remove(t.data());
     data->childs.removeOne(t);
     t->setStatus(Table::Deleted);
 }

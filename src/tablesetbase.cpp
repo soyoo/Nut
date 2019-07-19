@@ -40,8 +40,8 @@ TableSetBase::TableSetBase(Table *parent) : QObject(parent),
 
 TableSetBase::~TableSetBase()
 {
-    foreach (Table *t, data->tables)
-        t->setParentTableSet(nullptr);
+//    foreach (Table *t, data->tables)
+//        t->setParentTableSet(nullptr);
 
     foreach (Row<Table> t, data->childs)
         if (t)
@@ -75,7 +75,7 @@ int TableSetBase::save(Database *db, bool cleanUp)
     }
 
     if (cleanUp)
-        data->childRows.clear();
+        data->childs.clear();
 
     return rowsAffected;
 }
@@ -83,10 +83,10 @@ int TableSetBase::save(Database *db, bool cleanUp)
 void TableSetBase::clearChilds()
 {
 #ifndef NUT_SHARED_POINTER
-    foreach (Table *t, data->childRows)
+    foreach (Table *t, data->childs)
         t->deleteLater();
 #endif
-    data->childRows.clear();
+    data->childs.clear();
 }
 
 //void TableSetBase::add(Table *t)

@@ -259,6 +259,10 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
         int n = -1;
 
         while (p) {
+            //            Q_ASSERT(p != lastP);
+            //            if (p == lastP)
+            //                qFatal("NULL Loop detected");
+
             ++n;
             n = n % levels.count();
             if (checked[n])
@@ -268,14 +272,14 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
             // check if key value is changed
             if (data.lastKeyValue == q.value(data.keyFiledname)) {
                 --p;
-                qDebug() << "key os not changed for" << data.keyFiledname;
+//                qDebug() << "key os not changed for" << data.keyFiledname;
                 continue;
             }
 
             // check if master if current table has processed
             foreach (int m, data.masters)
                 if (!checked[m]) {
-                    qDebug() << "row is checked";
+//                    qDebug() << "row is checked";
                     continue;
                 }
 
@@ -285,13 +289,13 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
 
             //create table row
             Table *table;
-            Row<T> tablePointer;
+            Row<Table> shp;
             if (data.table->className() == d->className) {
                 table = new T();
 #ifdef NUT_SHARED_POINTER
-                tablePointer = QSharedPointer<T>(qobject_cast<T*>(table));
-                returnList.append(tablePointer);
-                d->tableSet->add(tablePointer);
+                shp = QSharedPointer<Table>(table);
+                returnList.append(shp.objectCast<T>());
+                d->tableSet->add(shp);
 #else
                 returnList.append(dynamic_cast<T*>(table));
 #endif
@@ -303,8 +307,12 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
                 if (!table)
                     qFatal("Could not create instance of %s",
                            qPrintable(data.table->name()));
-
+                shp = QSharedPointer<Table>(table);
             }
+
+            connect(table, &QObject::destroyed, [](QObject *){
+               qDebug() << "Destroyed";
+            });
 
             QList<FieldModel*> childFields = data.table->fields();
             foreach (FieldModel *field, childFields)
@@ -321,6 +329,9 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
                 bool ok = table->metaObject()->invokeMethod(table,
                                                             mName.toLocal8Bit().data(),
                                                             QGenericArgument(type.toLatin1().data(), levels[master].lastRow));
+//               bool  ok = table->setProperty(data.masterFields[i].toLocal8Bit().data(),
+//                                             QVariant::fromValue(shp.data()));
+
 #else
                 bool ok = table->setProperty(data.masterFields[i].toLocal8Bit().data(),
                                              QVariant::fromValue(levels[master].lastRow));
@@ -334,7 +345,9 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
                             data.table->className());
                 table->setParentTableSet(tableset);
 #ifdef NUT_SHARED_POINTER
-                tableset->add(qSharedPointerCast<Table>(tablePointer));
+                tableset->add(shp);
+#else
+                tableset->add(table);
 #endif
             }
 
@@ -352,6 +365,7 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
         deleteLater();
 #endif
     return returnList;
+
 }
 
 template <typename T>

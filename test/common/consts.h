@@ -2,6 +2,7 @@
 #define CONSTS_H
 
 #include <qsystemdetection.h>
+#include <qcompilerdetection.h>
 
 #define REGISTER(x) qDebug() << (#x) << "type id:" << qMetaTypeId<x*>()
 #define PRINT(x)
@@ -27,6 +28,20 @@
 #   define OS "Unknown"
 #endif
 
+#ifdef Q_CC_GNU
+#   ifdef Q_CC_MINGW
+#       define CC "MinGW"
+#   else
+#       define CC "GNU"
+#   endif
+#elif defined (Q_CC_MSVC)
+#   define CC "msvc"
+#elif defined (Q_CC_CLANG)
+#   define CC "clang"
+#else
+#   define CC "Unknown"
+#endif
+
 #define PRINT_FORM(db) \
     qDebug() << "\n\n****************************"                             \
              << "\nAll tests passed,"                                          \
@@ -34,6 +49,7 @@
              << "hamed.masafi@gmail.com"                                       \
              << "\n\tDriver:" << db.driver()                                   \
              << "\n\tOS: " OS " (version: ________)"                           \
+             << "\n\tCompiler: " CC " (version: ________)"                     \
              << "\n\tQt version: " QT_VERSION_STR                              \
              << "\n\tTest:" << metaObject()->className()                       \
              << "\n****************************\n";
