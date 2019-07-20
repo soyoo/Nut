@@ -39,7 +39,7 @@ class QueryPrivate : public QSharedData {
 
 public:
     explicit QueryPrivate(QueryBase *parent);
-    ~QueryPrivate() = default;
+    ~QueryPrivate();
 
     QString sql;
     QString className;

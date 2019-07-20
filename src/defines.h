@@ -178,73 +178,69 @@ NUT_BEGIN_NAMESPACE
 inline bool nutClassInfo(const QMetaClassInfo &classInfo,
                          QString &type, QString &name, QVariant &value)
 {
-    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
+    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX))
         return false;
-    } else {
-        QStringList parts = QString(classInfo.value()).split("\n");
-        if (parts.count() != 3)
-            return false;
 
-        type = parts[0];
-        name = parts[1];
-        value = qVariantFromValue(parts[2]);
-        return true;
-    }
+    QStringList parts = QString(classInfo.value()).split("\n");
+    if (parts.count() != 3)
+        return false;
+
+    type = parts[0];
+    name = parts[1];
+    value = qVariantFromValue(parts[2]);
+    return true;
 }
 
 inline bool nutClassInfoString(const QMetaClassInfo &classInfo,
                               QString &type, QString &name, QString &value)
 {
-    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
+    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX))
         return false;
-    } else {
-        QStringList parts = QString(classInfo.value()).split("\n");
-        if (parts.count() != 3)
-            return false;
 
-        type = parts[0];
-        name = parts[1];
-        value = parts[2];
-        return true;
-    }
+    QStringList parts = QString(classInfo.value()).split("\n");
+    if (parts.count() != 3)
+        return false;
+
+    type = parts[0];
+    name = parts[1];
+    value = parts[2];
+    return true;
 }
 
 inline bool nutClassInfoBool(const QMetaClassInfo &classInfo,
                               QString &type, QString &name, bool &value)
 {
-    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
+    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX))
         return false;
-    } else {
-        QStringList parts = QString(classInfo.value()).split("\n");
-        if (parts.count() != 3)
-            return false;
 
-        QString buffer = parts[2].toLower();
-        if (buffer != "true" && buffer != "false")
-            return false;
+    QStringList parts = QString(classInfo.value()).split("\n");
+    if (parts.count() != 3)
+        return false;
 
-        type = parts[0];
-        name = parts[1];
-        value = (buffer == "true");
-        return true;
-    }
+    QString buffer = parts[2].toLower();
+    if (buffer != "true" && buffer != "false")
+        return false;
+
+    type = parts[0];
+    name = parts[1];
+    value = (buffer == "true");
+    return true;
 }
 
 inline bool nutClassInfoInt(const QMetaClassInfo &classInfo,
                             QString &type, QString &name, bool &value)
 {
-    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
+    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX))
         return false;
-    } else {
-        QStringList parts = QString(classInfo.value()).split("\n");
-        if (parts.count() != 3)
-            return false;
-        bool ok;
-        type = parts[0];
-        name = parts[1];
-        value = parts[2].toInt(&ok);
-        return ok;
-    }
+
+    QStringList parts = QString(classInfo.value()).split("\n");
+    if (parts.count() != 3)
+        return false;
+    bool ok;
+    type = parts[0];
+    name = parts[1];
+    value = parts[2].toInt(&ok);
+    return ok;
 }
 
 #ifdef NUT_SHARED_POINTER

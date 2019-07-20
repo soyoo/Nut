@@ -178,7 +178,7 @@ QString MySqlGenerator::escapeValue(const QVariant &v) const
 //    }
 
 //    default:
-        return SqlGeneratorBase::escapeValue(v);
+    return SqlGeneratorBase::escapeValue(v);
 //    }
 }
 
@@ -306,19 +306,19 @@ QString MySqlGenerator::createConditionalPhrase(const PhraseData *d) const
         if (op == PhraseData::AddYears)
             return QString("DATE_ADD(%2, INTERVAL %1 YEAR)")
                     .arg(d->operand.toString(), createConditionalPhrase(d->left));
-        else if (op == PhraseData::AddMonths)
+        if (op == PhraseData::AddMonths)
             return QString("DATE_ADD(%2, INTERVAL %1 MONTH)")
                     .arg(d->operand.toString(), createConditionalPhrase(d->left));
-        else if (op == PhraseData::AddDays)
+        if (op == PhraseData::AddDays)
             return QString("DATE_ADD(%2, INTERVAL %1 DAY)")
                     .arg(d->operand.toString(), createConditionalPhrase(d->left));
-        else if (op == PhraseData::AddHours)
+        if (op == PhraseData::AddHours)
             return QString("DATE_ADD(%2, INTERVAL %1 HOUR)")
                     .arg(d->operand.toString(), createConditionalPhrase(d->left));
-        else if (op == PhraseData::AddMinutes)
+        if (op == PhraseData::AddMinutes)
             return QString("DATE_ADD(%2, INTERVAL %1 MINUTE)")
                     .arg(d->operand.toString(), createConditionalPhrase(d->left));
-        else if (op == PhraseData::AddSeconds)
+        if (op == PhraseData::AddSeconds)
             return QString("DATE_ADD(%2, INTERVAL %1 SECOND)")
                     .arg(d->operand.toString(), createConditionalPhrase(d->left));
 
