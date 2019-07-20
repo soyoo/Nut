@@ -309,9 +309,9 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
                            qPrintable(data.table->name()));
                 shp = QSharedPointer<Table>(table);
             }
-
-            connect(table, &QObject::destroyed, [](QObject *){
-               qDebug() << "Destroyed";
+            const char *className = table->metaObject()->className();
+            connect(table, &QObject::destroyed, [className](QObject *){
+               qDebug() << "Destroyed " << className;
             });
 
             QList<FieldModel*> childFields = data.table->fields();
