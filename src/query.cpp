@@ -28,15 +28,20 @@ QueryPrivate::QueryPrivate(QueryBase *parent) : q_ptr(parent),
 
 }
 
+QueryPrivate::~QueryPrivate()
+{
+
+}
+
 /*!
   * \class Query
   * \brief This class hold a query. A query can be used for getting database rows, editing or deleting without row fetching.
   * A query can be used for getting data from database.
   * \code
-  * auto q = db.posts()->createQuery();
+  * auto q = db.posts()->query();
   * q->join(Post::commentsTable());
   * q->orderBy(!Post::saveDateField() & Post::bodyField());
-  * q->setWhere(Post::idField() > 5);
+  * q->where(Post::idField() > 5);
   *
   * auto posts = q->toList();
   * \endcode
@@ -54,7 +59,7 @@ QueryPrivate::QueryPrivate(QueryBase *parent) : q_ptr(parent),
  */
 
 /*!
- * \fn Query<T> *Query::setWhere(WherePhrase where)
+ * \fn Query<T> *Query::where(WherePhrase where)
  * Where phrase is a phrase using table's static field methods.
  * \code
  * q->setWhere(Post::idField() == 4 || Post::titleField().isNull());

@@ -44,32 +44,32 @@ NUT_BEGIN_NAMESPACE
  */
 
 Table::Table(QObject *parent) : QObject(parent),
-    d_ptr(new TablePrivate(this))
+    d(new TablePrivate(this))
 { }
 
 Table::~Table()
 {
-    Q_D(Table);
+    //Q_D(Table);
 
-    if (d->parentTableSet)
-        d->parentTableSet->remove(this);
+//    if (d->parentTableSet)
+//        d->parentTableSet->remove(this);
 }
 
 void Table::add(TableSetBase *t)
 {
-    Q_D(Table);
+    //Q_D(Table);
     d->childTableSets.insert(t);
 }
 
 //QString Table::primaryKey() const
 //{
-//    Q_D(const Table);
+//    //Q_D(const Table);
 //    return d->model->primaryKey();
 //}
 
 //bool Table::isPrimaryKeyAutoIncrement() const
 //{
-//    Q_D(const Table);
+//    //Q_D(const Table);
 //    FieldModel *pk = d->model->field(d->model->primaryKey());
 //    if (!pk)
 //        return false;
@@ -84,7 +84,7 @@ void Table::add(TableSetBase *t)
 
 void Table::propertyChanged(const QString &propName)
 {
-    Q_D(Table);
+    //Q_D(Table);
 //    if (!d->model)
 //         d->model = TableModel::findByClassName(metaObject()->className());
 
@@ -95,6 +95,7 @@ void Table::propertyChanged(const QString &propName)
 //        if(f->isPrimaryKey && propName == f->name && f->isAutoIncrement)
 //            return;
 
+    d.detach();
     d->changedProperties.insert(propName);
     if (d->status == FeatchedFromDB)
         d->status = Modified;
@@ -105,25 +106,26 @@ void Table::propertyChanged(const QString &propName)
 
 void Table::setModel(TableModel *model)
 {
-    Q_D(Table);
+    //Q_D(Table);
     d->model = model;
 }
 
 void Table::clear()
 {
-    Q_D(Table);
+    //Q_D(Table);
     d->changedProperties.clear();
 }
 
 QSet<QString> Table::changedProperties() const
 {
-    Q_D(const Table);
+    //Q_D(const Table);
     return d->changedProperties;
 }
 
 bool Table::setParentTable(Table *master, TableModel *masterModel, TableModel *model)
 {
-    Q_D(Table);
+    //Q_D(Table);
+    d.detach();
 
     QString masterClassName = master->metaObject()->className();
     d->refreshModel();
@@ -145,22 +147,22 @@ bool Table::setParentTable(Table *master, TableModel *masterModel, TableModel *m
 
 TableSetBase *Table::parentTableSet() const
 {
-    Q_D(const Table);
+    //Q_D(const Table);
     return d->parentTableSet;
 }
 
 void Table::setParentTableSet(TableSetBase *parent)
 {
-    Q_D(Table);
+    //Q_D(Table);
     d->parentTableSet = parent;
 
-    if (parent)
-        d->parentTableSet->add(this);
+//    if (parent)
+//        d->parentTableSet->add(this);
 }
 
 TableSetBase *Table::childTableSet(const QString &name) const
 {
-    Q_D(const Table);
+    //Q_D(const Table);
     foreach (TableSetBase *t, d->childTableSets)
         if (t->childClassName() == name)
             return t;
@@ -169,7 +171,7 @@ TableSetBase *Table::childTableSet(const QString &name) const
 
 int Table::save(Database *db)
 {
-    Q_D(Table);
+    //Q_D(Table);
 
     QSqlQuery q = db->exec(db->sqlGenertor()->saveRecord(this, db->tableName(metaObject()->className())));
 
@@ -186,19 +188,19 @@ int Table::save(Database *db)
 
 Table::Status Table::status() const
 {
-    Q_D(const Table);
+    //Q_D(const Table);
     return static_cast<Status>(d->status);
 }
 
 void Table::setStatus(const Status &status)
 {
-    Q_D(Table);
+    //Q_D(Table);
     d->status = status;
 }
 
 
 
-TablePrivate::TablePrivate(Table *parent) : q_ptr(parent),
+TablePrivate::TablePrivate(Table *parent) : QSharedData(),
     model(nullptr), status(Table::NewCreated), parentTableSet(nullptr)
 {
 
@@ -206,7 +208,7 @@ TablePrivate::TablePrivate(Table *parent) : q_ptr(parent),
 
 void TablePrivate::refreshModel()
 {
-    Q_Q(Table);
+//    Q_Q(Table);
 //    if (!model)
 //        model = TableModel::findByClassName(q->metaObject()->className());
 }

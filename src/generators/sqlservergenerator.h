@@ -31,15 +31,15 @@ class SqlServerGenerator : public SqlGeneratorBase
 public:
     explicit SqlServerGenerator(Database *parent = nullptr);
 
-    QString masterDatabaseName(QString databaseName);
+    QString masterDatabaseName(QString databaseName) override;
 
-    QString fieldType(FieldModel *field);
-    QString diff(FieldModel *oldField, FieldModel *newField);
+    QString fieldType(FieldModel *field) override;
+    QString diff(FieldModel *oldField, FieldModel *newField) override;
 
-    QString escapeValue(const QVariant &v) const;
-    void appendSkipTake(QString &sql, int skip, int take);
+    QString escapeValue(const QVariant &v) const override;
+    void appendSkipTake(QString &sql, int skip, int take) override;
 
-    void replaceTableNames(QString &command);
+//    void replaceTableNames(QString &command) override;
 
 };
 

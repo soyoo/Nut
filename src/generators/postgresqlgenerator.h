@@ -29,7 +29,7 @@ NUT_BEGIN_NAMESPACE
 class PostgreSqlGenerator : public SqlGeneratorBase
 {
 private:
-    bool readInsideParentese(QString &ref, QString &out);
+    bool readInsideParentese(QString &text, QString &out);
     bool isPostGisType(const QVariant::Type &t) const;
 public:
     explicit PostgreSqlGenerator(Database *parent = nullptr);

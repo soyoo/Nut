@@ -167,11 +167,12 @@ QString SqlServerGenerator::escapeValue(const QVariant &v) const
 
     if (mid == QMetaType::QString || mid == QMetaType::QChar)
         return "N'" + v.toString() + "'";
-    else if (mid == QMetaType::QPoint) {
+    if (mid == QMetaType::QPoint) {
         QPoint pt = v.toPoint();
         return QString("geography::POINT(%1, %2, 4326)").arg(pt.x()).arg(
             pt.y());
-    } else if (mid == QMetaType::QPointF) {
+    }
+    if (mid == QMetaType::QPointF) {
         QPointF pt = v.toPointF();
         return QString("geography::POINT(%1, %2, 4326)").arg(pt.x()).arg(
             pt.y());

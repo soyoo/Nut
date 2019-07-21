@@ -160,7 +160,7 @@ protected:
     QString fromTableText(const QString &tableName, QString &joinClassName, QString &orderBy) const;
 //    QString createWhere(QList<WherePhrase> &wheres);
 
-    void replaceTableNames(QString &command);
+    virtual void replaceTableNames(QString &command);
     void removeTableNames(QString &command);
     QString dateTimePartName(const PhraseData::Condition &op) const;
 };
