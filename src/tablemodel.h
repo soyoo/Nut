@@ -129,9 +129,6 @@ private:
     int _typeId;
     QList<FieldModel*> _fields;
     QList<RelationModel*> _foreignKeys;
-
-    Q_DECL_DEPRECATED
-    static QSet<TableModel*>_allModels;
 };
 
 NUT_END_NAMESPACE

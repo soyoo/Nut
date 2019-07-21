@@ -16,7 +16,7 @@ class TablePrivate : public QSharedData {
     Q_DECLARE_PUBLIC(Table)
 
 public:
-    TablePrivate(Table *parent);
+    TablePrivate();
 
 
     TableModel *model;

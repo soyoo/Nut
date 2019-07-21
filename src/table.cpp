@@ -44,7 +44,7 @@ NUT_BEGIN_NAMESPACE
  */
 
 Table::Table(QObject *parent) : QObject(parent),
-    d(new TablePrivate(this))
+    d(new TablePrivate)
 { }
 
 Table::~Table()
@@ -200,7 +200,7 @@ void Table::setStatus(const Status &status)
 
 
 
-TablePrivate::TablePrivate(Table *parent) : QSharedData(),
+TablePrivate::TablePrivate() : QSharedData(),
     model(nullptr), status(Table::NewCreated), parentTableSet(nullptr)
 {
 

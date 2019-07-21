@@ -806,6 +806,9 @@ QString SqlGeneratorBase::dateTimePartName(const PhraseData::Condition &op) cons
     case PhraseData::AddSeconds:
     case PhraseData::AddSecondsDateTime:
         return "SECOND";
+
+    default:
+        break;
     }
     return QString();
 }
