@@ -39,7 +39,7 @@ public:
     QString escapeValue(const QVariant &v) const override;
     void appendSkipTake(QString &sql, int skip, int take) override;
 
-    void replaceTableNames(QString &command) override;
+//    void replaceTableNames(QString &command) override;
 
 };
 
