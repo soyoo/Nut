@@ -4,7 +4,7 @@
 
 #include "consts.h"
 
-#include "maintest.h"
+#include "tst_benchmark.h"
 #include "query.h"
 #include "tableset.h"
 #include "tablemodel.h"

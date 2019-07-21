@@ -12,12 +12,12 @@ class PhraseList;
 class AssignmentPhraseList;
 class ConditionalPhrase;
 }
-class MainTest : public QObject
+class PhrasesTest : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit MainTest(QObject *parent = nullptr);
+    explicit PhrasesTest(QObject *parent = nullptr);
 
 signals:
 

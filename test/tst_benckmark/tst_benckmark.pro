@@ -16,12 +16,12 @@ SOURCES += \
     tst_benchmark.cpp
 
 HEADERS += \
-    maintest.h \
     ../common/consts.h \
     ../common/comment.h \
     ../common/post.h \
     ../common/user.h \
     ../common/weblogdatabase.h \
-    ../common/score.h
+    ../common/score.h \
+    tst_benchmark.h
 
 include($$PWD/../../ci-test-init.pri)
