@@ -40,9 +40,6 @@ TableSetBase::TableSetBase(Table *parent) : QObject(parent),
 
 TableSetBase::~TableSetBase()
 {
-//    foreach (Table *t, data->tables)
-//        t->setParentTableSet(nullptr);
-
     foreach (Row<Table> t, data->childs)
         if (t)
             t->setParentTableSet(nullptr);
@@ -66,10 +63,10 @@ int TableSetBase::save(Database *db, bool cleanUp)
                 || t->status() == Table::Deleted){
             rowsAffected += t->save(db);
             if(cleanUp)
-#ifndef NUT_SHARED_POINTER
-                t->deleteLater();
-#else
+#ifdef NUT_SHARED_POINTER
                 remove(t);
+#else
+                t->deleteLater();
 #endif
         }
     }
@@ -89,22 +86,6 @@ void TableSetBase::clearChilds()
     data->childs.clear();
 }
 
-//void TableSetBase::add(Table *t)
-//{
-//    if(!data->tables.contains(get(t))){
-//        data.detach();
-//        data->tables.insert(get(t));
-//        data->childRows.append(get(t));
-//    }
-//}
-
-//void TableSetBase::remove(Table *t)
-//{
-//    data.detach();
-//    data->tables.remove(get(t));
-//    data->childRows.removeOne(get(t));
-//}
-
 void TableSetBase::add(Row<Table> t)
 {
     data.detach();
@@ -115,7 +96,7 @@ void TableSetBase::add(Row<Table> t)
 void TableSetBase::remove(Row<Table> t)
 {
     data.detach();
-    data->childs.removeOne(t);
+    data->childs.removeAll(t);
 }
 
 QString TableSetBase::childClassName() const

@@ -264,12 +264,12 @@ inline Row<T> create(QObject *parent) {
 }
 
 template<class T>
-inline T *get(T *row) {
-    return row;
+inline Row<T> createFrom(T *row) {
+    return QSharedPointer<T>(row);
 }
 template<class T>
-inline T *get(const QSharedPointer<T> row) {
-    return row.data();
+inline Row<T> createFrom(const QSharedPointer<T> row) {
+    return row;
 }
 
 #else
@@ -298,32 +298,6 @@ inline T *get(const QSharedPointer<T> row) {
 }
 
 #endif
-
-//template<class C, typename T>
-//struct ForeignKeyData {
-//    Nut::Row<C> _table;
-//    T _id;
-
-//    ForeignKeyData() : _table(nullptr)
-//    {}
-
-//    void setTable(Nut::Row<C> t) {
-//        _table = t;
-//        _id = t->primaryValue().value<T>();
-//    }
-//    Nut::Row<C> table() const {
-//        return _table;
-//    }
-//    void setValue(const T& val) {
-//        _table = nullptr;
-//        _id = val;
-//    }
-//    T value() const {
-//        if (_table)
-//            return _table->primaryValue().value<T>();
-//        return _id;
-//    }
-//};
 
 NUT_END_NAMESPACE
 

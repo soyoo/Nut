@@ -288,75 +288,48 @@ Q_OUTOFLINE_TEMPLATE RowList<T> Query<T>::toList(int count)
             data.lastKeyValue = q.value(data.keyFiledname);
 
             //create table row
-            Table *table;
-            Row<Table> shp;
+            Row<Table> row;
             if (data.table->className() == d->className) {
-                table = new T();
+                row = Nut::create<T>();
 #ifdef NUT_SHARED_POINTER
-                shp = QSharedPointer<Table>(table);
-                returnList.append(shp.objectCast<T>());
-                d->tableSet->add(shp);
+                returnList.append(row.objectCast<T>());
 #else
                 returnList.append(dynamic_cast<T*>(table));
 #endif
-                table->setParentTableSet(d->tableSet);
+                d->tableSet->add(row);
+
             } else {
+                Table *table;
                 const QMetaObject *childMetaObject
                         = QMetaType::metaObjectForType(data.table->typeId());
                 table = qobject_cast<Table *>(childMetaObject->newInstance());
+//                table = dynamic_cast<Table *>(QMetaType::create(data.table->typeId()));
                 if (!table)
                     qFatal("Could not create instance of %s",
                            qPrintable(data.table->name()));
-                shp = QSharedPointer<Table>(table);
+                row = createFrom(table);
             }
-            const char *className = table->metaObject()->className();
-            connect(table, &QObject::destroyed, [className](QObject *){
-               qDebug() << "Destroyed " << className;
-            });
 
             QList<FieldModel*> childFields = data.table->fields();
             foreach (FieldModel *field, childFields)
-                table->setProperty(field->name.toLatin1().data(),
+                row->setProperty(field->name.toLatin1().data(),
                                    d->database->sqlGenertor()->unescapeValue(
                                        field->type,
                                        q.value(data.table->name() + "." + field->name)));
 
             for (int i = 0; i < data.masters.count(); ++i) {
                 int master = data.masters[i];
-//#ifdef NUT_SHARED_POINTER
-//                QString mName = QString("set%1").arg(levels[master].lastRow->metaObject()->className());
-//                QString type = QString("Nut::Row<%1>").arg(levels[master].lastRow->metaObject()->className());
-//                bool ok = table->metaObject()->invokeMethod(table,
-//                                                            mName.toLocal8Bit().data(),
-//                                                            QGenericArgument(type.toLatin1().data(), levels[master].lastRow));
-////               bool  ok = table->setProperty(data.masterFields[i].toLocal8Bit().data(),
-////                                             QVariant::fromValue(shp.data()));
-
-//#else
-//                bool ok = table->setProperty(data.masterFields[i].toLocal8Bit().data(),
-//                                             QVariant::fromValue(levels[master].lastRow));
-//#endif
-
-//                if (!ok)
-//                    qWarning("Unable to set property %s::%s",
-//                             table->metaObject()->className(), data.masterFields[i].toLocal8Bit().data());
-
                 auto tableset = levels[master].lastRow->childTableSet(
                             data.table->className());
-//                table->setParentTableSet(tableset);
-#ifdef NUT_SHARED_POINTER
-                tableset->add(shp);
-#else
-                tableset->add(table);
-#endif
+                tableset->add(row);
             }
 
-            table->setStatus(Table::FeatchedFromDB);
-            table->setParent(this);
-            table->clear();
+            row->setStatus(Table::FeatchedFromDB);
+            row->setParent(this);
+            row->clear();
 
             //set last created row
-            data.lastRow = /*QSharedPointer<Table>*/(table);
+            data.lastRow = row.data();
         } //while
     } // while
 
