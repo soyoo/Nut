@@ -341,24 +341,44 @@ QString PostgreSqlGenerator::createConditionalPhrase(const PhraseData *d) const
                     .arg(SqlGeneratorBase::createConditionalPhrase(d->left),
                          escapeValue(d->operand));
         }
-        if (op == PhraseData::AddYears)
-            return QString("DATEADD(year, %1, %2)")
-                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
-        if (op == PhraseData::AddMonths)
-            return QString("DATEADD(month, %1, %2)")
-                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
-        if (op == PhraseData::AddDays)
-            return QString("DATEADD(day, %1, %2)")
-                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
-        if (op == PhraseData::AddHours)
-            return QString("DATEADD(hour, %1, %2)")
-                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
-        if (op == PhraseData::AddMinutes)
-            return QString("DATEADD(minute, %1, %2)")
-                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
-        if (op == PhraseData::AddSeconds)
-            return QString("DATEADD(second, %1, %2)")
-                    .arg(d->operand.toString(), createConditionalPhrase(d->left));
+        switch (op) {
+        case PhraseData::AddYears:
+        case PhraseData::AddYearsDateTime:
+        case PhraseData::AddMonths:
+        case PhraseData::AddMonthsDateTime:
+        case PhraseData::AddDays:
+        case PhraseData::AddDaysDateTime:
+        case PhraseData::AddHours:
+        case PhraseData::AddHoursDateTime:
+        case PhraseData::AddMinutes:
+        case PhraseData::AddMinutesDateTime:
+        case PhraseData::AddSeconds:
+        case PhraseData::AddSecondsDateTime:
+            return QString("%1 + interval '%2 %3'")
+                    .arg(createConditionalPhrase(d->left),
+                         d->operand.toString(),
+                         SqlGeneratorBase::dateTimePartName(op));
+
+        default:
+            break;
+        }
+    }
+
+    if (d->type == PhraseData::WithoutOperand) {
+        switch (op) {
+        case PhraseData::DatePartYear:
+        case PhraseData::DatePartMonth:
+        case PhraseData::DatePartDay:
+        case PhraseData::DatePartHour:
+        case PhraseData::DatePartMinute:
+        case PhraseData::DatePartSecond:
+            return QString("date_part('%2', %1)")
+                    .arg(createConditionalPhrase(d->left),
+                         SqlGeneratorBase::dateTimePartName(op));
+
+        default:
+            break;
+        }
     }
 
     return SqlGeneratorBase::createConditionalPhrase(d);

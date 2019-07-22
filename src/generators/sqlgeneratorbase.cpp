@@ -788,21 +788,27 @@ void SqlGeneratorBase::removeTableNames(QString &command)
 QString SqlGeneratorBase::dateTimePartName(const PhraseData::Condition &op) const
 {
     switch (op) {
+    case PhraseData::DatePartYear:
     case PhraseData::AddYears:
     case PhraseData::AddYearsDateTime:
         return "YEAR";
+    case PhraseData::DatePartMonth:
     case PhraseData::AddMonths:
     case PhraseData::AddMonthsDateTime:
         return "MONTH";
+    case PhraseData::DatePartDay:
     case PhraseData::AddDays:
     case PhraseData::AddDaysDateTime:
         return "DAY";
+    case PhraseData::DatePartHour:
     case PhraseData::AddHours:
     case PhraseData::AddHoursDateTime:
         return "HOUR";
+    case PhraseData::DatePartMinute:
     case PhraseData::AddMinutes:
     case PhraseData::AddMinutesDateTime:
         return "MINUTE";
+    case PhraseData::DatePartSecond:
     case PhraseData::AddSeconds:
     case PhraseData::AddSecondsDateTime:
         return "SECOND";
@@ -965,6 +971,7 @@ SqlGeneratorBase::operatorString(const PhraseData::Condition &cond) const
         return "MOD";
 
     default:
+        qDebug() << "Unsupported" << cond;
         return QString("<FAIL cond> %1").arg(cond);
     }
 }
