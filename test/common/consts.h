@@ -12,11 +12,12 @@
     .arg(timer.elapsed() / 1000.) \
     .arg(__func__)
 
-#define DRIVER "QMYSQL"
-#define DATABASE QString("nut_test_%1_db").arg(metaObject()->className()).toLower()
+#define DRIVER "QODBC"
+#define DATABASE QString("DRIVER={SQL Server};Server=.;Database=%1;Uid=sa;Port=1433;Pwd=qwe123!@#;WSID=.") \
+    .arg(QString("nut_test_%1_db").arg(metaObject()->className()).toLower())
 #define HOST "127.0.0.1"
-#define USERNAME "root"
-#define PASSWORD "mysecretpw"
+#define USERNAME "sa"
+#define PASSWORD "qwe123!@#"
 
 #ifdef Q_OS_LINUX
 #   define OS "Linux"

@@ -102,7 +102,9 @@ void BasicTest::createPost2()
               (Post::titleField() = "This is a sample")
                 & (Post::isPublicField() = true));
 
-    QTEST_ASSERT(postIdVar.type() == QVariant::LongLong || postIdVar.type() == QVariant::ULongLong);
+    QTEST_ASSERT(postIdVar.type() == QVariant::LongLong
+                 || postIdVar.type() == QVariant::ULongLong
+                 || postIdVar.type() == QVariant::Double);
     int postId = postIdVar.toInt();
 
     for(int i = 0 ; i < 3; i++){
@@ -178,7 +180,8 @@ void BasicTest::selectScoreAverage()
 void BasicTest::selectFirst()
 {
     auto posts = db.posts()->query()
-        ->first();
+            ->orderBy(Post::idField())
+            ->first();
 
     QTEST_ASSERT(posts != Q_NULLPTR);
 }
@@ -215,6 +218,7 @@ void BasicTest::testDate()
 
     auto q = db.posts()->query()
             ->setWhere(Post::idField() == newPost->id())
+            ->orderBy(Post::idField())
             ->first();
 
     qDebug() << q->saveDate() << d;
@@ -246,8 +250,9 @@ void BasicTest::selectWithInvalidRelation()
 
 void BasicTest::modifyPost()
 {
-    auto q = db.posts()->query();
-    q->setWhere(Post::idField() == postId);
+    auto q = db.posts()->query()
+            ->setWhere(Post::idField() == postId)
+            ->orderBy(Post::idField());
 
     Nut::Row<Post> post = q->first();
 
@@ -257,7 +262,8 @@ void BasicTest::modifyPost()
     db.saveChanges();
 
     q = db.posts()->query()
-            ->setWhere(Post::idField() == postId);
+            ->setWhere(Post::idField() == postId)
+            ->orderBy(Post::idField());
 
     post = q->first();
     PRINT(post->title());

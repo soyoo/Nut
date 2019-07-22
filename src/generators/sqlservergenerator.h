@@ -37,10 +37,12 @@ public:
     QString diff(FieldModel *oldField, FieldModel *newField) override;
 
     QString escapeValue(const QVariant &v) const override;
+    QVariant unescapeValue(const QMetaType::Type &type, const QVariant &dbValue) override;
+
     void appendSkipTake(QString &sql, int skip, int take) override;
 
-//    void replaceTableNames(QString &command) override;
-
+protected:
+    QString createConditionalPhrase(const PhraseData *d) const override;
 };
 
 NUT_END_NAMESPACE

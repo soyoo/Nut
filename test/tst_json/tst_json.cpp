@@ -50,6 +50,7 @@ void TestJson::store()
     int id = t->id();
     auto newObj = db.sampleTable()->query()
             ->where(Table::idField() == id)
+            ->orderBy(Table::idField())
             ->first();
 
     Q_ASSERT(newObj != nullptr);

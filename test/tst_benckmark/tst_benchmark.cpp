@@ -30,7 +30,7 @@ void BenchmarkTest::initTestCase()
 
     db.setDriver(DRIVER);
     db.setHostName(HOST);
-    db.setDatabaseName("tst_benchmark_db");
+    db.setDatabaseName(DATABASE);
     db.setUserName(USERNAME);
     db.setPassword(PASSWORD);
 
