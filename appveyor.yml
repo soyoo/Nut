@@ -44,7 +44,7 @@ before_build:
 
 build_script:
   - cd %APPVEYOR_BUILD_FOLDER%-build
-  - echo 'QT -= gui' >> "$TRAVIS_BUILD_DIR/ci-test-init.pri"
+  - echo 'QT -= gui' >> %APPVEYOR_BUILD_FOLDER%\ci-test-init.pri
   - '%make%'
 
 test_script:
