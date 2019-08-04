@@ -30,12 +30,6 @@
 
 NUT_BEGIN_NAMESPACE
 
-/*
- * TODO: It may be good idea if we replace this QSet with two QHash!
- * one for className search and another for typeId.
- */
-QSet<TableModel*> TableModel::_allModels;
-
 QString TableModel::name() const
 {
     return _name;
@@ -269,14 +263,6 @@ TableModel::TableModel(const QJsonObject &json, const QString &tableName) : _typ
         QJsonObject relObject = fields.value(key).toObject();
         _foreignKeys.append(new RelationModel(relObject));
     }
-
-//    if(json.keys().contains(__nut_AUTO_INCREMENT))
-//        field(json.value(__nut_AUTO_INCREMENT).toString())->isAutoIncrement = true;
-
-//    if(json.keys().contains(__nut_PRIMARY_KEY))
-//        field(json.value(__nut_PRIMARY_KEY).toString())->isAutoIncrement = true;
-
-    _allModels.insert(this);
 }
 
 TableModel::~TableModel()

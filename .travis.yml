@@ -71,6 +71,7 @@ before_script:
   - '[[ "$TRAVIS_OS_NAME" != linux || "$PPA" == */opt-* ]] || export QT_SELECT=qt5'
   - mkdir -p "$TRAVIS_BUILD_DIR-build"
   - cd "$TRAVIS_BUILD_DIR-build"
+  - echo 'QT -= gui' >> ""$TRAVIS_BUILD_DIR/ci-test-init.pri"
   - qmake -r -Wall -Wlogic -Wparser CONFIG+=debug_and_release "$TRAVIS_BUILD_DIR/nut.pro"
 
 script:

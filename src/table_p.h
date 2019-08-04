@@ -4,18 +4,19 @@
 #include "defines.h"
 
 #include <QtCore/QSet>
+#include <QSharedData>
 
 NUT_BEGIN_NAMESPACE
 
 class TableModel;
 class Table;
 class TableSetBase;
-class TablePrivate {
+class TablePrivate : public QSharedData {
     Table *q_ptr;
     Q_DECLARE_PUBLIC(Table)
 
 public:
-    TablePrivate(Table *parent);
+    TablePrivate();
 
 
     TableModel *model;

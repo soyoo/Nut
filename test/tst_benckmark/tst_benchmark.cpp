@@ -4,7 +4,7 @@
 
 #include "consts.h"
 
-#include "maintest.h"
+#include "tst_benchmark.h"
 #include "query.h"
 #include "tableset.h"
 #include "tablemodel.h"
@@ -30,7 +30,7 @@ void BenchmarkTest::initTestCase()
 
     db.setDriver(DRIVER);
     db.setHostName(HOST);
-    db.setDatabaseName("tst_benchmark_db");
+    db.setDatabaseName(DATABASE);
     db.setUserName(USERNAME);
     db.setPassword(PASSWORD);
 

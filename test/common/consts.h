@@ -2,6 +2,7 @@
 #define CONSTS_H
 
 #include <qsystemdetection.h>
+#include <qcompilerdetection.h>
 
 #define REGISTER(x) qDebug() << (#x) << "type id:" << qMetaTypeId<x*>()
 #define PRINT(x)
@@ -11,11 +12,12 @@
     .arg(timer.elapsed() / 1000.) \
     .arg(__func__)
 
-#define DRIVER "QSQLITE"
-#define DATABASE QString("nut_test_%1_db").arg(metaObject()->className()).toLower()
+#define DRIVER "QODBC"
+#define DATABASE QString("DRIVER={SQL Server};Server=.;Database=%1;Uid=sa;Port=1433;Pwd=qwe123!@#;WSID=.") \
+    .arg(QString("nut_test_%1_db").arg(metaObject()->className()).toLower())
 #define HOST "127.0.0.1"
-#define USERNAME "postgres"
-#define PASSWORD "856856"
+#define USERNAME "sa"
+#define PASSWORD "qwe123!@#"
 
 #ifdef Q_OS_LINUX
 #   define OS "Linux"
@@ -27,6 +29,20 @@
 #   define OS "Unknown"
 #endif
 
+#ifdef Q_CC_GNU
+#   ifdef Q_CC_MINGW
+#       define CC "MinGW"
+#   else
+#       define CC "GNU"
+#   endif
+#elif defined (Q_CC_MSVC)
+#   define CC "msvc"
+#elif defined (Q_CC_CLANG)
+#   define CC "clang"
+#else
+#   define CC "Unknown"
+#endif
+
 #define PRINT_FORM(db) \
     qDebug() << "\n\n****************************"                             \
              << "\nAll tests passed,"                                          \
@@ -34,6 +50,7 @@
              << "hamed.masafi@gmail.com"                                       \
              << "\n\tDriver:" << db.driver()                                   \
              << "\n\tOS: " OS " (version: ________)"                           \
+             << "\n\tCompiler: " CC " (version: ________)"                     \
              << "\n\tQt version: " QT_VERSION_STR                              \
              << "\n\tTest:" << metaObject()->className()                       \
              << "\n****************************\n";

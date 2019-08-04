@@ -39,7 +39,7 @@ class QueryPrivate : public QSharedData {
 
 public:
     explicit QueryPrivate(QueryBase *parent);
-    ~QueryPrivate() = default;
+    ~QueryPrivate();
 
     QString sql;
     QString className;
@@ -53,11 +53,6 @@ public:
     int take;
     PhraseList orderPhrase, fieldPhrase;
     ConditionalPhrase wherePhrase;
-
-//    QList<WherePhrase> wheres;
-//    QList<WherePhrase> orderPhrases;
-//    QList<WherePhrase> fields;
-//    QHash<QString, QString> orders;
 };
 
 NUT_END_NAMESPACE

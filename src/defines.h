@@ -102,14 +102,15 @@ public slots:                                                                   
     Q_PROPERTY(keytype name##Id READ read##Id WRITE write##Id)                                \
 public:                                                                        \
     Nut::Row<type> read() const;                          \
-    void write(Nut::Row<type> name); \
+    keytype read##Id() const;                                                   \
     static NUT_WRAP_NAMESPACE(FieldPhrase<keytype>)& name##Id ## Field(){             \
         static NUT_WRAP_NAMESPACE(FieldPhrase<keytype>) f =                       \
                 NUT_WRAP_NAMESPACE(FieldPhrase<keytype>)                          \
                         (staticMetaObject.className(), #name);                 \
         return f;                                                              \
     }                                                                          \
-    keytype read##Id() const;                                                   \
+public slots: \
+    void write(Nut::Row<type> name); \
     void write##Id(keytype name##Id);
 
 #define NUT_FOREIGN_KEY_IMPLEMENT(class, type, keytype, name, read, write)                     \
@@ -177,73 +178,69 @@ NUT_BEGIN_NAMESPACE
 inline bool nutClassInfo(const QMetaClassInfo &classInfo,
                          QString &type, QString &name, QVariant &value)
 {
-    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
+    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX))
         return false;
-    } else {
-        QStringList parts = QString(classInfo.value()).split("\n");
-        if (parts.count() != 3)
-            return false;
 
-        type = parts[0];
-        name = parts[1];
-        value = qVariantFromValue(parts[2]);
-        return true;
-    }
+    QStringList parts = QString(classInfo.value()).split("\n");
+    if (parts.count() != 3)
+        return false;
+
+    type = parts[0];
+    name = parts[1];
+    value = qVariantFromValue(parts[2]);
+    return true;
 }
 
 inline bool nutClassInfoString(const QMetaClassInfo &classInfo,
                               QString &type, QString &name, QString &value)
 {
-    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
+    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX))
         return false;
-    } else {
-        QStringList parts = QString(classInfo.value()).split("\n");
-        if (parts.count() != 3)
-            return false;
 
-        type = parts[0];
-        name = parts[1];
-        value = parts[2];
-        return true;
-    }
+    QStringList parts = QString(classInfo.value()).split("\n");
+    if (parts.count() != 3)
+        return false;
+
+    type = parts[0];
+    name = parts[1];
+    value = parts[2];
+    return true;
 }
 
 inline bool nutClassInfoBool(const QMetaClassInfo &classInfo,
                               QString &type, QString &name, bool &value)
 {
-    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
+    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX))
         return false;
-    } else {
-        QStringList parts = QString(classInfo.value()).split("\n");
-        if (parts.count() != 3)
-            return false;
 
-        QString buffer = parts[2].toLower();
-        if (buffer != "true" && buffer != "false")
-            return false;
+    QStringList parts = QString(classInfo.value()).split("\n");
+    if (parts.count() != 3)
+        return false;
 
-        type = parts[0];
-        name = parts[1];
-        value = (buffer == "true");
-        return true;
-    }
+    QString buffer = parts[2].toLower();
+    if (buffer != "true" && buffer != "false")
+        return false;
+
+    type = parts[0];
+    name = parts[1];
+    value = (buffer == "true");
+    return true;
 }
 
 inline bool nutClassInfoInt(const QMetaClassInfo &classInfo,
                             QString &type, QString &name, bool &value)
 {
-    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX)) {
+    if (!QString(classInfo.name()).startsWith(__nut_NAME_PERFIX))
         return false;
-    } else {
-        QStringList parts = QString(classInfo.value()).split("\n");
-        if (parts.count() != 3)
-            return false;
-        bool ok;
-        type = parts[0];
-        name = parts[1];
-        value = parts[2].toInt(&ok);
-        return ok;
-    }
+
+    QStringList parts = QString(classInfo.value()).split("\n");
+    if (parts.count() != 3)
+        return false;
+    bool ok;
+    type = parts[0];
+    name = parts[1];
+    value = parts[2].toInt(&ok);
+    return ok;
 }
 
 #ifdef NUT_SHARED_POINTER
@@ -267,12 +264,12 @@ inline Row<T> create(QObject *parent) {
 }
 
 template<class T>
-inline T *get(T *row) {
-    return row;
+inline Row<T> createFrom(T *row) {
+    return QSharedPointer<T>(row);
 }
 template<class T>
-inline T *get(const QSharedPointer<T> row) {
-    return row.data();
+inline Row<T> createFrom(const QSharedPointer<T> row) {
+    return row;
 }
 
 #else
@@ -301,32 +298,6 @@ inline T *get(const QSharedPointer<T> row) {
 }
 
 #endif
-
-//template<class C, typename T>
-//struct ForeignKeyData {
-//    Nut::Row<C> _table;
-//    T _id;
-
-//    ForeignKeyData() : _table(nullptr)
-//    {}
-
-//    void setTable(Nut::Row<C> t) {
-//        _table = t;
-//        _id = t->primaryValue().value<T>();
-//    }
-//    Nut::Row<C> table() const {
-//        return _table;
-//    }
-//    void setValue(const T& val) {
-//        _table = nullptr;
-//        _id = val;
-//    }
-//    T value() const {
-//        if (_table)
-//            return _table->primaryValue().value<T>();
-//        return _id;
-//    }
-//};
 
 NUT_END_NAMESPACE
 

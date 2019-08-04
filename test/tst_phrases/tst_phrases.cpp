@@ -6,16 +6,16 @@
 
 using namespace Nut;
 
-MainTest::MainTest(QObject *parent) : QObject(parent)
+PhrasesTest::PhrasesTest(QObject *parent) : QObject(parent)
 {
 }
 
-void MainTest::initTestCase()
+void PhrasesTest::initTestCase()
 {
 
 }
 
-void MainTest::no1()
+void PhrasesTest::no1()
 {
     FieldPhrase<int> id("main", "id");
     FieldPhrase<QString> name("main", "name");
@@ -24,7 +24,7 @@ void MainTest::no1()
     auto w = (id == 4 && name == "hi");
 }
 
-void MainTest::numeric()
+void PhrasesTest::numeric()
 {
     FieldPhrase<int> n("main", "int");
     FieldPhrase<float> f("main", "float");
@@ -55,7 +55,7 @@ void MainTest::numeric()
     auto p27 = n | f;
 }
 
-void MainTest::string()
+void PhrasesTest::string()
 {
     FieldPhrase<QString> str("main", "string");
 
@@ -66,7 +66,7 @@ void MainTest::string()
     auto p5 = str != "hi" && str.like("%s");
 }
 
-void MainTest::boolean()
+void PhrasesTest::boolean()
 {
     FieldPhrase<bool> b("main", "bool");
 
@@ -79,7 +79,7 @@ void MainTest::boolean()
     QTEST_ASSERT(p3.data);
 }
 
-void MainTest::datetime()
+void PhrasesTest::datetime()
 {
     FieldPhrase<QTime> time("main", "time");
     FieldPhrase<QDate> date("main", "date");
@@ -102,7 +102,7 @@ void MainTest::datetime()
 //    QTEST_ASSERT(!pi2.data);
 }
 
-void MainTest::extra()
+void PhrasesTest::extra()
 {
     FieldPhrase<QUrl> url("main", "url");
 
@@ -110,7 +110,7 @@ void MainTest::extra()
     auto p2 = url == "http://google.com";
 }
 
-void MainTest::mix()
+void PhrasesTest::mix()
 {
     FieldPhrase<int> id("", "");
     FieldPhrase<QString> name("", "");
@@ -126,29 +126,29 @@ void MainTest::mix()
     order_by(id | !name);
 }
 
-void MainTest::select(const PhraseList &ph)
+void PhrasesTest::select(const PhraseList &ph)
 {
     QTEST_ASSERT(ph.data.count());
 }
 
-void MainTest::where(const ConditionalPhrase &ph)
+void PhrasesTest::where(const ConditionalPhrase &ph)
 {
     QTEST_ASSERT(ph.data);
 }
 
-void MainTest::update(const AssignmentPhraseList &p)
+void PhrasesTest::update(const AssignmentPhraseList &p)
 {
     QTEST_ASSERT(p.data.count());
 }
 
-void MainTest::insert(const AssignmentPhraseList &p)
+void PhrasesTest::insert(const AssignmentPhraseList &p)
 {
     QTEST_ASSERT(p.data.count());
 }
 
-void MainTest::order_by(const PhraseList &ph)
+void PhrasesTest::order_by(const PhraseList &ph)
 {
     QTEST_ASSERT(ph.data.count());
 }
 
-QTEST_MAIN(MainTest)
+QTEST_MAIN(PhrasesTest)

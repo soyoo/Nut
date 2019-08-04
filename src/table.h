@@ -38,8 +38,7 @@ class TablePrivate;
 class NUT_EXPORT Table : public QObject
 {
     Q_OBJECT
-    TablePrivate *d_ptr;
-    Q_DECLARE_PRIVATE(Table)
+    QExplicitlySharedDataPointer<TablePrivate> d;
 
 public:
     explicit Table(QObject *parentTableSet = nullptr);

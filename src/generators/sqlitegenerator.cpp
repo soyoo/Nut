@@ -252,6 +252,8 @@ QString SqliteGenerator::createConditionalPhrase(const PhraseData *d) const
                          dateTimePartName(op));
             break;
         }
+        default:
+            break;
         }
     }
     if (d->type == PhraseData::WithoutOperand) {
@@ -283,6 +285,8 @@ QString SqliteGenerator::createConditionalPhrase(const PhraseData *d) const
             //        case PhraseData::DatePartMilisecond:
             //            return QString("CAST(strftime('%Y', %1) AS INT)")
             //                    .arg(createConditionalPhrase(d->left));
+        default:
+            break;
         }
     }
 

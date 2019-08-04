@@ -31,8 +31,7 @@ NUT_BEGIN_NAMESPACE
 
 class TableModel;
 struct FieldModel{
-    explicit FieldModel() : name(QString()), length(0), defaultValue(QString()),
-        notNull(false), isPrimaryKey(false), isAutoIncrement(false), isUnique(false)
+    explicit FieldModel() : name(QString()), defaultValue(QString())
     {
 
     }
@@ -42,12 +41,12 @@ struct FieldModel{
     QString name;
     QMetaType::Type type;
     QString typeName;
-    int length;
+    int length{0};
     QString defaultValue;
-    bool notNull;
-    bool isPrimaryKey;
-    bool isAutoIncrement;
-    bool isUnique;
+    bool notNull{false};
+    bool isPrimaryKey{false};
+    bool isAutoIncrement{false};
+    bool isUnique{false};
     QString displayName;
 
     bool operator ==(const FieldModel &f) const{
@@ -70,18 +69,17 @@ struct FieldModel{
 
 struct RelationModel{
     RelationModel() : localColumn(QString()), localProperty(QString()),
-        slaveTable(nullptr), foreignColumn(QString()), masterTable(nullptr),
-        masterClassName(QString())
+        slaveTable(nullptr), foreignColumn(QString()), masterClassName(QString())
     {}
     explicit RelationModel(const QJsonObject &obj);
 
     //slave
     QString localColumn;
     QString localProperty;
-    TableModel *slaveTable;
+    TableModel *slaveTable{nullptr};
     //master
     QString foreignColumn;
-    TableModel *masterTable;
+    TableModel *masterTable{nullptr};
 
     QString masterClassName;
 
@@ -131,9 +129,6 @@ private:
     int _typeId;
     QList<FieldModel*> _fields;
     QList<RelationModel*> _foreignKeys;
-
-    Q_DECL_DEPRECATED
-    static QSet<TableModel*>_allModels;
 };
 
 NUT_END_NAMESPACE

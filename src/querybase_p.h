@@ -41,7 +41,7 @@ protected:
     QExplicitlySharedDataPointer<QueryPrivate> d;
 
 public:
-    explicit QueryBase(QObject *parent = 0);
+    explicit QueryBase(QObject *parent = nullptr);
 
 protected:
 //    void addTableToSet(TableSetBase *set, Table *table);

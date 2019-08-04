@@ -39,8 +39,8 @@ public:
         database(nullptr), table(parent)
     { }
 
-    QSet<Table*> tables;
-    QList<Table*> childRows;
+//    QSet<Table*> tables;
+//    QList<Table*> childRows;
     RowList<Table> childs;
 
     Database *database;
