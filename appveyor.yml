@@ -1,6 +1,56 @@
+version: '{branch}-{build}'
+
+environment:
+  matrix:
+    - QTDIR: C:\Qt\5.6.3\mingw49_32
+    - QTDIR: C:\Qt\5.6.3\msvc2013
+    - QTDIR: C:\Qt\5.6.3\msvc2013_64
+    - QTDIR: C:\Qt\5.6.3\msvc2015
+    - QTDIR: C:\Qt\5.6.3\msvc2015_64
+    - QTDIR: C:\Qt\5.7\mingw53_32
+    - QTDIR: C:\Qt\5.7\msvc2015
+    - QTDIR: C:\Qt\5.9.5\mingw53_32
+    - QTDIR: C:\Qt\5.9.5\msvc2013_64
+    - QTDIR: C:\Qt\5.9.5\msvc2015
+    - QTDIR: C:\Qt\5.9.5\msvc2015_64
+    - QTDIR: C:\Qt\5.10.1\mingw53_32
+    - QTDIR: C:\Qt\5.10.1\msvc2013_64
+    - QTDIR: C:\Qt\5.10.1\msvc2015
+    - QTDIR: C:\Qt\5.10.1\msvc2015_64
+    - QTDIR: C:\Qt\5.11.1\mingw53_32
+    - QTDIR: C:\Qt\5.11.1\msvc2015
+    - QTDIR: C:\Qt\5.11.1\msvc2015_64
+
+configuration:
+  - debug
+  - release
+
+clone_script:
+  - cmd: git clone -q --recursive --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%
+  - cmd: git checkout -qf %APPVEYOR_REPO_COMMIT%
+
 install:
-  - set QTDIR=C:\Qt\5.9.2\winrt_x64_msvc2017
-  - set PATH=%PATH%;%QTDIR%\bin;C:\MinGW\bin
+  - '%QTDIR%\bin\qtenv2.bat'
+  - qmake -v
+  - if %QTDIR:_64=%==%QTDIR% ( set ARCH=x86 ) else set ARCH=x64
+  - if %QTDIR:msvc=%==%QTDIR% g++ --version
+  - if %QTDIR:msvc=%==%QTDIR% set make=mingw32-make.exe
+  - if %QTDIR:msvc=%==%QTDIR% %make% --version
+  - if not %QTDIR:msvc2013=%==%QTDIR% call "%ProgramFiles(x86)%\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" %ARCH%
+  - if not %QTDIR:msvc2015=%==%QTDIR% call "%ProgramFiles(x86)%\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" %ARCH%
+  - if not %QTDIR:msvc=%==%QTDIR% set make=nmake.exe
+  - if not %QTDIR:msvc=%==%QTDIR% %make% /? > nul
+
+before_build:
+  # Prepare the out-of-source build directory.
+  - mkdir %APPVEYOR_BUILD_FOLDER%-build
+  - qmake -o %APPVEYOR_BUILD_FOLDER%-build -r -Wall -Wlogic -Wparser CONFIG+=%CONFIGURATION% %APPVEYOR_BUILD_FOLDER%
+
 build_script:
-  - qmake
-  - mingw32-make 
+  - cd %APPVEYOR_BUILD_FOLDER%-build
+  - echo 'QT -= gui' >> %APPVEYOR_BUILD_FOLDER%\ci-test-init.pri
+  - '%make%'
+
+test_script:
+  # @todo output using Qt's -xunitxml option
+  - if not %CONFIGURATION%==debug %make% check TESTARGS=-silent
