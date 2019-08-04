@@ -30,7 +30,7 @@ clone_script:
   - cmd: git checkout -qf %APPVEYOR_REPO_COMMIT%
 
 install:
-  - %QTDIR%\bin\qtenv2.bat
+#  - '%QTDIR%\bin\qtenv2.bat'
   - set PATH=%PATH%;%QTDIR%\bin
   - qmake -v
   - if %QTDIR:_64=%==%QTDIR% ( set ARCH=x86 ) else set ARCH=x64
