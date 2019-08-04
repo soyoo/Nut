@@ -102,7 +102,7 @@ template<class T>
 Q_OUTOFLINE_TEMPLATE Row<T> TableSet<T >::at(int i) const
 {
 #ifdef NUT_SHARED_POINTER
-    return data->childs.at(i).objectCast<T>();
+    return data->childs.at(i).template objectCast<T>();
 #else
     return reinterpret_cast<T*>(data->childs.at(i));
 #endif
@@ -112,7 +112,7 @@ template<class T>
 Q_OUTOFLINE_TEMPLATE const Row<T> TableSet<T>::operator[](int i) const
 {
 #ifdef NUT_SHARED_POINTER
-    return data->childs.at(i).objectCast<T>();
+    return data->childs.at(i).template objectCast<T>();
 #else
     return reinterpret_cast<T*>(data->childs.at(i));
 #endif
