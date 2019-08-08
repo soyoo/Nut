@@ -31,12 +31,16 @@ install:
   - git submodule update --init --recursive
   - set PATH=%PATH%;C:\Qt\%QT_VERSION%\%QT%\bin
   - '%QTDIR%\bin\qtenv2.bat'
+  - if %QTDIR:msvc=%==%QTDIR% set make=mingw32-make.exe
+  - if %QTDIR:msvc=%==%QTDIR% %make% --version
+  - if DEFINED %VCVARS% call %VCVARS%
+  - if not %QTDIR:msvc=%==%QTDIR% set make=nmake.exe
   - qmake -v
 
 before_build:
   # Prepare the out-of-source build directory.
   - mkdir %APPVEYOR_BUILD_FOLDER%-build
-  - qmake -o %APPVEYOR_BUILD_FOLDER%-build -r -Wall -Wlogic -Wparser CONFIG+=%CONFIGURATION% %APPVEYOR_BUILD_FOLDER%
+  - qmake -o %APPVEYOR_BUILD_FOLDER%-build -r -Wall -Wlogic -Wparser %APPVEYOR_BUILD_FOLDER%
 
 build_script:
   - cd %APPVEYOR_BUILD_FOLDER%-build
@@ -45,4 +49,4 @@ build_script:
 
 test_script:
   # @todo output using Qt's -xunitxml option
-  - if not %CONFIGURATION%==debug %make% check TESTARGS=-silent
+  - %make% check TESTARGS=-silent
