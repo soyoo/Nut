@@ -32,9 +32,8 @@ install:
   - set PATH=%PATH%;C:\Qt\%QT_VERSION%\%QT%\bin
   - '%QTDIR%\bin\qtenv2.bat'
   - if %QTDIR:msvc=%==%QTDIR% set make=mingw32-make.exe
-  - if %QTDIR:msvc=%==%QTDIR% %make% --version
-  - if DEFINED %VCVARS% call %VCVARS%
-  - if not %QTDIR:msvc=%==%QTDIR% set make=nmake.exe
+  - if not %QTDIR:msvc=%==%QTDIR% set %make%=nmake.exe
+  - if defined %VCVARS% call %VCVARS%
   - qmake -v
 
 before_build:
@@ -48,5 +47,4 @@ build_script:
   - '%make%'
 
 test_script:
-  # @todo output using Qt's -xunitxml option
   - %make% check TESTARGS=-silent
