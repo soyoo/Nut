@@ -51,5 +51,5 @@ build_script:
   - echo 'QT -= gui' >> %APPVEYOR_BUILD_FOLDER%\ci-test-init.pri
   - '%make%'
 
-test_script:
-  - if not %CONFIGURATION%==debug %make% check TESTARGS=-silent
+#test_script:
+#  - if not %CONFIGURATION%==debug %make% check TESTARGS=-silent
