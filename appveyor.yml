@@ -2,9 +2,9 @@ version: '{branch}-{build}'
 
 clone_depth: 50
 
-#branches:
-#  only:
-#    - master
+branches:
+  only:
+    - master
 
 environment:
   matrix:
