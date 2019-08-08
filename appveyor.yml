@@ -23,9 +23,6 @@ environment:
     - QTDIR: C:\Qt\5.13.0\mingw73_32
     - QTDIR: C:\Qt\5.11.3\mingw53_32
 
-configuration:
-  - release
-
 clone_script:
   - cmd: git clone -q --recursive --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%
   - cmd: git checkout -qf %APPVEYOR_REPO_COMMIT%
