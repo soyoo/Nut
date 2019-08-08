@@ -9,21 +9,20 @@
 
 
 ## Features:
-
- - Easy to use
- - Support PosgtreSQL, MySQL, SQLite and Microsoft Sql Server
- - Automatically create and update database
- - IDE auto complete support, No hard-code nedded
- - Table join detect 
- - Suppor every Qt types. [Full list](doc/datatypes.md)
+  - Easy to use
+  - Support PosgtreSQL, MySQL, SQLite and Microsoft Sql Server
+  - Automatically create and update database
+  - IDE auto complete support, No hard-code nedded
+  - Table join detect 
+  - Suppor every Qt types. [Full list](doc/datatypes.md)
 
 ## Getting start
-* [Sample codes](doc/start.md)
-* [Shared pointer and regular mode](sharedpointer.md)
-* [Create database class](database.md)
-* [Create table class](table.md)
-* [Using queries](query.md)
-* [Supported data types](datatypes.md)
+  - [Sample codes](doc/start.md)
+  - [Shared pointer and regular mode](sharedpointer.md)
+  - [Create database class](database.md)
+  - [Create table class](table.md)
+  - [Using queries](query.md)
+  - [Supported data types](datatypes.md)
 
 ### Donate
 Butcoin address: 1Dn1WHKkaxanXe4cTGDk4cFRRABxLUpEVj
