@@ -9,13 +9,18 @@ clone_depth: 50
 environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      QTDIR: C:\Qt\5.13.0\msvc2017
+      VCVARS: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars.bat
+      PLATFORM:
+      VER_SUFFIX: win32
+     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       QTDIR: C:\Qt\5.13.0\msvc2017_64
-      VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
+      VCVARS: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat
       PLATFORM:
       VER_SUFFIX: win64
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       QTDIR: C:\Qt\5.11\msvc2015
-      VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\vcvarsall.bat"
+      VCVARS: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat
       PLATFORM: x86
       VER_SUFFIX: win32
 
