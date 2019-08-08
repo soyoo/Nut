@@ -32,7 +32,7 @@ install:
   - set PATH=%PATH%;C:\Qt\%QT_VERSION%\%QT%\bin
   - '%QTDIR%\bin\qtenv2.bat'
   - if %QTDIR:msvc=%==%QTDIR% set make=mingw32-make.exe
-  - if not %QTDIR:msvc=%==%QTDIR% set %make%=nmake.exe
+  - if not %QTDIR:msvc=%==%QTDIR% set make=nmake.exe
   - if defined %VCVARS% call %VCVARS%
   - qmake -v
 
