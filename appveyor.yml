@@ -33,7 +33,7 @@ install:
   - '%QTDIR%\bin\qtenv2.bat'
   - if %QTDIR:msvc=%==%QTDIR% set make=mingw32-make.exe
   - if not %QTDIR:msvc=%==%QTDIR% set make=nmake.exe
-  - if defined %VCVARS% call %VCVARS%
+  - if defined VCVARS call %VCVARS%
   - qmake -v
 
 before_build:
