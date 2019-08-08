@@ -10,7 +10,7 @@ environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       QTDIR: C:\Qt\5.13.0\msvc2017
-      VCVARS: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars.bat
+      VCVARS: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat
       PLATFORM:
       VER_SUFFIX: win32
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
