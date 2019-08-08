@@ -29,7 +29,7 @@ clone_script:
 
 install:
   - git submodule update --init --recursive
-  - set PATH=%PATH%;C:\Qt\%QT_VERSION%\%QT%\bin
+  - set PATH=%PATH%;%QTDIR%\bin
   - '%QTDIR%\bin\qtenv2.bat'
   - if %QTDIR:msvc=%==%QTDIR% set make=mingw32-make.exe
   - if not %QTDIR:msvc=%==%QTDIR% set make=nmake.exe
