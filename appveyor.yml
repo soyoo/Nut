@@ -47,4 +47,4 @@ build_script:
   - '%make%'
 
 test_script:
-  - %make% check TESTARGS=-silent
+  - if not %CONFIGURATION%==debug %make% check TESTARGS=-silent
