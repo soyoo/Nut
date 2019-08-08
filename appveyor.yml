@@ -2,14 +2,20 @@ version: '{branch}-{build}'
 
 environment:
   matrix:
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      QTDIR: C:\Qt\5.13.0\msvc2017_64
+      VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
+      PLATFORM:
+      VER_SUFFIX: win64
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      QTDIR: C:\Qt\5.11\msvc2015
+      VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\vcvarsall.bat"
+      PLATFORM: x86
+      VER_SUFFIX: win32
+
     - QTDIR: C:\Qt\5.13.0\mingw73_64
     - QTDIR: C:\Qt\5.13.0\mingw73_32
-    - QTDIR: C:\Qt\5.11.1\msvc2015
-    - QTDIR: C:\Qt\5.11.1\msvc2015_64
     - QTDIR: C:\Qt\5.11.3\mingw53_32
-    - QTDIR: C:\Qt\5.9.5\msvc2013_64
-    - QTDIR: C:\Qt\5.9.5\msvc2015
-    - QTDIR: C:\Qt\5.9.5\msvc2015_64
 
 configuration:
   - debug
