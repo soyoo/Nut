@@ -30,7 +30,7 @@ clone_script:
 install:
   - git submodule update --init --recursive
   - set PATH=%PATH%;C:\Qt\%QT_VERSION%\%QT%\bin
-  - 'C:\Qt\%QT_VERSION%\%QT%\bin\qtenv2.bat'
+  - '%QTDIR%\bin\qtenv2.bat'
   - qmake -v
 
 before_build:
