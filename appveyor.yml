@@ -4,20 +4,12 @@ environment:
   matrix:
     - QTDIR: C:\Qt\5.13.0\mingw73_64
     - QTDIR: C:\Qt\5.13.0\mingw73_32
-    - QTDIR: C:\Qt\5.13.0\msvc2015_64
-    - QTDIR: C:\Qt\5.13.0\msvc2017
-    - QTDIR: C:\Qt\5.13.0\msvc2017_64
+    - QTDIR: C:\Qt\5.11.1\msvc2015
+    - QTDIR: C:\Qt\5.11.1\msvc2015_64
     - QTDIR: C:\Qt\5.11.3\mingw53_32
-    - QTDIR: C:\Qt\5.10.1\msvc2017_64
-    - QTDIR: C:\Qt\5.10.1\winrt_armv7_msvc2017
-    - QTDIR: C:\Qt\5.10.1\winrt_x86_msvc2017
-    - QTDIR: C:\Qt\5.10.1\winrt_x64_msvc2017
-    - QTDIR: C:\Qt\5.9.7\msvc2017_64
-    - QTDIR: C:\Qt\5.9.7\winrt_armv7_msvc2017
-    - QTDIR: C:\Qt\5.9.7\winrt_x86_msvc2017
-    - QTDIR: C:\Qt\5.9.7\winrt_x64_msvc2017
-    - QTDIR: C:\Qt\5.7.0\mingw53_32
-    - QTDIR: C:\Qt\5.7.0\msvc2015
+    - QTDIR: C:\Qt\5.9.5\msvc2013_64
+    - QTDIR: C:\Qt\5.9.5\msvc2015
+    - QTDIR: C:\Qt\5.9.5\msvc2015_64
 
 configuration:
   - debug
