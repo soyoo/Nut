@@ -9,13 +9,18 @@ branches:
 environment:
   matrix:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      QTDIR: C:\Qt\5.13.0\msvc2017
+      VCVARS: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars32.bat
+      PLATFORM:
+      VER_SUFFIX: win32
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       QTDIR: C:\Qt\5.13.0\msvc2017_64
-      VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
+      VCVARS: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat
       PLATFORM:
       VER_SUFFIX: win64
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
       QTDIR: C:\Qt\5.11\msvc2015
-      VCVARS: "C:\\Program Files (x86)\\Microsoft Visual Studio 14.0\\VC\\vcvarsall.bat"
+      VCVARS: C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat
       PLATFORM: x86
       VER_SUFFIX: win32
 
@@ -23,29 +28,28 @@ environment:
     - QTDIR: C:\Qt\5.13.0\mingw73_32
     - QTDIR: C:\Qt\5.11.3\mingw53_32
 
-    configuration:
-  - release
-
 clone_script:
   - cmd: git clone -q --recursive --branch=%APPVEYOR_REPO_BRANCH% https://github.com/%APPVEYOR_REPO_NAME%.git %APPVEYOR_BUILD_FOLDER%
   - cmd: git checkout -qf %APPVEYOR_REPO_COMMIT%
 
 install:
   - git submodule update --init --recursive
-  - set PATH=%PATH%;C:\Qt\%QT_VERSION%\%QT%\bin
-  - 'C:\Qt\%QT_VERSION%\%QT%\bin\qtenv2.bat'
+  - set PATH=%PATH%;%QTDIR%\bin
+  - call "%QTDIR%\bin\qtenv2.bat"
+  - if %QTDIR:msvc=%==%QTDIR% set make=mingw32-make.exe
+  - if not %QTDIR:msvc=%==%QTDIR% set make=nmake.exe
+  - if defined VCVARS call "%VCVARS%"
   - qmake -v
 
 before_build:
   # Prepare the out-of-source build directory.
   - mkdir %APPVEYOR_BUILD_FOLDER%-build
-  - qmake -o %APPVEYOR_BUILD_FOLDER%-build -r -Wall -Wlogic -Wparser CONFIG+=%CONFIGURATION% %APPVEYOR_BUILD_FOLDER%
+  - qmake -o %APPVEYOR_BUILD_FOLDER%-build -r -Wall -Wlogic -Wparser %APPVEYOR_BUILD_FOLDER%
 
 build_script:
   - cd %APPVEYOR_BUILD_FOLDER%-build
   - echo 'QT -= gui' >> %APPVEYOR_BUILD_FOLDER%\ci-test-init.pri
   - '%make%'
 
-test_script:
-  # @todo output using Qt's -xunitxml option
-  - if not %CONFIGURATION%==debug %make% check TESTARGS=-silent
+#test_script:
+#  - if not %CONFIGURATION%==debug %make% check TESTARGS=-silent
