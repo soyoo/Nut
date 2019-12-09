@@ -18,11 +18,11 @@
 
 ## Getting start
 - [Sample codes](doc/start.md)
-- [Shared pointer and regular mode](sharedpointer.md)
-- [Create database class](database.md)
-- [Create table class](table.md)
-- [Using queries](query.md)
-- [Supported data types](datatypes.md)
+- [Shared pointer and regular mode](doc/sharedpointer.md)
+- [Create database class](doc/database.md)
+- [Create table class](doc/table.md)
+- [Using queries](doc/query.md)
+- [Supported data types](doc/datatypes.md)
 
 ### Donate
 Butcoin address: 1Dn1WHKkaxanXe4cTGDk4cFRRABxLUpEVj
