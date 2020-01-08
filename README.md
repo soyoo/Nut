@@ -24,6 +24,9 @@
 - [Using queries](doc/query.md)
 - [Supported data types](doc/datatypes.md)
 
+## Help needed!
+We need more documentation or wiki. If you can help to improve docs please fork now!
+
 ### Donate
 Butcoin address: 1Dn1WHKkaxanXe4cTGDk4cFRRABxLUpEVj
 
