@@ -45,9 +45,9 @@ public:
 //    explicit SqlModel(Query *q);
     explicit SqlModel(Database *database, TableSetBase *tableSet, QObject *parent = Q_NULLPTR);
 
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
+    int rowCount(const QModelIndex &parent) const override;
+    int columnCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
 
     template<class T>
     void setTable(RowList<T> rows);
@@ -55,10 +55,13 @@ public:
     void setRows(RowList<Table> rows);
     void append(Row<Table> table);
 //    void append(Table *table);
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
     Row<Nut::Table> at(const int &i) const;
 
     void setRenderer(const std::function<QVariant (int, QVariant)> &renderer);
+
+    void clear();
+    QHash<int, QByteArray> roleNames() const override;
 
 private:
     QExplicitlySharedDataPointer<SqlModelPrivate> d;

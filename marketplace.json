@@ -1,0 +1,41 @@
+{
+    "$schema": "http://qt.io/schema/extension-schema-v1#",
+    "title": "Nut",
+    "extensionType": [
+        "library"
+    ],
+    "version": "0.2",
+    "vendor": {
+        "name": "Hamed Masafi",
+        "url": "https://github.com/HamedMasafi/Nut"
+    },
+    "contact": "hamed.masafi@gmail.com",
+    "copyright": [ "hamed.masafi@gmail.com" ],
+    "author": "Hamed Masafi",
+    "icon": "https://upload.wikimedia.org/wikipedia/en/a/ae/TheQtCompany_Logo.png",
+    "licenses": [
+      { "licenseType": "GPLv2",
+        "licenseUrl": "https://www.gnu.org/licenses/gpl-2.0.html" }
+    ],
+    "created": "2016-03-09",
+    "lastUpdate": "2020-01-10",
+    "platforms": [
+        "Cross platform"
+    ],
+    "qtVersions": [
+        "5.7 or newer"
+    ],
+    "tags": [
+        "Database",
+        "ORM",
+        "SQL"],
+    "price": {
+        "listprice": 0
+    },
+    "support": "hamed.masafi@gmail.com",
+    "bugUrl": "https://github.com/HamedMasafi/Nut/issues",
+    "sourceRepoUrl": "https://github.com/HamedMasafi/Nut",
+    "dependencies": [
+        "Core", "Sql"
+    ]
+}

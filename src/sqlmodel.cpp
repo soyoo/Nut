@@ -18,14 +18,16 @@
 **
 **************************************************************************/
 
-#include "database.h"
-#include "tablesetbase_p.h"
-#include "databasemodel.h"
-#include "tablemodel.h"
-#include "table.h"
-#include "sqlmodel_p.h"
 #include "sqlmodel.h"
+#include "database.h"
+#include "databasemodel.h"
 #include "query.h"
+#include "sqlmodel_p.h"
+#include "table.h"
+#include "tablemodel.h"
+#include "tablesetbase_p.h"
+
+#include <QDebug>
 
 NUT_BEGIN_NAMESPACE
 
@@ -34,31 +36,41 @@ NUT_BEGIN_NAMESPACE
 
 //}
 
-void SqlModel::setRenderer(const std::function<QVariant (int, QVariant)> &renderer)
+void SqlModel::setRenderer(const std::function<QVariant(int, QVariant)> &renderer)
 {
     _renderer = renderer;
 }
 
-SqlModel::SqlModel(Database *database, TableSetBase *tableSet, QObject *parent) :
-    QAbstractTableModel(parent), d(new SqlModelPrivate(this)), _renderer(nullptr)
+QHash<int, QByteArray> SqlModel::roleNames() const
 {
-    d->model = database->model()
-            .tableByClassName(tableSet->childClassName());
-    d->tableName = d->model->name();
+    QHash<int, QByteArray> r;
+    int i = Qt::UserRole + 1;
+    foreach (auto row, d->model->fields())
+        r[i++] = row->name.toLocal8Bit();
+    qDebug() << r;
+    return r;
+}
 
+SqlModel::SqlModel(Database *database, TableSetBase *tableSet, QObject *parent)
+    : QAbstractTableModel(parent)
+    , d(new SqlModelPrivate(this))
+    , _renderer(nullptr)
+{
+    d->model = database->model().tableByClassName(tableSet->childClassName());
+    d->tableName = d->model->name();
 
     //     setQuery("SELECT * FROM " + d->tableName, database->databaseName());
 }
 
 int SqlModel::rowCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return d->rows.count();
 }
 
 int SqlModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
     return d->model->fields().count();
 }
 
@@ -68,16 +80,27 @@ QVariant SqlModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
     if (index.row() >= d->rows.count() || index.row() < 0)
-        return QVariant("-");
+        return QVariant();
 
     if (role == Qt::DisplayRole) {
         Row<Table> t = d->rows.at(index.row());
         QVariant v = t->property(d->model->field(index.column())->name.toLocal8Bit().data());
-
+        //        emit beforeShowText(index.column(), v);
         if (_renderer != nullptr)
             v = _renderer(index.column(), v);
         return v;
     }
+
+    int rrole = role - Qt::UserRole - 1;
+    if (rrole < d->model->fields().count()) {
+        Row<Table> t = d->rows.at(index.row());
+        QVariant v = t->property(d->model->field(rrole)->name.toLocal8Bit().data());
+        //        emit beforeShowText(index.column(), v);
+        if (_renderer != nullptr)
+            v = _renderer(index.column(), v);
+        return v;
+    }
+    qDebug() << role << "not defined";
     return QVariant();
 }
 
@@ -85,11 +108,11 @@ void SqlModel::setRows(RowList<Table> rows)
 {
     d.detach();
     if (d->rows.count()) {
-        beginRemoveRows(QModelIndex(), 0, d->rows.count());
+        beginRemoveRows(QModelIndex(), 0, d->rows.count() - 1);
         d->rows.clear();
         endRemoveRows();
     }
-    beginInsertRows(QModelIndex(), 0, rows.count());
+    beginInsertRows(QModelIndex(), 0, rows.count() - 1);
     d->rows = rows;
     endInsertRows();
 }
@@ -100,6 +123,16 @@ void SqlModel::append(Row<Table> table)
     beginInsertRows(QModelIndex(), d->rows.count(), d->rows.count());
     d->rows.append(table);
     endInsertRows();
+}
+
+void SqlModel::clear()
+{
+    if (d->rows.count()) {
+        d.detach();
+        beginRemoveRows(QModelIndex(), 0, d->rows.count() - 1);
+        d->rows.clear();
+        endRemoveRows();
+    }
 }
 
 //void SqlModel::append(Table *table)
@@ -120,10 +153,6 @@ Row<Table> SqlModel::at(const int &i) const
     return d->rows.at(i);
 }
 
-SqlModelPrivate::SqlModelPrivate(SqlModel *parent)
-{
-
-}
-
+SqlModelPrivate::SqlModelPrivate(SqlModel *parent) {}
 
 NUT_END_NAMESPACE

@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
+    tst_tableinheritance \
     tst_basic \
     tst_benckmark  \
     tst_datatypes \
