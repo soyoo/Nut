@@ -10,7 +10,7 @@ Nut has template alias
 
 ```cpp
 #ifdef NUT_SHARED_POINTER
-    template <class T>
+    template <typename T>
     using RowList = QList<QSharedPointer<T>>;
 
     template <typename T>
