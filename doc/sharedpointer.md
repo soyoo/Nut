@@ -1,6 +1,6 @@
 Nut can compile in *shared pointer* mode or *regular* mode
 
-In *shared pointer* mode reqults of queries is QList<QSharedPointer<T>> and in *regular* mode results are QList<T*>
+In *shared pointer* mode results of queries is QList<QSharedPointer<T>> and in *regular* mode results are QList<T*>
 
 Almost in every case shared pointer mode is better, But nut support regular mode for backward comptability. 
 
