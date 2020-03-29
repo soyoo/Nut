@@ -122,7 +122,7 @@ Row<Table> SqlModel::at(const int &i) const
 
 SqlModelPrivate::SqlModelPrivate(SqlModel *parent)
 {
-    Q_UNUSED(parent);
+    Q_UNUSED(parent)
 }
 
 
